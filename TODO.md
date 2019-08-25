@@ -1,0 +1,23 @@
+- edit mode
+  - when not in edit mode, don't render holes
+- change beam part objects
+  - origin
+  - length
+  - direction (a unit vector)
+- make gridbeam-sizes module
+  - https://wiki.opensourceecology.org/wiki/Gridbeam#Versions
+- include gridbeam size in beam part
+- change measurement system (imperial or metric)
+- change current size
+- snap to standard lengths
+  - override with $key
+- include version in url data
+- bug: unlengthen < 0
+
+---
+
+- undo and redo (back button)
+- optimize 3d
+  - rotate in threejs, not csg
+  - pre-cache common sizes of geometry
+  - store with uuids, have separate codec
