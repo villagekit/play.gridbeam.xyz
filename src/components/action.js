@@ -1,6 +1,6 @@
 const React = require('react')
 const { prop } = require('ramda')
-const { Button } = require('rebass')
+const { Button } = require('rebass/styled-components')
 
 const useModelStore = require('../stores/model')
 
@@ -19,6 +19,7 @@ function ActionButton (props) {
         bottom: 0,
         zIndex: 1
       }}
+      bg='primary'
       onClick={handleClick}
     >
       Add Beam

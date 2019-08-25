@@ -1,5 +1,5 @@
 const React = require('react')
-const { Box } = require('rebass')
+const { Box } = require('rebass/styled-components')
 const { prop } = require('ramda')
 
 const useSelectionStore = require('../stores/selection')

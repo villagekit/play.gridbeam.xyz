@@ -1,7 +1,7 @@
 const React = require('react')
 const THREE = require('three')
 const { useThree } = require('react-three-fiber')
-const { Box } = require('rebass')
+const { Box } = require('rebass/styled-components')
 const { prop, forEach } = require('ramda')
 const produce = require('immer').default
 

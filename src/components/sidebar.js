@@ -1,5 +1,5 @@
 const React = require('react')
-const { Box, Flex, Text, Button } = require('rebass')
+const { Box, Flex, Text, Button } = require('rebass/styled-components')
 const Group = require('reakit/Group').default
 const { default: styled } = require('styled-components')
 const { set } = require('lodash')
