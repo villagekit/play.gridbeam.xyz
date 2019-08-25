@@ -62,12 +62,17 @@ const [useModelStore] = create(set => ({
       )
     }
 
-    const { parts } = model
+    if (model.version === '1') {
+      const { parts } = model
 
-    return setParts(parts)
+      return setParts(parts)
+    }
   },
   saveParts: (parts, setHash) => {
-    const model = { parts: values(parts) }
+    const model = {
+      version: '1',
+      parts: values(parts)
+    }
 
     try {
       var modelJson = JSON.stringify(model)
