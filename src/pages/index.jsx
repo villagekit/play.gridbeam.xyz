@@ -6,6 +6,28 @@ import shader from 'shader'
 
 import { withLayout } from '../components/layout'
 import SEO from '../components/seo'
+import Playground from '../components/playground'
+
+var defaultParts = [
+  {
+    type: 'beam',
+    direction: 'x',
+    origin: [0, 0, 0],
+    length: 2
+  },
+  {
+    type: 'beam',
+    direction: 'y',
+    origin: [0, 0, 0],
+    length: 5
+  },
+  {
+    type: 'beam',
+    direction: 'z',
+    origin: [0, 0, 0],
+    length: 10
+  }
+]
 
 function Page () {
   return (
@@ -21,13 +43,9 @@ function Page () {
           'furniture'
         ]}
       />
-      <Playground />
+      <Playground defaultParts={defaultParts} />
     </>
   )
 }
 
 export default withLayout(Page)
-
-function Playground (props) {
-  return 'playground'
-}
