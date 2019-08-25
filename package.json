@@ -1,0 +1,60 @@
+{
+  "name": "playground.gridbe.am",
+  "description": "A landing page for GridBeam",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Michael Williams <michael.williams@enspiral.com>",
+  "dependencies": {
+    "gatsby": "^2.3.24",
+    "gatsby-image": "^2.0.39",
+    "gatsby-plugin-manifest": "^2.0.29",
+    "gatsby-plugin-react-helmet": "^3.0.12",
+    "gatsby-plugin-sharp": "^2.0.35",
+    "gatsby-plugin-styled-components": "^3.0.7",
+    "gatsby-source-filesystem": "^2.0.29",
+    "gatsby-transformer-sharp": "^2.1.18",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-helmet": "^5.2.0",
+    "rebass": "^4.0.2",
+    "shader": "^1.0.0",
+    "styled-components": "^4.3.1",
+    "styled-reset": "^2.0.15",
+    "typeface-bungee": "0.0.72",
+    "typeface-ibm-plex-sans": "0.0.61",
+    "typeface-ibm-plex-serif": "0.0.61",
+    "use-typing-effect": "^1.1.0"
+  },
+  "license": "AGPL-3.0",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "start": "npm run develop",
+    "format": "prettier-standard '*.js' 'src/**/*.js'",
+    "test": "standard"
+  },
+  "devDependencies": {
+    "husky": "^2.4.1",
+    "lint-staged": "^8.2.0",
+    "prettier-standard": "^9.1.1",
+    "standard": "^12.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahdinosaur/playground.gridbe.am"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "linters": {
+      "src/**/*.js": [
+        "prettier-standard",
+        "git add"
+      ]
+    }
+  }
+}
