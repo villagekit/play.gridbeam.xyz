@@ -43,47 +43,52 @@ const [useModelStore] = create(set => ({
   loadParts: (setParts, setLoaded) => {
     setLoaded(true)
 
-    const partsUriComponent = window.location.href.split('#')[1]
-    if (partsUriComponent == null) return
+    const modelUriComponent = window.location.href.split('#')[1]
+    if (modelUriComponent == null) return
 
     try {
-      var partsJson = decompressFromEncodedURIComponent(partsUriComponent)
+      var modelJson = decompressFromEncodedURIComponent(modelUriComponent)
     } catch (err) {
       throw new Error(
-        'gridbeam-editor/stores/parts: could not parse parts from Base64 in Url'
+        'gridbeam-editor/stores/model: could not parse model from Base64 in Url'
       )
     }
 
     try {
-      var parts = JSON.parse(partsJson)
+      var model = JSON.parse(modelJson)
     } catch (err) {
       throw new Error(
-        'gridbeam-editor/stores/parts: could not parse parts from Json in Url'
+        'gridbeam-editor/stores/model: could not parse model from Json in Url'
       )
     }
+
+    const { parts } = model
 
     return setParts(parts)
   },
-  saveParts: parts => {
-    const partsOut = values(parts)
+  saveParts: (parts, setHash) => {
+    const model = { parts: values(parts) }
 
     try {
-      var partsJson = JSON.stringify(partsOut)
+      var modelJson = JSON.stringify(model)
     } catch (err) {
       throw new Error(
-        'gridbeam-editor/stores/parts: could not stringify Json parts'
+        'gridbeam-editor/stores/model: could not stringify Json model'
       )
     }
     try {
-      var partsBase64 = compressToEncodedURIComponent(partsJson)
+      var modelBase64 = compressToEncodedURIComponent(modelJson)
     } catch (err) {
       throw new Error(
-        'gridbeam-editor/stores/parts: could not stringify Base64 parts'
+        'gridbeam-editor/stores/model: could not stringify Base64 model'
       )
     }
 
-    window.location.href =
-      window.location.href.split('#')[0] + '#' + partsBase64
+    const hash = '#' + modelBase64
+
+    if (setHash) setHash(hash)
+
+    window.location.href = window.location.href.split('#')[0] + hash
   }
 }))
 

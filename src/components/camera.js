@@ -21,6 +21,7 @@ function Camera (props) {
     controls.rotateLeft(-Math.PI / 32)
     controls.rotateUp(Math.PI / 64)
     camera.zoom = 2.5
+    camera.updateProjectionMatrix()
     controls.update()
   }, [])
 

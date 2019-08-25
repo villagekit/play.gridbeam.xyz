@@ -38,11 +38,33 @@ function GridBeamPlayground ({ defaultParts }) {
   // const disableSelectionBox = isNotSelecting && selected.length > 0
   // const disableSelectionBox = isHoveredAndSelected
 
+  const [hash, setHash] = React.useState('')
+  React.useEffect(() => {
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+
+    function onHashChange () {
+      console.log('hash change', window.location.hash)
+      if (window.location.hash !== hash) {
+        loadParts(setParts, setLoaded)
+      }
+    }
+  }, [hash])
+
   React.useEffect(() => {
     if (!isLoaded) loadParts(setParts, setLoaded)
     else if (parts == null) setParts(defaultParts)
-    else saveParts(parts)
-  }, [isLoaded, loadParts, setParts, setLoaded, parts, defaultParts, saveParts])
+    else saveParts(parts, setHash)
+  }, [
+    isLoaded,
+    loadParts,
+    setParts,
+    setLoaded,
+    parts,
+    defaultParts,
+    saveParts,
+    setHash
+  ])
 
   if (parts == null) return null
 
