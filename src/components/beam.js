@@ -29,25 +29,25 @@ function Beam (props) {
     unhover,
     isSelected,
     select,
-    move
+    move,
+    material
   } = props
+
+  console.log('material', material)
 
   const enableCameraControl = useCameraStore(state => state.enableControl)
   const disableCameraControl = useCameraStore(state => state.disableControl)
   const enableSelectionBox = useSelectionStore(prop('enable'))
   const disableSelectionBox = useSelectionStore(prop('disable'))
 
-  const mesh = React.useMemo(
-    () => {
-      const beam = {
-        direction: value.direction,
-        length: value.length,
-        origin: [0, 0, 0]
-      }
-      return beamToMesh(beam)
-    },
-    [value.direction, value.length]
-  )
+  const mesh = React.useMemo(() => {
+    const beam = {
+      direction: value.direction,
+      length: value.length,
+      origin: [0, 0, 0]
+    }
+    return beamToMesh(beam)
+  }, [value.direction, value.length])
 
   const position = React.useMemo(
     () => map(multiply(BEAM_WIDTH))(value.origin),
@@ -55,96 +55,82 @@ function Beam (props) {
   )
 
   const [atMoveStart, setAtMoveStart] = React.useState(null)
-  const handleMove = React.useCallback(
-    ev => {
-      ev.stopPropagation()
-      if (ev.buttons <= 0) return
-      if (atMoveStart == null) return
+  const handleMove = React.useCallback(ev => {
+    ev.stopPropagation()
+    if (ev.buttons <= 0) return
+    if (atMoveStart == null) return
 
-      const [pointAtMoveStart, originAtMoveStart] = atMoveStart
-      var intersectionPoint = new THREE.Vector3()
-      var movementVector
+    const [pointAtMoveStart, originAtMoveStart] = atMoveStart
+    var intersectionPoint = new THREE.Vector3()
+    var movementVector
 
-      if (ev.shiftKey) {
-        // TODO is this correct?
-        const verticalPlane = new THREE.Plane(
-          new THREE.Vector3(1, 0, 0),
-          -pointAtMoveStart.x
-        )
-        ev.ray.intersectPlane(verticalPlane, intersectionPoint)
-        movementVector = new THREE.Vector3(
-          0,
-          intersectionPoint.y - pointAtMoveStart.y,
-          0
-        )
-      } else {
-        const horizontalPlane = new THREE.Plane(
-          new THREE.Vector3(0, 1, 0),
-          -pointAtMoveStart.y
-        )
-        ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
-        movementVector = new THREE.Vector3()
-          .copy(intersectionPoint)
-          .sub(pointAtMoveStart)
-      }
+    if (ev.shiftKey) {
+      // TODO is this correct?
+      const verticalPlane = new THREE.Plane(
+        new THREE.Vector3(1, 0, 0),
+        -pointAtMoveStart.x
+      )
+      ev.ray.intersectPlane(verticalPlane, intersectionPoint)
+      movementVector = new THREE.Vector3(
+        0,
+        intersectionPoint.y - pointAtMoveStart.y,
+        0
+      )
+    } else {
+      const horizontalPlane = new THREE.Plane(
+        new THREE.Vector3(0, 1, 0),
+        -pointAtMoveStart.y
+      )
+      ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
+      movementVector = new THREE.Vector3()
+        .copy(intersectionPoint)
+        .sub(pointAtMoveStart)
+    }
 
-      const beamMovementVector = new THREE.Vector3()
-        .copy(movementVector)
-        .divideScalar(BEAM_WIDTH)
-        .round()
+    const beamMovementVector = new THREE.Vector3()
+      .copy(movementVector)
+      .divideScalar(BEAM_WIDTH)
+      .round()
 
-      const nextOrigin = new THREE.Vector3()
-        .fromArray(originAtMoveStart)
-        .add(beamMovementVector)
+    const nextOrigin = new THREE.Vector3()
+      .fromArray(originAtMoveStart)
+      .add(beamMovementVector)
 
-      const delta = new THREE.Vector3()
-        .copy(nextOrigin)
-        .sub(new THREE.Vector3().fromArray(value.origin))
+    const delta = new THREE.Vector3()
+      .copy(nextOrigin)
+      .sub(new THREE.Vector3().fromArray(value.origin))
 
-      move(delta.toArray())
-    },
-    [uuid, isSelected, value, atMoveStart]
-  )
+    move(delta.toArray())
+  }, [uuid, isSelected, value, atMoveStart])
 
-  const handleHover = React.useCallback(
-    ev => {
-      ev.stopPropagation()
-      // console.log('hover', uuid)
-      hover()
-    },
-    [uuid, hover]
-  )
+  const handleHover = React.useCallback(ev => {
+    ev.stopPropagation()
+    // console.log('hover', uuid)
+    hover()
+  }, [uuid, hover])
 
-  const handleUnhover = React.useCallback(
-    ev => {
-      ev.stopPropagation()
-      // console.log('unhover', uuid)
-      unhover()
-    },
-    [uuid, unhover]
-  )
+  const handleUnhover = React.useCallback(ev => {
+    ev.stopPropagation()
+    // console.log('unhover', uuid)
+    unhover()
+  }, [uuid, unhover])
 
-  const handleClick = React.useCallback(
-    ev => {
-      ev.stopPropagation()
-      // console.log('click x', ev.detail)
-      // if (ev.detail > 1) select()
-    },
-    [uuid, select]
-  )
+  const handleClick = React.useCallback(ev => {
+    ev.stopPropagation()
+    // console.log('click x', ev.detail)
+    // if (ev.detail > 1) select()
+  }, [uuid, select])
 
-  const color = React.useMemo(
-    () => {
-      const value = isSelected ? 'pink' : isHovered ? 'red' : 'green'
-      return new THREE.Color(value)
-    },
-    [isSelected, isHovered]
-  )
+  const color = React.useMemo(() => {
+    const value = isSelected ? 'pink' : isHovered ? 'red' : 'green'
+    return new THREE.Color(value)
+  }, [isSelected, isHovered])
 
   return (
     <mesh
       uuid={uuid}
       position={position}
+      material={material}
       onClick={handleClick}
       onPointerDown={ev => {
         ev.stopPropagation()
@@ -166,7 +152,6 @@ function Beam (props) {
       onPointerOut={handleUnhover}
     >
       <Complex mesh={mesh} attach='geometry' />
-      <meshLambertMaterial attach='material' color={color} />
     </mesh>
   )
 }

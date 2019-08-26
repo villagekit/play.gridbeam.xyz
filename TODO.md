@@ -1,3 +1,8 @@
+- stop using simplical complexes, use three cube
+  - geometry: https://threejs.org/docs/index.html#api/en/geometries/BoxGeometry
+  - texture: https://threejs.org/docs/index.html#api/en/textures/CubeTexture
+
+
 - edit mode
   - when not in edit mode, don't render holes
 - change beam part objects
@@ -11,12 +16,16 @@
 - change current size
 - snap to standard lengths
   - override with $key
-- include version in url data
 - bug: unlengthen < 0
+- help section
+  - describe mouse controls
+  - describe keyboard controls
+- share button
 
 ---
 
 - undo and redo (back button)
+  - do this better, ctrl+z, ctrl+shift+z
 - optimize 3d
   - rotate in threejs, not csg
   - pre-cache common sizes of geometry

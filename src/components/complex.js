@@ -8,16 +8,15 @@ function SimplicialComplexGeometry (props) {
   const { mesh, attach } = props
   const { positions, cells } = mesh
 
-  const ref = useUpdate(
-    geometry => {
-      updatePositions(geometry, positions)
-      updateCells(geometry, cells, positions)
-      geometry.computeFaceNormals()
-      geometry.computeVertexNormals()
-      geometry.computeBoundingSphere()
-    },
-    [mesh]
-  )
+  const ref = useUpdate(geometry => {
+    updatePositions(geometry, positions)
+    updateCells(geometry, cells, positions)
+    geometry.computeBoundingBox()
+    geometry.computeBoundingSphere()
+    geometry.computeFaceNormals()
+    geometry.computeMorphNormals()
+    geometry.computeVertexNormals()
+  }, [mesh])
 
   return <geometry attach={attach} ref={ref} />
 }
