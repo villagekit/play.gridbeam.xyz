@@ -141,6 +141,8 @@ function Beam (props) {
       geometry={geometry}
       position={position}
       material={material}
+      castShadow
+      receiveShadow
       onClick={handleClick}
       onPointerDown={ev => {
         ev.stopPropagation()

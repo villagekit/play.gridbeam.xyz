@@ -1,6 +1,6 @@
 const React = require('react')
 const THREE = require('three')
-const { Canvas, useResource } = require('react-three-fiber')
+const { Canvas, useThree } = require('react-three-fiber')
 const { map, pipe, prop, values } = require('ramda')
 
 const useModelStore = require('../stores/model')
@@ -61,14 +61,60 @@ function Vis (props) {
         selects([])
       }}
     >
-      <ambientLight args={[0xffffff, 0.2]} />
-      <hemisphereLight args={[0xffffff, 0x404040]} />
       <Camera />
       <Selector />
-      <axesHelper args={[1000]} />
-      <gridHelper args={[256 * beamWidth, 256]} />
+      <Background />
 
       {renderParts(parts)}
     </Canvas>
+  )
+}
+
+function Background () {
+  const beamWidth = useSpecStore(getBeamWidth)
+  const floorTiles = 256
+  const floorLength = floorTiles * beamWidth
+
+  const planeGeometry = React.useMemo(() => {
+    var planeGeometry = new THREE.PlaneBufferGeometry(floorLength, floorLength)
+    planeGeometry.rotateX(-Math.PI / 2)
+    return planeGeometry
+  }, [])
+
+  const planeMaterial = React.useMemo(() => {
+    return new THREE.ShadowMaterial({ opacity: 0.2 })
+  }, [])
+
+  const { scene, gl } = useThree()
+  React.useEffect(() => {
+    gl.shadowMap.enabled = true
+  }, [])
+
+  const spotLight = React.useMemo(() => {
+    var light = new THREE.SpotLight(0xffffff, 0)
+    light.position.set(0, 3000, 300)
+    light.castShadow = true
+    light.shadow.camera.far = 100000
+    light.shadow.camera.position.set(0, 0, 10000)
+    return light
+  }, [])
+
+  React.useEffect(() => {
+    scene.add(spotLight)
+  }, [])
+
+  return (
+    <>
+      <ambientLight args={[0xffffff, 0.2]} />
+      <hemisphereLight args={[0xffffff, 0x404040]} />
+      <axesHelper args={[1000]} />
+      <gridHelper args={[floorLength, floorTiles]} />
+      <mesh
+        position={[0, 0, 0]}
+        geometry={planeGeometry}
+        material={planeMaterial}
+        receiveShadow
+      />
+    </>
   )
 }
