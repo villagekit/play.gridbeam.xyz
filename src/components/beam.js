@@ -1,22 +1,17 @@
 const React = require('react')
 const THREE = require('three')
-const csg = require('@jscad/csg')
-const csgToMesh = require('csg-to-mesh')
 const { map, multiply, prop } = require('ramda')
 
-const BEAM_WIDTH = 10
-const CYLINDER_RESOLUTION = 6
-const HOLE_RADIUS = 2
-const GridBeamCsg = require('gridbeam-csg')(csg, {
-  cylinderResolution: CYLINDER_RESOLUTION,
-  beamWidth: BEAM_WIDTH,
-  holeRadius: HOLE_RADIUS
-})
-
 const useCameraStore = require('../stores/camera').default
+const useSpecStore = require('../stores/spec')
 const useSelectionStore = require('../stores/selection')
+const { getBeamWidth } = require('../selectors/spec')
 
-const Complex = require('./complex')
+const rotationByDirection = {
+  x: [0, 0, 0],
+  y: [0, Math.PI / 2, 0],
+  z: [0, 0, Math.PI / 2]
+}
 
 module.exports = Beam
 
@@ -33,26 +28,40 @@ function Beam (props) {
     material
   } = props
 
-  console.log('material', material)
-
   const enableCameraControl = useCameraStore(state => state.enableControl)
   const disableCameraControl = useCameraStore(state => state.disableControl)
   const enableSelectionBox = useSelectionStore(prop('enable'))
   const disableSelectionBox = useSelectionStore(prop('disable'))
+  const beamWidth = useSpecStore(getBeamWidth)
 
-  const mesh = React.useMemo(() => {
-    const beam = {
-      direction: value.direction,
-      length: value.length,
-      origin: [0, 0, 0]
-    }
-    return beamToMesh(beam)
-  }, [value.direction, value.length])
+  const { direction, length, origin } = value
 
-  const position = React.useMemo(
-    () => map(multiply(BEAM_WIDTH))(value.origin),
-    [value.origin]
-  )
+  const geometry = React.useMemo(() => {
+    const boxSize = [beamWidth * length, beamWidth, beamWidth]
+    var boxGeometry = new THREE.BoxBufferGeometry(...boxSize, length)
+
+    // rotate
+    const rotation = rotationByDirection[direction]
+    boxGeometry.rotateX(rotation[0])
+    boxGeometry.rotateY(rotation[1])
+    boxGeometry.rotateZ(rotation[2])
+
+    // translate so at (0, 0) facing positive values
+    boxGeometry.computeBoundingBox()
+    const { boundingBox } = boxGeometry
+    boxGeometry.translate(
+      -boundingBox.min.x,
+      -boundingBox.min.y,
+      -boundingBox.min.z
+    )
+
+    return boxGeometry
+  }, [beamWidth, length, direction])
+
+  const position = React.useMemo(() => map(multiply(beamWidth))(origin), [
+    beamWidth,
+    origin
+  ])
 
   const [atMoveStart, setAtMoveStart] = React.useState(null)
   const handleMove = React.useCallback(ev => {
@@ -89,7 +98,7 @@ function Beam (props) {
 
     const beamMovementVector = new THREE.Vector3()
       .copy(movementVector)
-      .divideScalar(BEAM_WIDTH)
+      .divideScalar(beamWidth)
       .round()
 
     const nextOrigin = new THREE.Vector3()
@@ -101,7 +110,7 @@ function Beam (props) {
       .sub(new THREE.Vector3().fromArray(value.origin))
 
     move(delta.toArray())
-  }, [uuid, isSelected, value, atMoveStart])
+  }, [uuid, isSelected, value, atMoveStart, beamWidth])
 
   const handleHover = React.useCallback(ev => {
     ev.stopPropagation()
@@ -129,6 +138,7 @@ function Beam (props) {
   return (
     <mesh
       uuid={uuid}
+      geometry={geometry}
       position={position}
       material={material}
       onClick={handleClick}
@@ -150,13 +160,6 @@ function Beam (props) {
       onPointerMove={handleMove}
       onPointerOver={handleHover}
       onPointerOut={handleUnhover}
-    >
-      <Complex mesh={mesh} attach='geometry' />
-    </mesh>
+    />
   )
-}
-
-function beamToMesh (beam) {
-  const csg = GridBeamCsg.Beam(beam, { renderHoles: false })
-  return csgToMesh(csg)
 }

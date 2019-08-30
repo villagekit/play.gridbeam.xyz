@@ -1,28 +1,36 @@
 const React = require('react')
 const THREE = require('three')
 const { Canvas, useResource } = require('react-three-fiber')
-const { DEFAULT_BEAM_WIDTH } = require('gridbeam-csg')
 const { map, pipe, prop, values } = require('ramda')
 
 const useModelStore = require('../stores/model')
+const useSpecStore = require('../stores/spec')
 const { selectParts } = require('../selectors/parts')
+const { getBeamWidth } = require('../selectors/spec')
 
 const Beam = require('./beam')
 const Camera = require('./camera')
 const Selector = require('./selection-gl')
+
+const texturesByMaterial = {
+  wood: require('../textures/pine.jpg')
+}
 
 module.exports = Vis
 
 function Vis (props) {
   const parts = useModelStore(selectParts)
   const selects = useModelStore(prop('selects'))
+  const spec = useSpecStore(prop('currentSpec'))
+  const beamWidth = useSpecStore(getBeamWidth)
 
-  const beamTexturePath = require('../textures/pine.jpg')
+  const beamTexturePath = React.useMemo(() => {
+    return texturesByMaterial[spec.beamMaterial]
+  }, [spec.beamMaterial])
   const beamTexture = React.useMemo(() => {
     var texture = new THREE.TextureLoader().load(beamTexturePath)
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(4, 4)
     return texture
   }, [beamTexturePath])
   const beamMaterial = React.useMemo(
@@ -58,7 +66,7 @@ function Vis (props) {
       <Camera />
       <Selector />
       <axesHelper args={[1000]} />
-      <gridHelper args={[1000, 1000 / DEFAULT_BEAM_WIDTH]} />
+      <gridHelper args={[256 * beamWidth, 256]} />
 
       {renderParts(parts)}
     </Canvas>

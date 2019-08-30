@@ -1,9 +1,6 @@
 const React = require('react')
-const { DEFAULT_BEAM_WIDTH } = require('gridbeam-csg')
 const { complement, prop } = require('ramda')
 const { default: styled } = require('styled-components')
-
-console.log('DEFAULT_BEAM_WIDTH', DEFAULT_BEAM_WIDTH)
 
 const useModelStore = require('../stores/model')
 const useSelectionStore = require('../stores/selection')
@@ -23,39 +20,34 @@ function GridBeamPlayground ({ defaultParts }) {
   const setLoaded = useModelStore(prop('setLoaded'))
   const loadParts = useModelStore(prop('loadParts'))
   const saveParts = useModelStore(prop('saveParts'))
-
-  const hoveredUuids = Object.keys(useModelStore(prop('hoveredUuids')))
-  const selectedUuids = Object.keys(useModelStore(prop('selectedUuids')))
-  const isHoveredAndSelected =
-    hoveredUuids.length > 0 &&
-    hoveredUuids.reduce((sofar, hoveredUuid) => {
-      return sofar && selectedUuids.includes(hoveredUuid)
-    }, true)
-  const selected = useModelStore(state => {
-    return Object.keys(state.selectedUuids).map(uuid => parts[uuid])
-  })
-  const isNotSelecting = useSelectionStore(complement(prop('isSelecting')))
-  // const disableSelectionBox = isNotSelecting && selected.length > 0
-  // const disableSelectionBox = isHoveredAndSelected
+  const completeSave = useModelStore(prop('completeSave'))
 
   const [hash, setHash] = React.useState('')
+  React.useEffect(() => {}, [hash])
+
+  const [numSaving, setNumSaving] = React.useState(0)
+  const isSaving = numSaving > 0
+
   React.useEffect(() => {
-    window.addEventListener('hashchange', onHashChange)
+    if (isSaving) return
+    if (!isLoaded) loadParts(setParts, setLoaded)
+    else if (parts == null) setParts(defaultParts)
+    else saveParts(parts, setHash)
+
     return () => window.removeEventListener('hashchange', onHashChange)
 
     function onHashChange () {
+      if (isSaving) {
+        setNumSaving(value => value - 1)
+        return
+      }
       console.log('hash change', window.location.hash)
       if (window.location.hash !== hash) {
         loadParts(setParts, setLoaded)
       }
     }
-  }, [hash])
-
-  React.useEffect(() => {
-    if (!isLoaded) loadParts(setParts, setLoaded)
-    else if (parts == null) setParts(defaultParts)
-    else saveParts(parts, setHash)
   }, [
+    isSaving,
     isLoaded,
     loadParts,
     setParts,
@@ -63,7 +55,8 @@ function GridBeamPlayground ({ defaultParts }) {
     parts,
     defaultParts,
     saveParts,
-    setHash
+    setHash,
+    hash
   ])
 
   if (parts == null) return null
