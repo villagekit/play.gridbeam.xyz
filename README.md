@@ -1,4 +1,4 @@
-# playground.gridbe.am
+# play.gridbeam.xyz
 
 a virtual playground for [GridBeam](http://gridbeam.com)
 
