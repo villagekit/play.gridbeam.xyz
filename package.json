@@ -1,5 +1,5 @@
 {
-  "name": "playground.gridbe.am",
+  "name": "play.gridbeam.xyz",
   "description": "A landing page for GridBeam",
   "version": "1.0.0",
   "private": true,
@@ -52,7 +52,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ahdinosaur/playground.gridbe.am"
+    "url": "https://github.com/ahdinosaur/play.gridbeam.xyz"
   },
   "husky": {
     "hooks": {

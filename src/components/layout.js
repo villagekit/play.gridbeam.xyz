@@ -56,14 +56,14 @@ function Footer () {
       <Link
         p={1}
         target='_window'
-        href='https://github.com/ahdinosaur/playground.gridbe.am'
+        href='https://github.com/ahdinosaur/play.gridbeam.xyz'
         color='primary'
         sx={{
           textDecoration: 'none',
           ':hover': { textDecoration: 'underline' }
         }}
       >
-        playground.gridbe.am
+        play.gridbeam.xyz
       </Link>
       made with
       <span role='img' aria-label='heart' css={{ padding: '0.25rem' }}>
