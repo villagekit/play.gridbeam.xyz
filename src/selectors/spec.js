@@ -16,3 +16,11 @@ export const getBeamWidth = createSelector(
       ? spec.beamWidth * INCH_TO_MM
       : spec.beamWidth
 )
+
+export const getHoleDiameter = createSelector(
+  [getCurrentSpec, getSystemOfMeasurement],
+  (spec, systemOfMeasurement) =>
+    systemOfMeasurement === 'imperial'
+      ? spec.holeDiameter * INCH_TO_MM
+      : spec.holeDiameter
+)

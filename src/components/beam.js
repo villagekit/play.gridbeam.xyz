@@ -1,16 +1,17 @@
 const React = require('react')
 const THREE = require('three')
-const { map, multiply, prop } = require('ramda')
+const { map, multiply, prop, range } = require('ramda')
+const { useResource } = require('react-three-fiber')
 
 const useCameraStore = require('../stores/camera').default
 const useSpecStore = require('../stores/spec')
 const useSelectionStore = require('../stores/selection')
-const { getBeamWidth } = require('../selectors/spec')
+const { getBeamWidth, getHoleDiameter } = require('../selectors/spec')
 
 const rotationByDirection = {
-  x: [0, 0, 0],
-  y: [0, Math.PI / 2, 0],
-  z: [0, 0, Math.PI / 2]
+  x: { inclination: 0, azimuth: 0 },
+  y: { inclination: Math.PI / 2, azimuth: 0 },
+  z: { inclination: 0, azimuth: -Math.PI / 2 }
 }
 
 module.exports = Beam
@@ -25,7 +26,7 @@ function Beam (props) {
     isSelected,
     select,
     move,
-    material
+    texture
   } = props
 
   const enableCameraControl = useCameraStore(state => state.enableControl)
@@ -33,35 +34,50 @@ function Beam (props) {
   const enableSelectionBox = useSelectionStore(prop('enable'))
   const disableSelectionBox = useSelectionStore(prop('disable'))
   const beamWidth = useSpecStore(getBeamWidth)
+  const holeDiameter = useSpecStore(getHoleDiameter)
 
   const { direction, length, origin } = value
 
+  const rotation =
+    typeof direction === 'string' ? rotationByDirection[direction] : direction
+
+  console.log('rotation', uuid, rotation)
+
   const geometry = React.useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
-    var boxGeometry = new THREE.BoxBufferGeometry(...boxSize, length)
+    var boxGeometry = new THREE.BoxGeometry(...boxSize, length)
 
-    // rotate
-    const rotation = rotationByDirection[direction]
-    boxGeometry.rotateX(rotation[0])
-    boxGeometry.rotateY(rotation[1])
-    boxGeometry.rotateZ(rotation[2])
-
-    // translate so at (0, 0) facing positive values
-    boxGeometry.computeBoundingBox()
-    const { boundingBox } = boxGeometry
-    boxGeometry.translate(
-      -boundingBox.min.x,
-      -boundingBox.min.y,
-      -boundingBox.min.z
-    )
+    // translate beam so first hole is at (0, 0).
+    // this way, the first hole is preserved across rotations.
+    boxGeometry.translate((beamWidth * (length - 1)) / 2, 0, 0)
 
     return boxGeometry
-  }, [beamWidth, length, direction])
+  }, [beamWidth, length])
 
-  const position = React.useMemo(() => map(multiply(beamWidth))(origin), [
-    beamWidth,
-    origin
-  ])
+  const position = React.useMemo(() => {
+    const originPosition = map(multiply(beamWidth))(origin)
+    return [
+      originPosition[0] + beamWidth / 2,
+      originPosition[1] + beamWidth / 2,
+      originPosition[2] + beamWidth / 2
+    ]
+  }, [beamWidth, origin, rotation])
+  /*
+  const position = React.useMemo(() => {
+    const originPosition = map(multiply(beamWidth))(origin)
+    return [
+      originPosition[0] +
+        (beamWidth / 2) *
+          Math.sin(rotation.inclination) *
+          Math.cos(rotation.azimuth),
+      originPosition[1] +
+        (beamWidth / 2) *
+          Math.sin(rotation.inclination) *
+          Math.sin(rotation.azimuth),
+      originPosition[2] + (beamWidth / 2) * Math.cos(rotation.azimuth)
+    ]
+  }, [beamWidth, origin, rotation])
+  */
 
   const [atMoveStart, setAtMoveStart] = React.useState(null)
   const handleMove = React.useCallback(ev => {
@@ -82,13 +98,13 @@ function Beam (props) {
       ev.ray.intersectPlane(verticalPlane, intersectionPoint)
       movementVector = new THREE.Vector3(
         0,
-        intersectionPoint.y - pointAtMoveStart.y,
-        0
+        0,
+        intersectionPoint.z - pointAtMoveStart.z
       )
     } else {
       const horizontalPlane = new THREE.Plane(
-        new THREE.Vector3(0, 1, 0),
-        -pointAtMoveStart.y
+        new THREE.Vector3(0, 0, 1),
+        -pointAtMoveStart.z
       )
       ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
       movementVector = new THREE.Vector3()
@@ -131,18 +147,24 @@ function Beam (props) {
   }, [uuid, select])
 
   const color = React.useMemo(() => {
-    const value = isSelected ? 'pink' : isHovered ? 'red' : 'green'
+    const value = isSelected ? 'cyan' : isHovered ? 'magenta' : 'white'
     return new THREE.Color(value)
   }, [isSelected, isHovered])
 
+  const material = React.useMemo(
+    () =>
+      new THREE.MeshLambertMaterial({
+        color,
+        map: texture
+      }),
+    [texture, color]
+  )
+
   return (
-    <mesh
+    <group
       uuid={uuid}
-      geometry={geometry}
       position={position}
-      material={material}
-      castShadow
-      receiveShadow
+      rotation={[0, rotation.azimuth, rotation.inclination]}
       onClick={handleClick}
       onPointerDown={ev => {
         ev.stopPropagation()
@@ -162,6 +184,36 @@ function Beam (props) {
       onPointerMove={handleMove}
       onPointerOver={handleHover}
       onPointerOut={handleUnhover}
-    />
+    >
+      <mesh geometry={geometry} material={material} castShadow receiveShadow />
+      <Holes
+        numHoles={value.length}
+        beamWidth={beamWidth}
+        holeDiameter={holeDiameter}
+      />
+    </group>
+  )
+}
+
+const HOLE_SEGMENTS = 8
+
+function Holes (props) {
+  const { numHoles, beamWidth, holeDiameter } = props
+  const holeRadius = holeDiameter / 2
+
+  const [materialRef, material] = useResource()
+
+  return (
+    <group>
+      <meshBasicMaterial ref={materialRef} color='black' />
+      {range(0, numHoles).map(index => (
+        <mesh key={index} material={material}>
+          <circleGeometry
+            attach='geometry'
+            args={[holeRadius, HOLE_SEGMENTS]}
+          />
+        </mesh>
+      ))}
+    </group>
   )
 }

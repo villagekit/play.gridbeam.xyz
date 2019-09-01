@@ -1,10 +1,12 @@
-- stop using simplical complexes, use three cube
-  - geometry: https://threejs.org/docs/index.html#api/en/geometries/BoxGeometry
-  - texture: https://threejs.org/docs/index.html#api/en/textures/CubeTexture
+- render holes (to material, not geometry)
+  - shaderMaterial
+  - OR emissiveMap
+
+---
 
 
+- bug: fix box selection
 - edit mode
-  - when not in edit mode, don't render holes
 - change beam part objects
   - origin
   - length

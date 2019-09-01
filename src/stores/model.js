@@ -74,6 +74,8 @@ const [useModelStore] = create(set => ({
       parts: values(parts)
     }
 
+    console.log('saving', model)
+
     try {
       var modelJson = JSON.stringify(model)
     } catch (err) {

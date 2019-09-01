@@ -1,4 +1,5 @@
 import React from 'react'
+import { Object3D, Vector3 } from 'three'
 import { Box, Flex, Text, Link, Image, Button } from 'rebass/styled-components'
 import { StaticQuery, graphql } from 'gatsby'
 import Img from 'gatsby-image'
@@ -8,18 +9,46 @@ import { withLayout } from '../components/layout'
 import SEO from '../components/seo'
 import Playground from '../components/playground'
 
+Object3D.DefaultUp = new Vector3(0, 0, 1)
+
+/*
+
+http://localhost:8000/#N4IgbgpgTgzglgewHYgFwgIwgDQgA4CGUALjGgNqjECeeEaIARhAQLY4gAmcUEAxsUQp0ADw4IocAOZxh5AAzYMSgLq4ANhCRTiACzQAWAL7YqteumZsO3XgKEMxuCdNkVFyg2pCbtewyZmdAxW7Li2-ILIDNTikjJyyory3r46+qgArIEgNMGWLGFcPJEO6ABeca5yydgpGlrpaBjyRipGQA
+
+*/
+
 var defaultParts = [
   {
     type: 'beam',
     direction: 'x',
-    origin: [0, 0, 0],
+    origin: [0, 1, 1],
     length: 2
   },
   {
     type: 'beam',
+    direction: {
+      inclination: -Math.PI / 4,
+      azimuth: 0
+    },
+    origin: [0, 1, 8],
+    length: 4
+  },
+
+  {
+    type: 'beam',
+    direction: {
+      inclination: 0,
+      azimuth: Math.PI / 4
+    },
+    origin: [1, 1, 4],
+    length: 16
+  },
+
+  {
+    type: 'beam',
     direction: 'y',
-    origin: [0, 0, 0],
-    length: 5
+    origin: [1, 0, 2],
+    length: 8
   },
   {
     type: 'beam',

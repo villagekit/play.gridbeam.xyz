@@ -16,8 +16,8 @@ function Camera (props) {
 
   React.useEffect(() => {
     const controls = controlsRef.current
-    camera.far = 100000
-    camera.position.set(0, 0, 10000)
+    camera.far = 10000
+    camera.position.set(5000, 0, 0)
     controls.rotateLeft(-Math.PI / 32)
     controls.rotateUp(Math.PI / 64)
     camera.zoom = 1
