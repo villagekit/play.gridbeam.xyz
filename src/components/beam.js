@@ -202,17 +202,47 @@ function Holes (props) {
   const holeRadius = holeDiameter / 2
 
   const [materialRef, material] = useResource()
+  const [geometryRef, geometry] = useResource()
 
   return (
     <group>
       <meshBasicMaterial ref={materialRef} color='black' />
+      <circleGeometry ref={geometryRef} args={[holeRadius, HOLE_SEGMENTS]} />
       {range(0, numHoles).map(index => (
-        <mesh key={index} material={material}>
-          <circleGeometry
-            attach='geometry'
-            args={[holeRadius, HOLE_SEGMENTS]}
+        <>
+          // top
+          <mesh
+            key={`hole-${index}-top`}
+            material={material}
+            geometry={geometry}
+            rotation={[0, 0, 0]}
+            position={[index * beamWidth, 0, 0.01 + (1 / 2) * beamWidth]}
           />
-        </mesh>
+          // bottom
+          <mesh
+            key={`hole-${index}-bottom`}
+            material={material}
+            geometry={geometry}
+            rotation={[Math.PI, 0, 0]}
+            position={[index * beamWidth, 0, -0.01 - (1 / 2) * beamWidth]}
+          />
+          // left
+          <mesh
+            key={`hole-${index}-left`}
+            material={material}
+            geometry={geometry}
+            rotation={[(3 / 2) * Math.PI, 0, 0]}
+            position={[index * beamWidth, 0.01 + (1 / 2) * beamWidth, 0]}
+          />
+          // right
+          <mesh
+            key={`hole-${index}-right`}
+            material={material}
+            geometry={geometry}
+            rotation={[(1 / 2) * Math.PI, 0, 0]}
+            position={[index * beamWidth, -0.01 - (1 / 2) * beamWidth, 0]}
+          />
+        </>
       ))}
     </group>
   )
