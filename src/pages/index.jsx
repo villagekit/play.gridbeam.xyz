@@ -22,33 +22,13 @@ var defaultParts = [
     type: 'beam',
     direction: 'x',
     origin: [0, 1, 1],
-    length: 2
-  },
-  {
-    type: 'beam',
-    direction: {
-      inclination: -Math.PI / 4,
-      azimuth: 0
-    },
-    origin: [0, 1, 8],
     length: 4
   },
-
-  {
-    type: 'beam',
-    direction: {
-      inclination: 0,
-      azimuth: Math.PI / 4
-    },
-    origin: [1, 1, 4],
-    length: 16
-  },
-
   {
     type: 'beam',
     direction: 'y',
     origin: [1, 0, 2],
-    length: 8
+    length: 6
   },
   {
     type: 'beam',
