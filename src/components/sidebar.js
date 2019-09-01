@@ -4,13 +4,27 @@ const Group = require('reakit/Group').default
 const { default: styled } = require('styled-components')
 const { set } = require('lodash')
 const { mapObjIndexed, keys, pick, pipe, prop, values } = require('ramda')
+const { useDebounce } = require('react-debounce-hook')
 
 const useCameraStore = require('../stores/camera').default
 const useModelStore = require('../stores/model')
 
+const WIDGETS = [
+  {
+    id: 'parts',
+    label: 'Parts',
+    Content: Parts
+  },
+  {
+    id: 'help',
+    label: 'Help',
+    Content: Help
+  }
+]
+
 module.exports = Sidebar
 
-function Sidebar (props) {
+function Parts (props) {
   const parts = useModelStore(prop('parts'))
   const selectedUuids = useModelStore(prop('selectedUuids'))
   const update = useModelStore(prop('update'))
@@ -20,48 +34,44 @@ function Sidebar (props) {
     selectedUuids
   ])
 
-  const [isOpen, setIsOpen] = React.useState(false)
-  const handleOpen = React.useCallback(() => setIsOpen(true))
-  const handleClose = React.useCallback(() => setIsOpen(false))
-
   const renderPart = React.useMemo(() => {
     const renderBeam = (selected, uuid) => (
       <ControlSection key={uuid} title='beam'>
         <SelectControl
-          update={next => update(uuid, next)}
           name='direction'
           label='direction'
           options={['x', 'y', 'z']}
-          defaultValue={selected.direction}
+          value={selected.direction}
+          update={next => update(uuid, next)}
         />
         <InputControl
-          update={next => update(uuid, next)}
-          min={1}
+          type='number'
           name='length'
           label='length'
-          defaultValue={selected.length}
-          type='number'
+          value={selected.length}
+          min={1}
+          update={next => update(uuid, next)}
         />
         <InputControl
-          update={next => update(uuid, next)}
+          type='number'
           name='origin[0]'
           label='origin.x'
-          defaultValue={selected.origin[0]}
-          type='number'
+          value={selected.origin[0]}
+          update={next => update(uuid, next)}
         />
         <InputControl
-          update={next => update(uuid, next)}
+          type='number'
           name='origin[1]'
           label='origin.y'
-          defaultValue={selected.origin[1]}
-          type='number'
+          value={selected.origin[1]}
+          update={next => update(uuid, next)}
         />
         <InputControl
-          update={next => update(uuid, next)}
+          type='number'
           name='origin[2]'
           label='origin.z'
-          defaultValue={selected.origin[2]}
-          type='number'
+          value={selected.origin[2]}
+          update={next => update(uuid, next)}
         />
       </ControlSection>
     )
@@ -83,12 +93,41 @@ function Sidebar (props) {
     )
   )
 
-  if (!isOpen) return <OpenButton handleOpen={handleOpen} />
+  return <>{renderSelectedParts(selectedParts)}</>
+}
+
+function Sidebar (props) {
+  const [currentWidgetId, setCurrentWidgetId] = React.useState(null)
+  const handleClose = React.useCallback(() => setCurrentWidgetId(null), [])
+  const currentWidget = React.useMemo(
+    () => WIDGETS.find(widget => widget.id === currentWidgetId),
+    [WIDGETS, currentWidgetId]
+  )
+  const isOpen = React.useMemo(() => currentWidget != null, [currentWidget])
+
+  if (!isOpen) {
+    return (
+      <OpenersContainer>
+        {WIDGETS.map(widget => {
+          const { id, label } = widget
+          return (
+            <OpenerButton
+              key={id}
+              label={label}
+              handleOpen={() => setCurrentWidgetId(id)}
+            />
+          )
+        })}
+      </OpenersContainer>
+    )
+  }
+
+  const { Content } = currentWidget
 
   return (
     <SidebarContainer>
+      <Content />
       <CloseButton handleClose={handleClose} />
-      {renderSelectedParts(selectedParts)}
     </SidebarContainer>
   )
 }
@@ -109,7 +148,7 @@ const SidebarContainer = props => {
       flexDirection='column'
       css={{
         width: '40em',
-        userSelect: 'text',
+        userSelect: 'text'
       }}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
@@ -130,35 +169,67 @@ const ControlSection = props => {
 }
 
 const InputControl = props => {
-  const { name, label, update, ...inputProps } = props
+  const { name, label, value, update, ...inputProps } = props
 
-  const handleChange = React.useCallback(ev => {
+  const [nextValue, setValue] = React.useState(value)
+
+  React.useEffect(() => {
+    setValue(value)
+  }, [value])
+
+  const handleUpdate = React.useCallback(value => {
     update(object => {
-      set(object, name, Number(ev.target.value))
+      set(object, name, Number(value))
     })
   }, [])
+  const handleChange = React.useCallback(ev => {
+    setValue(ev.target.value)
+  }, [])
+
+  useDebounce(nextValue, handleUpdate)
 
   return (
     <ControlContainer>
       <label name={name}>{label}</label>
-      <input name={name} onBlur={handleChange} {...inputProps} />
+      <input
+        name={name}
+        value={nextValue}
+        onChange={handleChange}
+        {...inputProps}
+      />
     </ControlContainer>
   )
 }
 
 const SelectControl = props => {
-  const { name, label, options, update, ...selectProps } = props
+  const { name, label, value, options, update, ...selectProps } = props
 
-  const handleChange = React.useCallback(ev => {
+  const [nextValue, setValue] = React.useState(value)
+
+  React.useEffect(() => {
+    setValue(value)
+  }, [value])
+
+  const handleUpdate = React.useCallback(value => {
     update(object => {
-      set(object, name, ev.target.value)
+      set(object, name, value)
     })
   }, [])
+  const handleChange = React.useCallback(ev => {
+    setValue(ev.target.value)
+  }, [])
+
+  useDebounce(nextValue, handleUpdate)
 
   return (
     <ControlContainer>
       <label name={name}>{label}</label>
-      <select name={name} onBlur={handleChange} {...selectProps}>
+      <select
+        name={name}
+        value={nextValue}
+        onChange={handleChange}
+        {...selectProps}
+      >
         {options.map(option => (
           <option key={option} value={option}>
             {option}
@@ -171,29 +242,49 @@ const SelectControl = props => {
 
 const ControlContainer = props => <Box {...props} />
 
-const OpenButton = props => {
-  const { handleOpen } = props
+const CloseButton = props => {
+  const { handleClose } = props
   return (
     <Button
-      onClick={handleOpen}
+      onClick={handleClose}
       bg='darkcyan'
+      m={1}
       css={{
         position: 'absolute',
-        left: 0,
-        top: 0,
+        right: 0,
+        bottom: 0,
         zIndex: 1
       }}
     >
-      Open
+      Close
     </Button>
   )
 }
 
-const CloseButton = props => {
-  const { handleClose } = props
+const OpenerButton = props => {
+  const { label, handleOpen } = props
   return (
-    <Button onClick={handleClose} bg='darkcyan'>
-      Close
+    <Button
+      onClick={handleOpen}
+      bg='darkcyan'
+      m={1}
+      css={{
+        zIndex: 1
+      }}
+    >
+      {label}
     </Button>
   )
+}
+
+const OpenersContainer = props => (
+  <Flex
+    flexDirection='column'
+    css={{ position: 'absolute', right: 0, bottom: 0 }}
+    {...props}
+  />
+)
+
+function Help (props) {
+  return 'help!'
 }

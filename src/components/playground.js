@@ -63,10 +63,10 @@ function GridBeamPlayground ({ defaultParts }) {
 
   return (
     <Container>
+      <Vis />
       <Sidebar />
       <ActionButton />
       <SelectionBox />
-      <Vis />
       <Keyboard />
     </Container>
   )
