@@ -1,5 +1,5 @@
 const React = require('react')
-const { Flex, Text } = require('rebass/styled-components')
+const { Box, Flex, Text } = require('rebass/styled-components')
 
 module.exports = Help
 
@@ -8,6 +8,10 @@ function Help (props) {
     <Flex m={2} p={3} flexDirection='column'>
       <Text m={2} fontSize={2} fontFamily='heading'>
         Welcome to the GridBeam Playground!
+      </Text>
+      <Text m={2} fontFamily='body'>
+        At the moment works best with a mouse and keyboard. Touchscreens are not
+        yet supported.
       </Text>
       <Text m={2} fontFamily='body'>
         Left click and drag to orbit the camera. Right click and drag to pan the
@@ -21,7 +25,7 @@ function Help (props) {
         Click and drag on a beam (or on your selected beams) to move them around
         horizontally. Press shift to move them around vertically.
       </Text>
-      <Text
+      <Box
         as='dl'
         m={3}
         fontSize={-1}
@@ -66,13 +70,14 @@ function Help (props) {
         <dd>lengthen</dd>
         <dt>T</dt>
         <dd>unlengthen</dd>
-      </Text>
+      </Box>
       <Text m={2} fontFamily='body'>
         If you enjoyed this, please send &nbsp;
-        <a href='https://dinosaur.is'>Mikey</a>&nbsp; a message!
+        <a href='https://dinosaur.is' target='_window'>
+          Mikey
+        </a>
+        &nbsp; a message!
       </Text>
     </Flex>
   )
-
-  return 'help!'
 }

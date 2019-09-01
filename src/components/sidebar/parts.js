@@ -78,8 +78,10 @@ function Parts (props) {
     )
   )
 
-  return <>{renderSelectedParts(selectedParts)}</>
+  return <PartsContainer>{renderSelectedParts(selectedParts)}</PartsContainer>
 }
+
+const PartsContainer = props => <Flex flexDirection='column' {...props} />
 
 const ControlSection = props => {
   const { title, children } = props

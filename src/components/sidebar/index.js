@@ -1,5 +1,5 @@
 const React = require('react')
-const { Flex, Button } = require('rebass/styled-components')
+const { Box, Flex, Button } = require('rebass/styled-components')
 
 const useCameraStore = require('../../stores/camera').default
 
@@ -53,7 +53,9 @@ function Sidebar (props) {
 
   return (
     <SidebarContainer>
-      <Content />
+      <ContentWrapper>
+        <Content />
+      </ContentWrapper>
       <CloseButton handleClose={handleClose} />
     </SidebarContainer>
   )
@@ -75,7 +77,8 @@ const SidebarContainer = props => {
       flexDirection='column'
       css={{
         width: '40em',
-        userSelect: 'text'
+        userSelect: 'text',
+        zIndex: 1
       }}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
@@ -84,19 +87,26 @@ const SidebarContainer = props => {
   )
 }
 
+const ContentWrapper = props => (
+  <Box
+    flex='1'
+    css={{
+      overflow: 'auto'
+    }}
+    {...props}
+  />
+)
+
 const CloseButton = props => {
   const { handleClose } = props
   return (
     <Button
       onClick={handleClose}
-      bg='darkcyan'
       m={1}
-      css={{
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-        zIndex: 1
-      }}
+      height={'2rem'}
+      bg='darkcyan'
+      flex='0 1 auto'
+      css={{ zIndex: 1 }}
     >
       Close
     </Button>
@@ -106,14 +116,7 @@ const CloseButton = props => {
 const OpenerButton = props => {
   const { label, handleOpen } = props
   return (
-    <Button
-      onClick={handleOpen}
-      bg='darkcyan'
-      m={1}
-      css={{
-        zIndex: 1
-      }}
-    >
+    <Button onClick={handleOpen} bg='darkcyan' m={1}>
       {label}
     </Button>
   )
@@ -122,7 +125,7 @@ const OpenerButton = props => {
 const OpenersContainer = props => (
   <Flex
     flexDirection='column'
-    css={{ position: 'absolute', right: 0, bottom: 0 }}
+    css={{ position: 'absolute', right: 0, bottom: 0, zIndex: 1 }}
     {...props}
   />
 )
