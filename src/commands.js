@@ -35,10 +35,10 @@ module.exports = useCommands
 const commands = {
   moveForward: ['updateSelected', part => part.origin[0]++],
   moveBackward: ['updateSelected', part => part.origin[0]--],
-  moveUp: ['updateSelected', part => part.origin[1]++],
-  moveDown: ['updateSelected', part => part.origin[1]--],
-  moveRight: ['updateSelected', part => part.origin[2]++],
-  moveLeft: ['updateSelected', part => part.origin[2]--],
+  moveRight: ['updateSelected', part => part.origin[1]++],
+  moveLeft: ['updateSelected', part => part.origin[1]--],
+  moveUp: ['updateSelected', part => part.origin[2]++],
+  moveDown: ['updateSelected', part => part.origin[2]--],
   rotateNext: rotateUpdater(index => ++index),
   rotatePrev: rotateUpdater(index => --index),
   createBeam: [
