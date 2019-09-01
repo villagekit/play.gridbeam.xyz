@@ -52,7 +52,19 @@ function Main (props) {
 
 function Footer () {
   return (
-    <Box as='footer' p={3} fontSize={1} fontFamily='body' textAlign='center'>
+    <Box
+      as='footer'
+      p={3}
+      fontSize={1}
+      fontFamily='body'
+      textAlign='center'
+      sx={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0
+      }}
+    >
       <Link
         p={1}
         target='_window'
