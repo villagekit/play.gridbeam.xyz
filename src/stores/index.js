@@ -40,7 +40,7 @@ function log (config) {
     function nextSet (args) {
       // console.log('  applying', args)
       set(args)
-      // console.log('  new state', get())
+      console.log('  new state', get())
     }
   }
 }

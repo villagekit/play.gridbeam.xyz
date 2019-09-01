@@ -33,42 +33,33 @@ function SelectionBox (props) {
 
   const { scene, camera } = useThree()
   // this optimization works because the camera doesn't move once selecting
-  React.useEffect(
-    () => {
-      if (!isEnabled) return
-      if (!isSelecting) return
-      updateSelectableScreenBounds({ scene, camera })
-    },
-    [isEnabled, isSelecting]
-  )
+  React.useEffect(() => {
+    if (!isEnabled) return
+    if (!isSelecting) return
+    updateSelectableScreenBounds({ scene, camera })
+  }, [isEnabled, isSelecting])
 
-  const selectionScreenBounds = React.useMemo(
-    () => {
-      var box = new THREE.Box2()
-      box.makeEmpty()
-      box.expandByPoint(new THREE.Vector2(startPoint.x, startPoint.y))
-      box.expandByPoint(new THREE.Vector2(endPoint.x, endPoint.y))
-      return box
-    },
-    [startPoint, endPoint]
-  )
+  const selectionScreenBounds = React.useMemo(() => {
+    var box = new THREE.Box2()
+    box.makeEmpty()
+    box.expandByPoint(new THREE.Vector2(startPoint.x, startPoint.y))
+    box.expandByPoint(new THREE.Vector2(endPoint.x, endPoint.y))
+    return box
+  }, [startPoint, endPoint])
 
-  React.useEffect(
-    () => {
-      if (!isEnabled) return
-      if (!isSelecting) return
-      var selections = []
-      Object.entries(selectableScreenBounds).forEach(
-        ([uuid, selectableBox]) => {
-          if (selectionScreenBounds.containsBox(selectableBox)) {
-            selections.push(uuid)
-          }
-        }
-      )
-      selects(selections)
-    },
-    [isEnabled, isSelecting, selectionScreenBounds, selectableScreenBounds]
-  )
+  React.useEffect(() => {
+    if (!isEnabled) return
+    if (!isSelecting) return
+
+    var selections = []
+    Object.entries(selectableScreenBounds).forEach(([uuid, selectableBox]) => {
+      if (selectionScreenBounds.containsBox(selectableBox)) {
+        selections.push(uuid)
+      }
+    })
+    console.log('selects', selections)
+    selects(selections)
+  }, [isEnabled, isSelecting, selectionScreenBounds, selectableScreenBounds])
 
   return null
 }

@@ -5,8 +5,14 @@ const create = require('./').default
 
 const [useSelectionStore] = create(set => ({
   isEnabled: true,
-  enable: () => set(state => { state.isEnabled = true }),
-  disable: () => set(state => { state.isEnabled = false }),
+  enable: () =>
+    set(state => {
+      state.isEnabled = true
+    }),
+  disable: () =>
+    set(state => {
+      state.isEnabled = false
+    }),
   isSelecting: false,
   startSelection: () =>
     set(state => {
@@ -45,7 +51,11 @@ module.exports = useSelectionStore
 function forEachMesh (object, fn) {
   if (object.isMesh) {
     if (object.geometry !== undefined) {
-      fn(object)
+      // TODO better check for whether selectable.
+      // maybe store in userData
+      if (object.geometry.type === 'BoxGeometry') {
+        fn(object)
+      }
     }
   }
 
@@ -59,8 +69,8 @@ function forEachMesh (object, fn) {
 function computeScreenBounds ({ mesh, camera }) {
   var vertices = mesh.geometry.vertices
   var vertex = new THREE.Vector3()
-  var min = new THREE.Vector3(1, 1, 1)
-  var max = new THREE.Vector3(-1, -1, -1)
+  var min = new THREE.Vector2(1, 1)
+  var max = new THREE.Vector2(-1, -1)
 
   for (var i = 0; i < vertices.length; i++) {
     var vertexWorldCoord = vertex
@@ -70,6 +80,8 @@ function computeScreenBounds ({ mesh, camera }) {
     min.min(vertexScreenSpace)
     max.max(vertexScreenSpace)
   }
+
+  console.log('mesh', mesh.uuid, min, max)
 
   return new THREE.Box2(min, max)
 }

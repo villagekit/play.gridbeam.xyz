@@ -41,8 +41,6 @@ function Beam (props) {
   const rotation =
     typeof direction === 'string' ? rotationByDirection[direction] : direction
 
-  console.log('rotation', uuid, rotation)
-
   const geometry = React.useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
     var boxGeometry = new THREE.BoxGeometry(...boxSize, length)
@@ -55,29 +53,12 @@ function Beam (props) {
   }, [beamWidth, length])
 
   const position = React.useMemo(() => {
-    const originPosition = map(multiply(beamWidth))(origin)
     return [
-      originPosition[0] + beamWidth / 2,
-      originPosition[1] + beamWidth / 2,
-      originPosition[2] + beamWidth / 2
+      (1 / 2 + origin[0]) * beamWidth,
+      (1 / 2 + origin[1]) * beamWidth,
+      (1 / 2 + origin[2]) * beamWidth
     ]
-  }, [beamWidth, origin, rotation])
-  /*
-  const position = React.useMemo(() => {
-    const originPosition = map(multiply(beamWidth))(origin)
-    return [
-      originPosition[0] +
-        (beamWidth / 2) *
-          Math.sin(rotation.inclination) *
-          Math.cos(rotation.azimuth),
-      originPosition[1] +
-        (beamWidth / 2) *
-          Math.sin(rotation.inclination) *
-          Math.sin(rotation.azimuth),
-      originPosition[2] + (beamWidth / 2) * Math.cos(rotation.azimuth)
-    ]
-  }, [beamWidth, origin, rotation])
-  */
+  }, [beamWidth, origin])
 
   const [atMoveStart, setAtMoveStart] = React.useState(null)
   const handleMove = React.useCallback(ev => {
@@ -151,18 +132,8 @@ function Beam (props) {
     return new THREE.Color(value)
   }, [isSelected, isHovered])
 
-  const material = React.useMemo(
-    () =>
-      new THREE.MeshLambertMaterial({
-        color,
-        map: texture
-      }),
-    [texture, color]
-  )
-
   return (
     <group
-      uuid={uuid}
       position={position}
       rotation={[0, rotation.azimuth, rotation.inclination]}
       onClick={handleClick}
@@ -185,12 +156,19 @@ function Beam (props) {
       onPointerOver={handleHover}
       onPointerOut={handleUnhover}
     >
-      <mesh geometry={geometry} material={material} castShadow receiveShadow />
+      <mesh uuid={uuid} geometry={geometry} castShadow receiveShadow>
+        <meshLambertMaterial attach='material' color={color}>
+          <primitive object={texture} attach='map' />
+        </meshLambertMaterial>
+      </mesh>
       <Holes
         numHoles={value.length}
         beamWidth={beamWidth}
         holeDiameter={holeDiameter}
       />
+      {isSelected && (
+        <FirstHoleMarker beamWidth={beamWidth} holeDiameter={holeDiameter} />
+      )}
     </group>
   )
 }
@@ -209,10 +187,9 @@ function Holes (props) {
       <meshBasicMaterial ref={materialRef} color='black' />
       <circleGeometry ref={geometryRef} args={[holeRadius, HOLE_SEGMENTS]} />
       {range(0, numHoles).map(index => (
-        <>
+        <React.Fragment key={index}>
           // top
           <mesh
-            key={`hole-${index}-top`}
             material={material}
             geometry={geometry}
             rotation={[0, 0, 0]}
@@ -220,7 +197,6 @@ function Holes (props) {
           />
           // bottom
           <mesh
-            key={`hole-${index}-bottom`}
             material={material}
             geometry={geometry}
             rotation={[Math.PI, 0, 0]}
@@ -228,7 +204,6 @@ function Holes (props) {
           />
           // left
           <mesh
-            key={`hole-${index}-left`}
             material={material}
             geometry={geometry}
             rotation={[(3 / 2) * Math.PI, 0, 0]}
@@ -236,14 +211,71 @@ function Holes (props) {
           />
           // right
           <mesh
-            key={`hole-${index}-right`}
             material={material}
             geometry={geometry}
             rotation={[(1 / 2) * Math.PI, 0, 0]}
             position={[index * beamWidth, -0.01 - (1 / 2) * beamWidth, 0]}
           />
-        </>
+        </React.Fragment>
       ))}
     </group>
+  )
+}
+
+const HOLE_MARKER_RADIALS = 16
+const HOLE_MARKER_CIRCLES = 8
+const HOLE_MARKER_DIVISIONS = 8
+const HOLE_MARKER_COLOR1 = 'white'
+const HOLE_MARKER_COLOR2 = 'magenta'
+
+function FirstHoleMarker (props) {
+  const { beamWidth, holeDiameter } = props
+  return (
+    <group>
+      // top
+      <HoleMarker
+        rotation={[-(1 / 2) * Math.PI, 0, 0]}
+        position={[0, 0, 0.02 + (1 / 2) * beamWidth]}
+        holeDiameter={holeDiameter}
+      />
+      <HoleMarker
+        // bottom
+        rotation={[(1 / 2) * Math.PI, 0, 0]}
+        position={[0, 0, -0.02 - (1 / 2) * beamWidth]}
+        holeDiameter={holeDiameter}
+      />
+      // left
+      <HoleMarker
+        rotation={[Math.PI, 0, 0]}
+        position={[0, 0.02 + (1 / 2) * beamWidth, 0]}
+        holeDiameter={holeDiameter}
+      />
+      // right
+      <HoleMarker
+        rotation={[0, 0, 0]}
+        position={[0, -0.02 - (1 / 2) * beamWidth, 0]}
+        holeDiameter={holeDiameter}
+      />
+    </group>
+  )
+}
+
+function HoleMarker (props) {
+  const { holeDiameter, ...forwardedProps } = props
+  const holeRadius = holeDiameter / 2
+  const holeMarkerRadius = holeRadius * 2
+
+  return (
+    <polarGridHelper
+      args={[
+        holeMarkerRadius,
+        HOLE_MARKER_RADIALS,
+        HOLE_MARKER_CIRCLES,
+        HOLE_MARKER_DIVISIONS,
+        HOLE_MARKER_COLOR1,
+        HOLE_MARKER_COLOR2
+      ]}
+      {...forwardedProps}
+    />
   )
 }

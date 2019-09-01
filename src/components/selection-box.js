@@ -33,7 +33,6 @@ function SelectionBox (props) {
       }
 
       function handleMouseDown (ev) {
-        console.log('isEnabled here', isEnabled)
         if (!isEnabled) return
         if (!ev.shiftKey) return
         startSelection()
