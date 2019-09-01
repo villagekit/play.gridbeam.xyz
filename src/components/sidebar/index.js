@@ -10,6 +10,11 @@ const WIDGETS = [
     Content: require('./parts')
   },
   {
+    id: 'shared',
+    label: 'Share',
+    Content: require('./share')
+  },
+  {
     id: 'help',
     label: 'Help',
     Content: require('./help')
