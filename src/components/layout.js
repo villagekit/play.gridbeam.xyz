@@ -62,7 +62,8 @@ function Footer () {
         position: 'fixed',
         bottom: 0,
         left: 0,
-        right: 0
+        right: 0,
+        cursor: 'default'
       }}
     >
       <Link
@@ -89,7 +90,9 @@ function Footer () {
         color='primary'
         sx={{
           textDecoration: 'none',
-          ':hover': { textDecoration: 'underline' }
+          ':hover': {
+            textDecoration: 'underline'
+          }
         }}
       >
         Mikey

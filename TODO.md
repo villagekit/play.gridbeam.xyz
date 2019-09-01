@@ -1,11 +1,15 @@
-- render holes (to material, not geometry)
-  - shaderMaterial
-  - OR emissiveMap
+- disable text selection
+- sidebar
+  - help section
+    - describe mouse controls
+    - describe keyboard controls
+  - share button
+- action buttons
+  - port from keyboard
 
 ---
 
 
-- bug: fix box selection
 - edit mode
 - change beam part objects
   - origin

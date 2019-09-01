@@ -11,15 +11,13 @@ function ActionButton (props) {
 
   return (
     <Button
-      ml={3}
-      mb={3}
       css={{
         position: 'absolute',
         left: 0,
         bottom: 0,
         zIndex: 1
       }}
-      bg='primary'
+      bg='darkmagenta'
       onClick={handleClick}
     >
       Add Beam

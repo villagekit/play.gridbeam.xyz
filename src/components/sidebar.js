@@ -21,75 +21,69 @@ function Sidebar (props) {
   ])
 
   const [isOpen, setIsOpen] = React.useState(false)
-  React.useEffect(
-    () => {
-      const nextIsOpen = Object.keys(selectedUuids).length > 0
-      setIsOpen(nextIsOpen)
-    },
-    [selectedUuids]
-  )
+  const handleOpen = React.useCallback(() => setIsOpen(true))
   const handleClose = React.useCallback(() => setIsOpen(false))
 
-  const renderPart = React.useMemo(
-    () => {
-      const renderBeam = (selected, uuid) => (
-        <ControlSection key={uuid} title='beam'>
-          <SelectControl
-            update={next => update(uuid, next)}
-            name='direction'
-            label='direction'
-            options={['x', 'y', 'z']}
-            defaultValue={selected.direction}
-          />
-          <InputControl
-            update={next => update(uuid, next)}
-            min={1}
-            name='length'
-            label='length'
-            defaultValue={selected.length}
-            type='number'
-          />
-          <InputControl
-            update={next => update(uuid, next)}
-            name='origin[0]'
-            label='origin.x'
-            defaultValue={selected.origin[0]}
-            type='number'
-          />
-          <InputControl
-            update={next => update(uuid, next)}
-            name='origin[1]'
-            label='origin.y'
-            defaultValue={selected.origin[1]}
-            type='number'
-          />
-          <InputControl
-            update={next => update(uuid, next)}
-            name='origin[2]'
-            label='origin.z'
-            defaultValue={selected.origin[2]}
-            type='number'
-          />
-        </ControlSection>
-      )
+  const renderPart = React.useMemo(() => {
+    const renderBeam = (selected, uuid) => (
+      <ControlSection key={uuid} title='beam'>
+        <SelectControl
+          update={next => update(uuid, next)}
+          name='direction'
+          label='direction'
+          options={['x', 'y', 'z']}
+          defaultValue={selected.direction}
+        />
+        <InputControl
+          update={next => update(uuid, next)}
+          min={1}
+          name='length'
+          label='length'
+          defaultValue={selected.length}
+          type='number'
+        />
+        <InputControl
+          update={next => update(uuid, next)}
+          name='origin[0]'
+          label='origin.x'
+          defaultValue={selected.origin[0]}
+          type='number'
+        />
+        <InputControl
+          update={next => update(uuid, next)}
+          name='origin[1]'
+          label='origin.y'
+          defaultValue={selected.origin[1]}
+          type='number'
+        />
+        <InputControl
+          update={next => update(uuid, next)}
+          name='origin[2]'
+          label='origin.z'
+          defaultValue={selected.origin[2]}
+          type='number'
+        />
+      </ControlSection>
+    )
 
-      const renderers = {
-        beam: renderBeam
-      }
+    const renderers = {
+      beam: renderBeam
+    }
 
-      return (selected, uuid) => {
-        const renderer = renderers[selected.type]
-        return renderer(selected, uuid)
-      }
-    },
-    [update]
-  )
+    return (selected, uuid) => {
+      const renderer = renderers[selected.type]
+      return renderer(selected, uuid)
+    }
+  }, [update])
 
   const renderSelectedParts = React.useMemo(() =>
-    pipe(mapObjIndexed(renderPart), values)
+    pipe(
+      mapObjIndexed(renderPart),
+      values
+    )
   )
 
-  if (!isOpen) return null
+  if (!isOpen) return <OpenButton handleOpen={handleOpen} />
 
   return (
     <SidebarContainer>
@@ -113,7 +107,10 @@ const SidebarContainer = props => {
   return (
     <Flex
       flexDirection='column'
-      css={{ width: '40em' }}
+      css={{
+        width: '40em',
+        userSelect: 'text',
+      }}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
       {...props}
@@ -174,10 +171,28 @@ const SelectControl = props => {
 
 const ControlContainer = props => <Box {...props} />
 
+const OpenButton = props => {
+  const { handleOpen } = props
+  return (
+    <Button
+      onClick={handleOpen}
+      bg='darkcyan'
+      css={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        zIndex: 1
+      }}
+    >
+      Open
+    </Button>
+  )
+}
+
 const CloseButton = props => {
   const { handleClose } = props
   return (
-    <Button onClick={handleClose} bg='green'>
+    <Button onClick={handleClose} bg='darkcyan'>
       Close
     </Button>
   )

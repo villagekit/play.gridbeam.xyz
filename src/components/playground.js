@@ -63,7 +63,7 @@ function GridBeamPlayground ({ defaultParts }) {
 
   return (
     <Container>
-      {/* <Sidebar /> */}
+      <Sidebar />
       <ActionButton />
       <SelectionBox />
       <Vis />
@@ -79,5 +79,6 @@ const Container = styled.div({
   height: '100%',
   display: 'flex',
   flexDirection: 'row',
-  flexWrap: 'nowrap'
+  flexWrap: 'nowrap',
+  userSelect: 'none'
 })
