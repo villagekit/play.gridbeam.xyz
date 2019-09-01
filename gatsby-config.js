@@ -2,8 +2,8 @@ const path = require('path')
 
 module.exports = {
   siteMetadata: {
-    title: 'Grid Beam Playground',
-    description: 'Play with Grid Beam, lego for adults',
+    title: 'GridBeam Playground',
+    description: 'Play with Grid Beam, erector sets for adults',
     author: 'Mikey Williams'
   },
   plugins: [
@@ -29,7 +29,7 @@ module.exports = {
       resolve: `gatsby-plugin-manifest`,
       options: {
         name: 'grid-beam-playground',
-        short_name: 'grid-beam-play',
+        short_name: 'play.gridbeam.xyz',
         start_url: '/',
         background_color: '#4B2D73',
         theme_color: '#4B2D73',
