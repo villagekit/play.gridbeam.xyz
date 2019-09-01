@@ -1,28 +1,13 @@
 const React = require('react')
-const { Box, Flex, Text, Button } = require('rebass/styled-components')
+const { Box, Flex, Text } = require('rebass/styled-components')
 const Group = require('reakit/Group').default
-const { default: styled } = require('styled-components')
 const { set } = require('lodash')
 const { mapObjIndexed, keys, pick, pipe, prop, values } = require('ramda')
 const { useDebounce } = require('react-debounce-hook')
 
-const useCameraStore = require('../stores/camera').default
-const useModelStore = require('../stores/model')
+const useModelStore = require('../../stores/model')
 
-const WIDGETS = [
-  {
-    id: 'parts',
-    label: 'Parts',
-    Content: Parts
-  },
-  {
-    id: 'help',
-    label: 'Help',
-    Content: Help
-  }
-]
-
-module.exports = Sidebar
+module.exports = Parts
 
 function Parts (props) {
   const parts = useModelStore(prop('parts'))
@@ -94,67 +79,6 @@ function Parts (props) {
   )
 
   return <>{renderSelectedParts(selectedParts)}</>
-}
-
-function Sidebar (props) {
-  const [currentWidgetId, setCurrentWidgetId] = React.useState(null)
-  const handleClose = React.useCallback(() => setCurrentWidgetId(null), [])
-  const currentWidget = React.useMemo(
-    () => WIDGETS.find(widget => widget.id === currentWidgetId),
-    [WIDGETS, currentWidgetId]
-  )
-  const isOpen = React.useMemo(() => currentWidget != null, [currentWidget])
-
-  if (!isOpen) {
-    return (
-      <OpenersContainer>
-        {WIDGETS.map(widget => {
-          const { id, label } = widget
-          return (
-            <OpenerButton
-              key={id}
-              label={label}
-              handleOpen={() => setCurrentWidgetId(id)}
-            />
-          )
-        })}
-      </OpenersContainer>
-    )
-  }
-
-  const { Content } = currentWidget
-
-  return (
-    <SidebarContainer>
-      <Content />
-      <CloseButton handleClose={handleClose} />
-    </SidebarContainer>
-  )
-}
-
-const SidebarContainer = props => {
-  const enableCameraControl = useCameraStore(state => state.enableControl)
-  const disableCameraControl = useCameraStore(state => state.disableControl)
-
-  const handleMouseOver = React.useCallback(ev => {
-    disableCameraControl()
-  }, [])
-  const handleMouseOut = React.useCallback(ev => {
-    enableCameraControl()
-  }, [])
-
-  return (
-    <Flex
-      flexDirection='column'
-      css={{
-        width: '40em',
-        userSelect: 'text'
-      }}
-      onMouseOver={handleMouseOver}
-      onMouseOut={handleMouseOut}
-      {...props}
-    />
-  )
 }
 
 const ControlSection = props => {
@@ -241,50 +165,3 @@ const SelectControl = props => {
 }
 
 const ControlContainer = props => <Box {...props} />
-
-const CloseButton = props => {
-  const { handleClose } = props
-  return (
-    <Button
-      onClick={handleClose}
-      bg='darkcyan'
-      m={1}
-      css={{
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-        zIndex: 1
-      }}
-    >
-      Close
-    </Button>
-  )
-}
-
-const OpenerButton = props => {
-  const { label, handleOpen } = props
-  return (
-    <Button
-      onClick={handleOpen}
-      bg='darkcyan'
-      m={1}
-      css={{
-        zIndex: 1
-      }}
-    >
-      {label}
-    </Button>
-  )
-}
-
-const OpenersContainer = props => (
-  <Flex
-    flexDirection='column'
-    css={{ position: 'absolute', right: 0, bottom: 0 }}
-    {...props}
-  />
-)
-
-function Help (props) {
-  return 'help!'
-}

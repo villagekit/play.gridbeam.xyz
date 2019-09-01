@@ -1,6 +1,6 @@
 const React = require('react')
-const { equals, prop } = require('ramda')
-const modOp = require('mod-op')
+
+const useCommands = require('../commands')
 
 // ideas:
 // - be like, vim ("10u")
@@ -10,75 +10,32 @@ const modOp = require('mod-op')
 // use frst to control view
 // use unei to control objects
 
-const useModelStore = require('../stores/model')
-
 module.exports = Keyboard
 
 function Keyboard (props) {
-  const addPart = useModelStore(prop('addPart'))
-  const updateSelected = useModelStore(prop('updateSelected'))
-  const removeSelected = useModelStore(prop('removeSelected'))
-  const selectedUuids = useModelStore(prop('selectedUuids'))
+  const commands = useCommands()
 
-  const methods = {
-    addPart,
-    updateSelected,
-    removeSelected
-  }
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
 
-  React.useEffect(
-    () => {
-      window.addEventListener('keydown', handleKey)
-      return () => window.removeEventListener('keydown', handleKey)
-
-      function handleKey (ev) {
-        if (ev.defaultPrevented) {
-          return
-        }
-
-        const mode = 'rightHanded'
-        var keyCode = ev.code
-        if (ev.shiftKey) keyCode = `Shift_${keyCode}`
-        const command = keyCodes[mode][keyCode]
-        if (command == null) return
-        const action = commands[command]
-        if (action == null) return
-        const [actionName, ...actionArgs] = action
-        if (actionName.endsWith('Selected') && selectedUuids.length === 0) {
-          return
-        }
-        const actionMethod = methods[actionName]
-
-        actionMethod(...actionArgs)
+    function handleKey (ev) {
+      if (ev.defaultPrevented) {
+        return
       }
-    },
-    [selectedUuids, addPart, updateSelected, removeSelected]
-  )
+
+      const mode = 'rightHanded'
+      var keyCode = ev.code
+      if (ev.shiftKey) keyCode = `Shift_${keyCode}`
+      const commandName = keyCodes[mode][keyCode]
+      if (commandName == null) return
+      const command = commands[commandName]
+      if (command == null) return
+      command()
+    }
+  }, [commands])
 
   return null
-}
-
-const commands = {
-  moveForward: ['updateSelected', part => part.origin[0]++],
-  moveBackward: ['updateSelected', part => part.origin[0]--],
-  moveUp: ['updateSelected', part => part.origin[1]++],
-  moveDown: ['updateSelected', part => part.origin[1]--],
-  moveRight: ['updateSelected', part => part.origin[2]++],
-  moveLeft: ['updateSelected', part => part.origin[2]--],
-  rotateNext: rotateUpdater(index => ++index),
-  rotatePrev: rotateUpdater(index => --index),
-  createBeam: [
-    'addPart',
-    {
-      type: 'beam',
-      direction: 'x',
-      length: 5,
-      origin: [0, 0, 0]
-    }
-  ],
-  removeSelected: ['removeSelected'],
-  lengthenSelected: ['updateSelected', part => part.length++],
-  unlengthenSelected: ['updateSelected', part => part.length--]
 }
 
 const keyCodes = {
@@ -122,20 +79,4 @@ const keyCodes = {
     KeyH: 'lengthenSelected',
     KeyY: 'unlengthenSelected'
   }
-}
-
-const directions = ['x', 'y', 'z']
-
-function rotateUpdater (indexUpdater) {
-  return [
-    'updateSelected',
-    part => {
-      const currentDirectionIndex = directions.findIndex(equals(part.direction))
-      const nextDirectionIndex = modOp(
-        indexUpdater(currentDirectionIndex),
-        directions.length
-      )
-      part.direction = directions[nextDirectionIndex]
-    }
-  ]
 }

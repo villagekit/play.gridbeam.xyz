@@ -6,7 +6,7 @@ const useModelStore = require('../stores/model')
 const useSelectionStore = require('../stores/selection')
 
 const Sidebar = require('./sidebar')
-const ActionButton = require('./action')
+const Actions = require('./action')
 const SelectionBox = require('./selection-box')
 const Vis = require('./vis')
 const Keyboard = require('./keyboard')
@@ -20,7 +20,6 @@ function GridBeamPlayground ({ defaultParts }) {
   const setLoaded = useModelStore(prop('setLoaded'))
   const loadParts = useModelStore(prop('loadParts'))
   const saveParts = useModelStore(prop('saveParts'))
-  const completeSave = useModelStore(prop('completeSave'))
 
   const [hash, setHash] = React.useState('')
   React.useEffect(() => {}, [hash])
@@ -65,7 +64,7 @@ function GridBeamPlayground ({ defaultParts }) {
     <Container>
       <Vis />
       <Sidebar />
-      <ActionButton />
+      <Actions />
       <SelectionBox />
       <Keyboard />
     </Container>
