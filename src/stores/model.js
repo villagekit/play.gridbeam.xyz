@@ -25,14 +25,19 @@ const [useModelStore] = create(set => ({
       const uuid = THREE.Math.generateUUID()
       state.parts[uuid] = newPart
     }),
-  update: (uuid, updater) => set(state => updater(state.parts[uuid])),
-  updateSelected: updater =>
-    set(state => {
+  update: (uuid, updater) => {
+    const safeUpdater = SafeUpdater(updater)
+    return set(state => safeUpdater(state.parts[uuid]))
+  },
+  updateSelected: updater => {
+    const safeUpdater = SafeUpdater(updater)
+    return set(state => {
       const { selectedUuids } = state
       keys(selectedUuids).forEach(uuid => {
-        updater(state.parts[uuid])
+        safeUpdater(state.parts[uuid])
       })
-    }),
+    })
+  },
   removeSelected: () =>
     set(state => {
       const { selectedUuids } = state
@@ -132,5 +137,13 @@ function createBeamHappening (set, happen) {
       set(state => {
         delete state[`${happen}edUuids`][uuid]
       })
+  }
+}
+
+function SafeUpdater (updater) {
+  return value => {
+    updater(value)
+    if (value.length < 1) value.length = 1
+    if (value.origin[2] < 0) value.origin[2] = 0
   }
 }
