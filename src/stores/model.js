@@ -51,31 +51,38 @@ const [useModelStore] = create(set => ({
     const modelUriComponent = window.location.href.split('#')[1]
     if (modelUriComponent == null) return
 
-    try {
-      var modelJson = decompressFromEncodedURIComponent(modelUriComponent)
-    } catch (err) {
-      throw new Error(
-        'gridbeam-editor/stores/model: could not parse model from Base64 in Url'
-      )
-    }
+    const version = Number(modelUriComponent[0])
 
-    try {
-      var model = JSON.parse(modelJson)
-    } catch (err) {
-      throw new Error(
-        'gridbeam-editor/stores/model: could not parse model from Json in Url'
-      )
-    }
+    if (version === 1) {
+      const modelString = modelUriComponent.substring(1)
 
-    if (model.version === '1') {
+      try {
+        var modelJson = decompressFromEncodedURIComponent(modelString)
+      } catch (err) {
+        throw new Error(
+          'gridbeam-editor/stores/model: could not parse model from Base64 in Url'
+        )
+      }
+
+      try {
+        var model = JSON.parse(modelJson)
+      } catch (err) {
+        throw new Error(
+          'gridbeam-editor/stores/model: could not parse model from Json in Url'
+        )
+      }
+
       const { parts } = model
 
       return setParts(parts)
+    } else {
+      throw new Error(`Unexpected version: ${version}`)
     }
   },
   saveParts: (parts, setHash) => {
+    const version = 1
+
     const model = {
-      version: '1',
       parts: values(parts)
     }
 
@@ -96,7 +103,7 @@ const [useModelStore] = create(set => ({
       )
     }
 
-    const hash = '#' + modelBase64
+    const hash = '#' + version + modelBase64
 
     if (setHash) setHash(hash)
 
