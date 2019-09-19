@@ -4,13 +4,14 @@ const { Canvas, useThree } = require('react-three-fiber')
 const { map, pipe, prop, values } = require('ramda')
 const { mapValues } = require('lodash')
 
+const { GlProvider } = require('./provider')
 const useModelStore = require('../stores/model')
 const useSpecStore = require('../stores/spec')
 const { selectParts } = require('../selectors/parts')
 const { getBeamWidth } = require('../selectors/spec')
 
 const Beam = require('./beam')
-const Camera = require('./camera')
+const Camera = require('./camera').default
 const Selector = require('./selection-gl')
 
 const texturePathsByMaterialType = {
@@ -52,11 +53,13 @@ function Vis (props) {
         selects([])
       }}
     >
-      <Camera />
-      <Selector />
-      <Background />
+      <GlProvider>
+        <Camera />
+        <Selector />
+        <Background />
 
-      {renderParts(parts)}
+        {renderParts(parts)}
+      </GlProvider>
     </Canvas>
   )
 }

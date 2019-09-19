@@ -1,9 +1,9 @@
 const React = require('react')
+const { useStore } = require('react-redux')
 const THREE = require('three')
 const { map, multiply, prop, range } = require('ramda')
 const { useResource } = require('react-three-fiber')
 
-const useCameraStore = require('../stores/camera').default
 const useSpecStore = require('../stores/spec')
 const useSelectionStore = require('../stores/selection')
 const { getBeamWidth, getHoleDiameter } = require('../selectors/spec')
@@ -29,8 +29,8 @@ function Beam (props) {
     texture
   } = props
 
-  const enableCameraControl = useCameraStore(state => state.enableControl)
-  const disableCameraControl = useCameraStore(state => state.disableControl)
+  const { dispatch } = useStore()
+
   const enableSelectionBox = useSelectionStore(prop('enable'))
   const disableSelectionBox = useSelectionStore(prop('disable'))
   const beamWidth = useSpecStore(getBeamWidth)
@@ -140,7 +140,7 @@ function Beam (props) {
       onPointerDown={ev => {
         ev.stopPropagation()
         ev.target.setPointerCapture(ev.pointerId)
-        disableCameraControl()
+        dispatch.camera.disableControl()
         disableSelectionBox()
         if (!isSelected) select()
         setAtMoveStart([ev.point, value.origin])
@@ -148,7 +148,7 @@ function Beam (props) {
       onPointerUp={ev => {
         ev.stopPropagation()
         ev.target.releasePointerCapture(ev.pointerId)
-        enableCameraControl()
+        dispatch.camera.enableControl()
         enableSelectionBox()
         setAtMoveStart(null)
       }}

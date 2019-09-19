@@ -1,7 +1,6 @@
 const React = require('react')
+const { useStore } = require('react-redux')
 const { Box, Flex, Button } = require('rebass/styled-components')
-
-const useCameraStore = require('../../stores/camera').default
 
 const WIDGETS = [
   {
@@ -67,14 +66,12 @@ function Sidebar (props) {
 }
 
 const SidebarContainer = props => {
-  const enableCameraControl = useCameraStore(state => state.enableControl)
-  const disableCameraControl = useCameraStore(state => state.disableControl)
-
+  const { dispatch } = useStore()
   const handleMouseOver = React.useCallback(ev => {
-    disableCameraControl()
+    dispatch.camera.disableControl()
   }, [])
   const handleMouseOut = React.useCallback(ev => {
-    enableCameraControl()
+    dispatch.camera.enableControl()
   }, [])
 
   return (

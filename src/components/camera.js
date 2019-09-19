@@ -1,18 +1,19 @@
-const React = require('react')
-const { extend, useThree, useRender } = require('react-three-fiber')
-const OrbitControls = require('../vendor/OrbitControls')
+import React from 'react'
+import { extend, useThree, useRender } from 'react-three-fiber'
+import { useStore, useSelector } from 'react-redux'
 
-const useCameraStore = require('../stores/camera').default
+import OrbitControls from '../vendor/OrbitControls'
 
 extend({ OrbitControls })
 
-module.exports = Camera
+export default Camera
 
 function Camera (props) {
   const controlsRef = React.useRef()
   const { camera } = useThree()
 
-  const controlEnabled = useCameraStore(state => state.controlEnabled)
+  const { select } = useStore()
+  const isControlEnabled = useSelector(select.camera.isControlEnabled)
 
   React.useEffect(() => {
     const controls = controlsRef.current
@@ -33,7 +34,7 @@ function Camera (props) {
     <orbitControls
       ref={controlsRef}
       args={[camera]}
-      enabled={controlEnabled}
+      enabled={isControlEnabled}
       enableDamping
       dampingFactor={0.1}
       rotateSpeed={0.1}
