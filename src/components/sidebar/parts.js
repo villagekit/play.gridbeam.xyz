@@ -1,11 +1,10 @@
-const React = require('react')
-const { Box, Flex, Text } = require('rebass/styled-components')
-const { length, pipe, groupBy, path, map, sum } = require('ramda')
+import React from 'react'
+import { Box, Flex, Text } from 'rebass/styled-components'
+import { length, pipe, groupBy, path, map, sum } from 'ramda'
+import useModelStore from '../../stores/model'
+import { selectPartsByType } from '../../selectors/parts'
 
-const useModelStore = require('../../stores/model')
-const { selectPartsByType } = require('../../selectors/parts')
-
-module.exports = Parts
+export default Parts
 
 function Parts (props) {
   const partsByType = useModelStore(selectPartsByType)

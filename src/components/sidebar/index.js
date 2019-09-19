@@ -1,31 +1,36 @@
-const React = require('react')
-const { useStore } = require('react-redux')
-const { Box, Flex, Button } = require('rebass/styled-components')
+import React from 'react'
+import { useStore } from 'react-redux'
+import { Box, Flex, Button } from 'rebass/styled-components'
+
+import SelectionWidget from './selection'
+import PartsWidget from './parts'
+import ShareWidget from './share'
+import HelpWidget from './help'
 
 const WIDGETS = [
   {
     id: 'selection',
     label: 'Selection',
-    Content: require('./selection')
+    Content: SelectionWidget
   },
   {
     id: 'parts',
     label: 'Parts',
-    Content: require('./parts')
+    Content: PartsWidget
   },
   {
     id: 'share',
     label: 'Share',
-    Content: require('./share')
+    Content: ShareWidget
   },
   {
     id: 'help',
     label: 'Help',
-    Content: require('./help')
+    Content: HelpWidget
   }
 ]
 
-module.exports = Sidebar
+export default Sidebar
 
 function Sidebar (props) {
   const [currentWidgetId, setCurrentWidgetId] = React.useState(null)

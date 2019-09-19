@@ -1,8 +1,8 @@
-const React = require('react')
-const { Flex, Text, Button } = require('rebass/styled-components')
-const { useClipboard } = require('use-clipboard-copy')
+import React from 'react'
+import { Flex, Text, Button } from 'rebass/styled-components'
+import { useClipboard } from 'use-clipboard-copy'
 
-module.exports = Share
+export default Share
 
 function Share (props) {
   const clipboard = useClipboard()

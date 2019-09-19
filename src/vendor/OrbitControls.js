@@ -1,4 +1,7 @@
-/* three-orbitcontrols addendum */ var THREE = require('three')
+/* three-orbitcontrols addendum */
+
+import * as THREE from 'three'
+
 /**
  * @author qiao / https://github.com/qiao
  * @author mrdoob / http://mrdoob.com
@@ -14,7 +17,7 @@
 //    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
 //    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
 
-THREE.OrbitControls = function (object, domElement) {
+function OrbitControls (object, domElement) {
   this.object = object
 
   this.domElement = domElement !== undefined ? domElement : document
@@ -856,7 +859,7 @@ THREE.OrbitControls = function (object, domElement) {
   this.update()
 }
 
-THREE.OrbitControls.prototype = Object.create(THREE.EventDispatcher.prototype)
-THREE.OrbitControls.prototype.constructor = THREE.OrbitControls
+OrbitControls.prototype = Object.create(THREE.EventDispatcher.prototype)
+OrbitControls.prototype.constructor = OrbitControls
 
-module.exports = exports.default = THREE.OrbitControls
+export default OrbitControls

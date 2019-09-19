@@ -1,5 +1,5 @@
-const { prop, path } = require('ramda')
-const createSelector = require('./')
+import { prop, path } from 'ramda'
+import createSelector from './'
 
 const INCH_TO_MM = 25.4
 

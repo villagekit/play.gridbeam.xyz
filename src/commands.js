@@ -1,8 +1,7 @@
-const { useMemo } = require('react')
-const { equals, prop, map } = require('ramda')
-const modOp = require('mod-op')
-
-const useModelStore = require('./stores/model')
+import { useMemo } from 'react'
+import { equals, prop, map } from 'ramda'
+import modOp from 'mod-op'
+import useModelStore from './stores/model'
 
 function useCommands () {
   const addPart = useModelStore(prop('addPart'))
@@ -30,7 +29,7 @@ function useCommands () {
   return readyCommands
 }
 
-module.exports = useCommands
+export default useCommands
 
 const commands = {
   moveForward: ['updateSelected', part => part.origin[0]++],

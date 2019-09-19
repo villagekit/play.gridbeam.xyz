@@ -1,9 +1,8 @@
-const React = require('react')
-const { Flex, Button } = require('rebass/styled-components')
-const { keys, prop } = require('ramda')
-
-const useModelStore = require('../stores/model')
-const useCommands = require('../commands')
+import React from 'react'
+import { Flex, Button } from 'rebass/styled-components'
+import { keys, prop } from 'ramda'
+import useModelStore from '../stores/model'
+import useCommands from '../commands'
 
 const ACTIONS = [
   {
@@ -62,7 +61,7 @@ const ACTIONS = [
   }
 ]
 
-module.exports = ActionButtons
+export default ActionButtons
 
 function ActionButtons (props) {
   const selectedUuids = useModelStore(prop('selectedUuids'))

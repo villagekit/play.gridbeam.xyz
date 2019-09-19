@@ -1,24 +1,24 @@
-const React = require('react')
-const THREE = require('three')
-const { Canvas, useThree } = require('react-three-fiber')
-const { map, pipe, prop, values } = require('ramda')
-const { mapValues } = require('lodash')
+import React from 'react'
+import * as THREE from 'three'
+import { Canvas, useThree } from 'react-three-fiber'
+import { map, pipe, prop, values } from 'ramda'
+import { mapValues } from 'lodash'
 
-const { GlProvider } = require('./provider')
-const useModelStore = require('../stores/model')
-const useSpecStore = require('../stores/spec')
-const { selectParts } = require('../selectors/parts')
-const { getBeamWidth } = require('../selectors/spec')
+import { GlProvider } from './provider'
+import useModelStore from '../stores/model'
+import useSpecStore from '../stores/spec'
+import { selectParts } from '../selectors/parts'
+import { getBeamWidth } from '../selectors/spec'
 
-const Beam = require('./beam')
-const Camera = require('./camera').default
-const Selector = require('./selection-gl')
+import Beam from './beam'
+import Camera from './camera'
+import Selector from './selection-gl'
 
 const texturePathsByMaterialType = {
   wood: require('../textures/pine.jpg')
 }
 
-module.exports = Vis
+export default Vis
 
 function Vis (props) {
   const parts = useModelStore(selectParts)

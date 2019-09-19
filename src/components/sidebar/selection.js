@@ -1,13 +1,13 @@
-const React = require('react')
-const { Box, Flex, Text } = require('rebass/styled-components')
-const Group = require('reakit/Group').default
-const { set } = require('lodash')
-const { mapObjIndexed, keys, pick, pipe, prop, values } = require('ramda')
-const { useDebounce } = require('react-debounce-hook')
+import React from 'react'
+import { Box, Flex, Text } from 'rebass/styled-components'
+import { Group } from 'reakit/Group'
+import { set } from 'lodash'
+import { mapObjIndexed, keys, pick, pipe, prop, values } from 'ramda'
+import { useDebounce } from 'react-debounce-hook'
 
-const useModelStore = require('../../stores/model')
+import useModelStore from '../../stores/model'
 
-module.exports = Selection
+export default Selection
 
 function Selection (props) {
   const parts = useModelStore(prop('parts'))

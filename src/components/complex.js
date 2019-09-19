@@ -1,8 +1,8 @@
-const React = require('react')
-const THREE = require('three')
-const { useUpdate } = require('react-three-fiber')
+import React from 'react'
+import * as THREE from 'three'
+import { useUpdate } from 'react-three-fiber'
 
-module.exports = SimplicialComplexGeometry
+export default SimplicialComplexGeometry
 
 function SimplicialComplexGeometry (props) {
   const { mesh, attach } = props

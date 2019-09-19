@@ -1,12 +1,11 @@
-const React = require('react')
-const { useStore } = require('react-redux')
-const THREE = require('three')
-const { map, multiply, prop, range } = require('ramda')
-const { useResource } = require('react-three-fiber')
-
-const useSpecStore = require('../stores/spec')
-const useSelectionStore = require('../stores/selection')
-const { getBeamWidth, getHoleDiameter } = require('../selectors/spec')
+import React from 'react'
+import { useStore } from 'react-redux'
+import * as THREE from 'three'
+import { map, multiply, prop, range } from 'ramda'
+import { useResource } from 'react-three-fiber'
+import useSpecStore from '../stores/spec'
+import useSelectionStore from '../stores/selection'
+import { getBeamWidth, getHoleDiameter } from '../selectors/spec'
 
 const rotationByDirection = {
   x: { inclination: 0, azimuth: 0 },
@@ -14,7 +13,7 @@ const rotationByDirection = {
   z: { inclination: 0, azimuth: -Math.PI / 2 }
 }
 
-module.exports = Beam
+export default Beam
 
 function Beam (props) {
   const {

@@ -1,10 +1,10 @@
-const THREE = require('three')
-const create = require('./').default
-const {
+import * as THREE from 'three'
+import create from './'
+import {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent
-} = require('lz-string')
-const { keys, values, zipObj } = require('ramda')
+} from 'lz-string'
+import { keys, values, zipObj } from 'ramda'
 
 const [useModelStore] = create(set => ({
   parts: null,
@@ -111,7 +111,7 @@ const [useModelStore] = create(set => ({
   }
 }))
 
-module.exports = useModelStore
+export default useModelStore
 
 // what about a happen for any uuid?
 function createBeamHappening (set, happen) {

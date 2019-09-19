@@ -1,7 +1,6 @@
-const THREE = require('three')
-const { useState, useEffect } = require('react')
-
-const create = require('./').default
+import * as THREE from 'three'
+import { useState, useEffect } from 'react'
+import create from './'
 
 const [useSelectionStore] = create(set => ({
   isEnabled: true,
@@ -46,7 +45,7 @@ const [useSelectionStore] = create(set => ({
     })
 }))
 
-module.exports = useSelectionStore
+export default useSelectionStore
 
 function forEachMesh (object, fn) {
   if (object.isMesh) {

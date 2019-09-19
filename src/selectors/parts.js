@@ -1,6 +1,5 @@
-const { groupBy, path } = require('ramda')
-
-const createSelector = require('./')
+import { groupBy, path } from 'ramda'
+import createSelector from './'
 
 export const selectParts = createSelector(
   [

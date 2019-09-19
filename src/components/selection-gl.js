@@ -1,14 +1,13 @@
-const React = require('react')
-const THREE = require('three')
-const { useThree } = require('react-three-fiber')
-const { Box } = require('rebass/styled-components')
-const { prop, forEach } = require('ramda')
-const produce = require('immer').default
+import React from 'react'
+import * as THREE from 'three'
+import { useThree } from 'react-three-fiber'
+import { Box } from 'rebass/styled-components'
+import { prop, forEach } from 'ramda'
+import produce from 'immer'
+import useSelectionStore from '../stores/selection'
+import useModelStore from '../stores/model'
 
-const useSelectionStore = require('../stores/selection')
-const useModelStore = require('../stores/model')
-
-module.exports = SelectionBox
+export default SelectionGl
 
 // - for each mesh, generate 2d screen box
 //   - https://stackoverflow.com/a/45879073
@@ -18,7 +17,7 @@ module.exports = SelectionBox
 //   - Box2.containsBox
 //
 
-function SelectionBox (props) {
+function SelectionGl (props) {
   const isSelecting = useSelectionStore(prop('isSelecting'))
   const startPoint = useSelectionStore(prop('startPoint'))
   const endPoint = useSelectionStore(prop('endPoint'))
@@ -63,5 +62,3 @@ function SelectionBox (props) {
 
   return null
 }
-
-module.exports = SelectionBox

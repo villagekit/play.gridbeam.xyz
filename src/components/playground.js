@@ -1,17 +1,15 @@
-const React = require('react')
-const { complement, prop } = require('ramda')
-const { default: styled } = require('styled-components')
+import React from 'react'
+import { complement, prop } from 'ramda'
+import { default as styled } from 'styled-components'
+import useModelStore from '../stores/model'
+import useSelectionStore from '../stores/selection'
+import Sidebar from './sidebar'
+import Actions from './action'
+import SelectionBox from './selection-box'
+import Vis from './vis'
+import Keyboard from './keyboard'
 
-const useModelStore = require('../stores/model')
-const useSelectionStore = require('../stores/selection')
-
-const Sidebar = require('./sidebar')
-const Actions = require('./action')
-const SelectionBox = require('./selection-box')
-const Vis = require('./vis')
-const Keyboard = require('./keyboard')
-
-module.exports = GridBeamPlayground
+export default GridBeamPlayground
 
 function GridBeamPlayground ({ defaultParts }) {
   const parts = useModelStore(prop('parts'))

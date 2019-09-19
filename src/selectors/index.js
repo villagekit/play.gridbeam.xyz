@@ -1,9 +1,9 @@
-const { createSelector: reselector } = require('reselect')
-const { prop, path } = require('ramda')
+import { createSelector as reselector } from 'reselect'
+import { prop, path } from 'ramda'
 const { isArray } = Array
 const isString = value => typeof value === 'string'
 
-module.exports = selector
+export default selector
 
 function selector (dependencies = [], select) {
   if (isArray(dependencies)) {

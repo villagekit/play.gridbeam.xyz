@@ -1,4 +1,4 @@
-const create = require('./').default
+import create from './'
 
 const [useSpecStore] = create(set => ({
   currentSpec: {
@@ -11,4 +11,4 @@ const [useSpecStore] = create(set => ({
   }
 }))
 
-module.exports = useSpecStore
+export default useSpecStore

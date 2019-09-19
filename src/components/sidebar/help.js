@@ -1,7 +1,7 @@
-const React = require('react')
-const { Box, Flex, Text } = require('rebass/styled-components')
+import React from 'react'
+import { Box, Flex, Text } from 'rebass/styled-components'
 
-module.exports = Help
+export default Help
 
 function Help (props) {
   return (

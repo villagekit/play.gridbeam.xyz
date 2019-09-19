@@ -1,6 +1,5 @@
-const React = require('react')
-
-const useCommands = require('../commands')
+import React from 'react'
+import useCommands from '../commands'
 
 // ideas:
 // - be like, vim ("10u")
@@ -10,7 +9,7 @@ const useCommands = require('../commands')
 // use frst to control view
 // use unei to control objects
 
-module.exports = Keyboard
+export default Keyboard
 
 function Keyboard (props) {
   const commands = useCommands()
