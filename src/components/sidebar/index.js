@@ -9,13 +9,11 @@ const WIDGETS = [
     label: 'Selection',
     Content: require('./selection')
   },
-  /*
   {
     id: 'parts',
     label: 'Parts',
     Content: require('./parts')
   },
-  */
   {
     id: 'share',
     label: 'Share',

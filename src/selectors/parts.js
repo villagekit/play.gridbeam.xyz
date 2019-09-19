@@ -1,3 +1,5 @@
+const { groupBy, path } = require('ramda')
+
 const createSelector = require('./')
 
 export const selectParts = createSelector(
@@ -37,4 +39,9 @@ export const selectParts = createSelector(
       })
     )
   }
+)
+
+export const selectPartsByType = createSelector(
+  [selectParts],
+  groupBy(path(['value', 'type']))
 )
