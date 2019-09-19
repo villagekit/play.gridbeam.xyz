@@ -7,9 +7,9 @@ const { useDebounce } = require('react-debounce-hook')
 
 const useModelStore = require('../../stores/model')
 
-module.exports = Parts
+module.exports = Selection
 
-function Parts (props) {
+function Selection (props) {
   const parts = useModelStore(prop('parts'))
   const selectedUuids = useModelStore(prop('selectedUuids'))
   const update = useModelStore(prop('update'))
@@ -78,10 +78,14 @@ function Parts (props) {
     )
   )
 
-  return <PartsContainer>{renderSelectedParts(selectedParts)}</PartsContainer>
+  return (
+    <SelectionContainer>
+      {renderSelectedParts(selectedParts)}
+    </SelectionContainer>
+  )
 }
 
-const PartsContainer = props => <Flex flexDirection='column' {...props} />
+const SelectionContainer = props => <Flex flexDirection='column' {...props} />
 
 const ControlSection = props => {
   const { title, children } = props

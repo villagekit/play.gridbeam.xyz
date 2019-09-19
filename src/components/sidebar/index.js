@@ -5,12 +5,19 @@ const useCameraStore = require('../../stores/camera').default
 
 const WIDGETS = [
   {
+    id: 'selection',
+    label: 'Selection',
+    Content: require('./selection')
+  },
+  /*
+  {
     id: 'parts',
     label: 'Parts',
     Content: require('./parts')
   },
+  */
   {
-    id: 'shared',
+    id: 'share',
     label: 'Share',
     Content: require('./share')
   },
