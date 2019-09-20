@@ -1,11 +1,8 @@
 import React from 'react'
-import { useStore } from 'react-redux'
+import { useStore, useSelector } from 'react-redux'
 import * as THREE from 'three'
 import { range } from 'ramda'
 import { useResource } from 'react-three-fiber'
-
-import useSpecStore from '../stores/spec'
-import { getBeamWidth, getHoleDiameter } from '../selectors/spec'
 
 const rotationByDirection = {
   x: { inclination: 0, azimuth: 0 },
@@ -28,10 +25,11 @@ function Beam (props) {
     texture
   } = props
 
-  const { dispatch } = useStore()
+  const { select: selectors, dispatch } = useStore()
 
-  const beamWidth = useSpecStore(getBeamWidth)
-  const holeDiameter = useSpecStore(getHoleDiameter)
+  // TODO: spec should be stored per beam
+  const beamWidth = useSelector(selectors.spec.currentBeamWidth)
+  const holeDiameter = useSelector(selectors.spec.currentHoleDiameter)
 
   const { direction, length, origin } = value
 

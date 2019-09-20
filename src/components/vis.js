@@ -1,14 +1,13 @@
 import React from 'react'
+import { useStore, useSelector } from 'react-redux'
 import * as THREE from 'three'
 import { Canvas, useThree } from 'react-three-fiber'
-import { map, pipe, prop, values } from 'ramda'
+import { map, prop } from 'ramda'
 import { mapValues } from 'lodash'
 
 import { GlProvider } from './provider'
 import useModelStore from '../stores/model'
-import useSpecStore from '../stores/spec'
 import { selectParts } from '../selectors/parts'
-import { getBeamWidth } from '../selectors/spec'
 
 import Beam from './beam'
 import Camera from './camera'
@@ -21,10 +20,13 @@ const texturePathsByMaterialType = {
 export default Vis
 
 function Vis (props) {
+  const { select } = useStore()
+
   const parts = useModelStore(selectParts)
   const selects = useModelStore(prop('selects'))
-  const spec = useSpecStore(prop('currentSpec'))
-  const beamWidth = useSpecStore(getBeamWidth)
+
+  const currentBeamMaterial = useSelector(select.spec.currentBeamMaterial)
+  const currentBeamWidth = useSelector(select.spec.currentBeamWidth)
 
   const texturesByMaterialType = React.useMemo(() => {
     return mapValues(texturePathsByMaterialType, texturePath => {
@@ -32,8 +34,8 @@ function Vis (props) {
     })
   }, [texturePathsByMaterialType])
   const beamTexture = React.useMemo(() => {
-    return texturesByMaterialType[spec.beamMaterial]
-  }, [spec.beamMaterial])
+    return texturesByMaterialType[currentBeamMaterial]
+  }, [currentBeamMaterial])
 
   const renderParts = React.useMemo(
     () =>
@@ -56,7 +58,7 @@ function Vis (props) {
       <GlProvider>
         <Camera />
         <Selector />
-        <Background />
+        <Background currentBeamWidth={currentBeamWidth} />
 
         {renderParts(parts)}
       </GlProvider>
@@ -64,10 +66,10 @@ function Vis (props) {
   )
 }
 
-function Background () {
-  const beamWidth = useSpecStore(getBeamWidth)
+function Background (props) {
+  const { currentBeamWidth } = props
   const floorTiles = 128
-  const floorLength = floorTiles * beamWidth
+  const floorLength = floorTiles * currentBeamWidth
 
   const planeGeometry = React.useMemo(() => {
     var planeGeometry = new THREE.PlaneBufferGeometry(floorLength, floorLength)
