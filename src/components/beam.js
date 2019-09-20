@@ -125,6 +125,7 @@ function Beam (props) {
 
   return (
     <group
+      name={uuid}
       position={position}
       rotation={[0, rotation.azimuth, rotation.inclination]}
       onClick={handleClick}
@@ -133,6 +134,7 @@ function Beam (props) {
         ev.target.setPointerCapture(ev.pointerId)
         dispatch.camera.disableControl()
         dispatch.selection.disable()
+        dispatch.parts.setMoving(true)
         if (!isSelected) select()
         setAtMoveStart([ev.point, origin])
       }}
@@ -141,6 +143,7 @@ function Beam (props) {
         ev.target.releasePointerCapture(ev.pointerId)
         dispatch.camera.enableControl()
         dispatch.selection.enable()
+        dispatch.parts.setMoving(false)
         setAtMoveStart(null)
       }}
       onPointerMove={handleMove}

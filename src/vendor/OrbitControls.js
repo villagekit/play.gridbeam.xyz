@@ -35,6 +35,12 @@ function OrbitControls (object, domElement) {
   // "target" sets the location of focus, where the object orbits around
   this.target = new Vector3()
 
+  // "cameraTarget" is where the camera is looking (by default the same as target
+  this.cameraTarget = new Vector3()
+
+  // Whether the camera should be locked to the orbit center
+  this.coupleCenters = true
+
   // How far you can dolly in and out ( PerspectiveCamera only )
   this.minDistance = 0
   this.maxDistance = Infinity
@@ -61,14 +67,14 @@ function OrbitControls (object, domElement) {
   // This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
   // Set to false to disable zooming
   this.enableZoom = true
-  this.zoomSpeed = 1.0
+  this.zoomSpeed = 2.0
 
   // Set to false to disable rotating
   this.enableRotate = true
   this.rotateSpeed = 1.0
 
   // Set to false to disable panning
-  this.enablePan = true
+  this.enablePan = false
   this.panSpeed = 1.0
   this.screenSpacePanning = false // if true, pan in screen-space
   this.keyPanSpeed = 7.0 // pixels moved per arrow key push
@@ -191,7 +197,10 @@ function OrbitControls (object, domElement) {
 
       position.copy(scope.target).add(offset)
 
-      scope.object.lookAt(scope.target)
+      if (scope.coupleCenters) {
+        scope.cameraTarget = scope.target
+      }
+      scope.object.lookAt(scope.cameraTarget)
 
       if (scope.enableDamping === true) {
         sphericalDelta.theta *= 1 - scope.dampingFactor

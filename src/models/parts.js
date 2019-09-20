@@ -22,11 +22,15 @@ export let parts = {
   state: {
     parts: null,
     isLoaded: false,
+    isMoving: false,
     savedHash: ''
   },
   reducers: {
     setLoaded: produce((state, isLoaded) => {
       state.isLoaded = isLoaded
+    }),
+    setMoving: produce((state, moving) => {
+      state.isMoving = moving
     }),
     setSavedHash: produce((state, hash) => {
       state.savedHash = hash
@@ -132,6 +136,7 @@ export let parts = {
   }),
   selectors: (slice, createSelector) => ({
     isLoaded: () => slice(prop('isLoaded')),
+    isMoving: () => slice(prop('isMoving')),
     savedHash: () => slice(prop('savedHash')),
     hoveredUuids: () => slice(prop('hoveredUuids')),
     selectedUuids: () => slice(prop('selectedUuids')),
@@ -174,6 +179,8 @@ export let parts = {
       )
   })
 }
+
+function computeCentroid (parts) {}
 
 createBeamHappening(parts, 'hover')
 createBeamHappening(parts, 'select')
