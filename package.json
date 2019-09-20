@@ -5,8 +5,10 @@
   "private": true,
   "author": "Michael Williams <michael.williams@enspiral.com>",
   "dependencies": {
+    "@jscad/csg": "^0.7.0",
     "@rematch/core": "^1.2.0",
     "@rematch/select": "^2.0.5",
+    "csg-to-mesh": "^1.0.2",
     "gatsby": "^2.3.24",
     "gatsby-image": "^2.0.39",
     "gatsby-plugin-manifest": "^2.0.29",

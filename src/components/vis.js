@@ -12,6 +12,7 @@ import { map } from 'ramda'
 import { GlProvider } from './provider'
 import Beam from './beam'
 import Camera from './camera'
+import Scale from './scale'
 import Selector from './selection-gl'
 import Clipboard from './clipboard'
 
@@ -128,6 +129,7 @@ function Background (props) {
         material={planeMaterial}
         receiveShadow
       />
+      <Scale />
     </>
   )
 }

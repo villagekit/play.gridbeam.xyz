@@ -5,8 +5,8 @@ import { useUpdate } from 'react-three-fiber'
 export default SimplicialComplexGeometry
 
 function SimplicialComplexGeometry (props) {
-  const { mesh, attach } = props
-  const { positions, cells } = mesh
+  const { simplicialComplex, attach } = props
+  const { positions, cells } = simplicialComplex
 
   const ref = useUpdate(geometry => {
     updatePositions(geometry, positions)
@@ -16,7 +16,7 @@ function SimplicialComplexGeometry (props) {
     geometry.computeFaceNormals()
     geometry.computeMorphNormals()
     geometry.computeVertexNormals()
-  }, [mesh])
+  }, [simplicialComplex])
 
   return <geometry attach={attach} ref={ref} />
 }

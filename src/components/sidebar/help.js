@@ -25,6 +25,10 @@ function Help (props) {
         Click and drag on a beam (or on your selected beams) to move them around
         horizontally. Press shift to move them around vertically.
       </Text>
+      <Text m={2} fontFamily='body'>
+        The figure in the scene is a scale reference aimed to be roughly 170 cm
+        or ~5' 7''.
+      </Text>
       <Box
         as='dl'
         m={3}
