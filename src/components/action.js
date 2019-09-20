@@ -1,7 +1,6 @@
 import React from 'react'
+import { useSelector, useStore } from 'react-redux'
 import { Flex, Button } from 'rebass/styled-components'
-import { keys, prop } from 'ramda'
-import useModelStore from '../stores/model'
 import useCommands from '../commands'
 
 const ACTIONS = [
@@ -64,17 +63,15 @@ const ACTIONS = [
 export default ActionButtons
 
 function ActionButtons (props) {
-  const selectedUuids = useModelStore(prop('selectedUuids'))
+  const { select } = useStore()
+
+  const hasSelected = useSelector(select.parts.hasSelected)
 
   const commands = useCommands()
 
-  const hasSelected = React.useMemo(() => keys(selectedUuids).length > 0, [
-    selectedUuids
-  ])
   const possibleActions = React.useMemo(
     () =>
       ACTIONS.filter(action => {
-        console.log('action', action, hasSelected)
         return action.whenSelected === true ? hasSelected : true
       }),
     [hasSelected]

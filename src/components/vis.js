@@ -7,13 +7,9 @@ import {
   SpotLight
 } from 'three'
 import { Canvas, useThree } from 'react-three-fiber'
-import { map, prop } from 'ramda'
-import { mapValues } from 'lodash'
+import { map } from 'ramda'
 
 import { GlProvider } from './provider'
-import useModelStore from '../stores/model'
-import { selectParts } from '../selectors/parts'
-
 import Beam from './beam'
 import Camera from './camera'
 import Selector from './selection-gl'
@@ -25,18 +21,17 @@ const texturePathsByMaterialType = {
 export default Vis
 
 function Vis (props) {
-  const { select } = useStore()
+  const { select, dispatch } = useStore()
 
-  const parts = useModelStore(selectParts)
-  const selects = useModelStore(prop('selects'))
+  const parts = useSelector(select.parts.all)
 
   const currentBeamMaterial = useSelector(select.spec.currentBeamMaterial)
   const currentBeamWidth = useSelector(select.spec.currentBeamWidth)
 
   const texturesByMaterialType = React.useMemo(() => {
-    return mapValues(texturePathsByMaterialType, texturePath => {
+    return map(texturePath => {
       return new TextureLoader().load(texturePath)
-    })
+    }, texturePathsByMaterialType)
   }, [texturePathsByMaterialType])
   const beamTexture = React.useMemo(() => {
     return texturesByMaterialType[currentBeamMaterial]
@@ -45,8 +40,21 @@ function Vis (props) {
   const renderParts = React.useMemo(
     () =>
       map(part => {
+        const { uuid } = part
+        const partProps = {
+          ...part,
+          hover: () => dispatch.parts.hover(uuid),
+          unhover: () => dispatch.parts.unhover(uuid),
+          select: () => dispatch.parts.selects([uuid]),
+          move: delta =>
+            dispatch.parts.updateSelected(part => {
+              part.origin[0] += delta[0]
+              part.origin[1] += delta[1]
+              part.origin[2] += delta[2]
+            })
+        }
         if (part.type === 'beam') {
-          return <Beam key={part.uuid} {...part} texture={beamTexture} />
+          return <Beam key={part.uuid} {...partProps} texture={beamTexture} />
         }
         return null
       }),
@@ -57,7 +65,7 @@ function Vis (props) {
     <Canvas
       orthographic
       onPointerMissed={() => {
-        selects([])
+        dispatch.parts.selects([])
       }}
     >
       <GlProvider>

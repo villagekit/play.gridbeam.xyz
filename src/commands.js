@@ -1,30 +1,29 @@
 import { useMemo } from 'react'
-import { equals, prop, map } from 'ramda'
+import { useSelector, useStore } from 'react-redux'
+import { equals, map } from 'ramda'
 import modOp from 'mod-op'
-import useModelStore from './stores/model'
 
 function useCommands () {
-  const addPart = useModelStore(prop('addPart'))
-  const updateSelected = useModelStore(prop('updateSelected'))
-  const removeSelected = useModelStore(prop('removeSelected'))
-  const selectedUuids = useModelStore(prop('selectedUuids'))
+  const { select, dispatch } = useStore()
+
+  const hasSelected = useSelector(select.parts.hasSelected)
 
   const methods = {
-    addPart,
-    updateSelected,
-    removeSelected
+    addPart: dispatch.parts.addPart,
+    updateSelected: dispatch.parts.updateSelected,
+    removeSelected: dispatch.parts.removeSelected
   }
 
   const readyCommands = useMemo(() => {
     return map(([methodName, ...methodArgs]) => {
-      if (methodName.endsWith('Selected') && selectedUuids.length === 0) {
-        return
-      }
       const method = methods[methodName]
       if (method == null) return
+      if (methodName.endsWith('Selected') && !hasSelected) {
+        return () => {}
+      }
       return () => method(...methodArgs)
     }, commands)
-  }, [selectedUuids, addPart, updateSelected, removeSelected])
+  }, [hasSelected])
 
   return readyCommands
 }

@@ -1,8 +1,7 @@
 import React from 'react'
-import { complement, prop } from 'ramda'
-import { default as styled } from 'styled-components'
+import { useSelector, useStore } from 'react-redux'
+import styled from 'styled-components'
 
-import useModelStore from '../stores/model'
 import Sidebar from './sidebar'
 import Actions from './action'
 import SelectionBox from './selection-box'
@@ -12,24 +11,19 @@ import Keyboard from './keyboard'
 export default GridBeamPlayground
 
 function GridBeamPlayground ({ defaultParts }) {
-  const parts = useModelStore(prop('parts'))
-  const setParts = useModelStore(prop('setParts'))
-  const isLoaded = useModelStore(prop('isLoaded'))
-  const setLoaded = useModelStore(prop('setLoaded'))
-  const loadParts = useModelStore(prop('loadParts'))
-  const saveParts = useModelStore(prop('saveParts'))
+  const { select, dispatch } = useStore()
 
-  const [hash, setHash] = React.useState('')
-  React.useEffect(() => {}, [hash])
+  const rawParts = useSelector(select.parts.raw)
+  const isLoaded = useSelector(select.parts.isLoaded)
+  const savedHash = useSelector(select.parts.savedHash)
 
   const [numSaving, setNumSaving] = React.useState(0)
   const isSaving = numSaving > 0
 
   React.useEffect(() => {
     if (isSaving) return
-    if (!isLoaded) loadParts(setParts, setLoaded)
-    else if (parts == null) setParts(defaultParts)
-    else saveParts(parts, setHash)
+    if (!isLoaded) dispatch.parts.loadParts(defaultParts)
+    else dispatch.parts.saveParts(rawParts)
 
     return () => window.removeEventListener('hashchange', onHashChange)
 
@@ -38,25 +32,13 @@ function GridBeamPlayground ({ defaultParts }) {
         setNumSaving(value => value - 1)
         return
       }
-      console.log('hash change', window.location.hash)
-      if (window.location.hash !== hash) {
-        loadParts(setParts, setLoaded)
+      if (window.location.hash !== savedHash) {
+        dispatch.parts.loadParts()
       }
     }
-  }, [
-    isSaving,
-    isLoaded,
-    loadParts,
-    setParts,
-    setLoaded,
-    parts,
-    defaultParts,
-    saveParts,
-    setHash,
-    hash
-  ])
+  }, [isSaving, isLoaded, rawParts, defaultParts, savedHash])
 
-  if (parts == null) return null
+  if (rawParts == null) return null
 
   return (
     <Container>

@@ -13,13 +13,16 @@ function SelectionBox (props) {
   const endPoint = useSelector(select.selection.endPoint)
 
   React.useEffect(() => {
+    if (!isEnabled) dispatch.selection.endSelection()
+  }, [isEnabled])
+
+  React.useEffect(() => {
     document.addEventListener('keyup', handleKeyUp)
     document.addEventListener('mousedown', handleMouseDown)
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
 
     return () => {
-      dispatch.selection.endSelection()
       document.removeEventListener('keyup', handleKeyUp)
       document.removeEventListener('mousedown', handleMouseDown)
       document.removeEventListener('mousemove', handleMouseMove)
@@ -35,6 +38,7 @@ function SelectionBox (props) {
 
     function handleMouseMove (ev) {
       if (!isEnabled) return
+      if (!isSelecting) return
       handleEnd(ev)
     }
 
@@ -63,7 +67,7 @@ function SelectionBox (props) {
         y: -(ev.clientY / window.innerHeight) * 2 + 1
       })
     }
-  }, [isEnabled])
+  }, [isEnabled, isSelecting])
 
   return (
     isSelecting && <SelectBox startPoint={startPoint} endPoint={endPoint} />

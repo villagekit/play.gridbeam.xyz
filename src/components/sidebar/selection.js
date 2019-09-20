@@ -1,62 +1,61 @@
 import React from 'react'
+import { useSelector, useStore } from 'react-redux'
 import { Box, Flex, Text } from 'rebass/styled-components'
 import { Group } from 'reakit/Group'
-import { set } from 'lodash'
-import { mapObjIndexed, keys, pick, pipe, prop, values } from 'ramda'
+import { map } from 'ramda'
+import setIn from 'set-in'
 import { useDebounce } from 'react-debounce-hook'
-
-import useModelStore from '../../stores/model'
 
 export default Selection
 
 function Selection (props) {
-  const parts = useModelStore(prop('parts'))
-  const selectedUuids = useModelStore(prop('selectedUuids'))
-  const update = useModelStore(prop('update'))
+  const { select, dispatch } = useStore()
 
-  const selectedParts = React.useMemo(() => pick(keys(selectedUuids), parts), [
-    parts,
-    selectedUuids
-  ])
+  const selectedParts = useSelector(select.parts.selected)
 
-  const renderPart = React.useMemo(() => {
-    const renderBeam = (selected, uuid) => (
+  const renderSelectedParts = React.useMemo(() => {
+    const renderBeam = (uuid, selected) => (
       <ControlSection key={uuid} title='beam'>
         <SelectControl
           name='direction'
           label='direction'
           options={['x', 'y', 'z']}
+          path={['direction']}
           value={selected.direction}
-          update={next => update(uuid, next)}
+          update={updater => dispatch.parts.update({ uuid, updater })}
         />
         <InputControl
           type='number'
           name='length'
           label='length'
+          path={['length']}
           value={selected.length}
           min={1}
-          update={next => update(uuid, next)}
+          update={updater => dispatch.parts.update({ uuid, updater })}
         />
         <InputControl
           type='number'
           name='origin[0]'
           label='origin.x'
+          path={['origin', 0]}
           value={selected.origin[0]}
-          update={next => update(uuid, next)}
+          update={updater => dispatch.parts.update({ uuid, updater })}
         />
         <InputControl
           type='number'
           name='origin[1]'
           label='origin.y'
+          path={['origin', 1]}
           value={selected.origin[1]}
-          update={next => update(uuid, next)}
+          update={updater => dispatch.parts.update({ uuid, updater })}
         />
         <InputControl
           type='number'
           name='origin[2]'
           label='origin.z'
+          path={['origin', 2]}
           value={selected.origin[2]}
-          update={next => update(uuid, next)}
+          update={updater => dispatch.parts.update({ uuid, updater })}
         />
       </ControlSection>
     )
@@ -65,18 +64,12 @@ function Selection (props) {
       beam: renderBeam
     }
 
-    return (selected, uuid) => {
+    return map(selected => {
       const renderer = renderers[selected.type]
-      return renderer(selected, uuid)
-    }
-  }, [update])
-
-  const renderSelectedParts = React.useMemo(() =>
-    pipe(
-      mapObjIndexed(renderPart),
-      values
-    )
-  )
+      const { uuid } = selected
+      return renderer(uuid, selected)
+    })
+  }, [])
 
   return (
     <SelectionContainer>
@@ -99,7 +92,7 @@ const ControlSection = props => {
 }
 
 const InputControl = props => {
-  const { name, label, value, update, ...inputProps } = props
+  const { name, label, path, value, update, ...inputProps } = props
 
   const [nextValue, setValue] = React.useState(value)
 
@@ -109,7 +102,7 @@ const InputControl = props => {
 
   const handleUpdate = React.useCallback(value => {
     update(object => {
-      set(object, name, Number(value))
+      setIn(object, path, Number(value))
     })
   }, [])
   const handleChange = React.useCallback(ev => {
@@ -132,7 +125,7 @@ const InputControl = props => {
 }
 
 const SelectControl = props => {
-  const { name, label, value, options, update, ...selectProps } = props
+  const { name, label, path, value, options, update, ...selectProps } = props
 
   const [nextValue, setValue] = React.useState(value)
 
@@ -142,7 +135,7 @@ const SelectControl = props => {
 
   const handleUpdate = React.useCallback(value => {
     update(object => {
-      set(object, name, value)
+      setIn(object, path, value)
     })
   }, [])
   const handleChange = React.useCallback(ev => {

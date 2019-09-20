@@ -15,7 +15,9 @@ export default Beam
 function Beam (props) {
   const {
     uuid,
-    value,
+    direction,
+    length,
+    origin,
     isHovered,
     hover,
     unhover,
@@ -30,8 +32,6 @@ function Beam (props) {
   // TODO: spec should be stored per beam
   const beamWidth = useSelector(selectors.spec.currentBeamWidth)
   const holeDiameter = useSelector(selectors.spec.currentHoleDiameter)
-
-  const { direction, length, origin } = value
 
   const rotation =
     typeof direction === 'string' ? rotationByDirection[direction] : direction
@@ -96,10 +96,10 @@ function Beam (props) {
 
     const delta = new Vector3()
       .copy(nextOrigin)
-      .sub(new Vector3().fromArray(value.origin))
+      .sub(new Vector3().fromArray(origin))
 
     move(delta.toArray())
-  }, [uuid, isSelected, value, atMoveStart, beamWidth])
+  }, [uuid, isSelected, origin, atMoveStart, beamWidth])
 
   const handleHover = React.useCallback(ev => {
     ev.stopPropagation()
@@ -120,8 +120,7 @@ function Beam (props) {
   }, [uuid, select])
 
   const color = React.useMemo(() => {
-    const value = isSelected ? 'cyan' : isHovered ? 'magenta' : 'white'
-    return new Color(value)
+    return new Color(isSelected ? 'cyan' : isHovered ? 'magenta' : 'white')
   }, [isSelected, isHovered])
 
   return (
@@ -135,7 +134,7 @@ function Beam (props) {
         dispatch.camera.disableControl()
         dispatch.selection.disable()
         if (!isSelected) select()
-        setAtMoveStart([ev.point, value.origin])
+        setAtMoveStart([ev.point, origin])
       }}
       onPointerUp={ev => {
         ev.stopPropagation()
@@ -154,7 +153,7 @@ function Beam (props) {
         </meshLambertMaterial>
       </mesh>
       <Holes
-        numHoles={value.length}
+        numHoles={length}
         beamWidth={beamWidth}
         holeDiameter={holeDiameter}
       />

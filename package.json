@@ -29,6 +29,7 @@
     "react-three-fiber": "^2.3.6",
     "reakit": "1.0.0-beta.5",
     "rebass": "^4.0.2",
+    "set-in": "^2.0.0",
     "shader": "^1.0.0",
     "styled-components": "^4.3.1",
     "styled-reset": "^2.0.15",
@@ -36,8 +37,7 @@
     "typeface-bungee": "0.0.72",
     "typeface-ibm-plex-sans": "0.0.61",
     "typeface-ibm-plex-serif": "0.0.61",
-    "use-clipboard-copy": "^0.1.1",
-    "zustand": "^1.0.7"
+    "use-clipboard-copy": "^0.1.1"
   },
   "license": "AGPL-3.0",
   "scripts": {

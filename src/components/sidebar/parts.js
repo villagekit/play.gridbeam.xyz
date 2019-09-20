@@ -1,15 +1,14 @@
 import React from 'react'
-import { Box, Flex, Text } from 'rebass/styled-components'
-import { length, pipe, groupBy, path, map, sum } from 'ramda'
-import useModelStore from '../../stores/model'
-import { selectPartsByType } from '../../selectors/parts'
+import { useSelector, useStore } from 'react-redux'
+import { Box, Text } from 'rebass/styled-components'
+import { length, pipe, groupBy, prop, map, sum } from 'ramda'
 
 export default Parts
 
 function Parts (props) {
-  const partsByType = useModelStore(selectPartsByType)
+  const { select } = useStore()
 
-  console.log('partsByType', partsByType)
+  const partsByType = useSelector(select.parts.byType)
 
   return (
     <PartsContainer>
@@ -79,18 +78,22 @@ function BeamSummary (props) {
               }
             }}
           >
-            <tr>
-              <th>Length</th>
-              <th>Quantity</th>
-            </tr>
-            {Object.entries(numBeamsByLength).map(
-              ([length, numBeamsOfLength]) => (
-                <tr>
-                  <td>{length} holes</td>
-                  <td>{numBeamsOfLength}</td>
-                </tr>
-              )
-            )}
+            <thead>
+              <tr>
+                <th>Length</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(numBeamsByLength).map(
+                ([length, numBeamsOfLength]) => (
+                  <tr key={length}>
+                    <td>{length} holes</td>
+                    <td>{numBeamsOfLength}</td>
+                  </tr>
+                )
+              )}
+            </tbody>
           </Box>
         </dd>
       </Box>
@@ -99,11 +102,11 @@ function BeamSummary (props) {
 }
 
 const calculateTotalLength = pipe(
-  map(path(['value', 'length'])),
+  map(prop('length')),
   sum
 )
 
 const calculateNumBeamsByLength = pipe(
-  groupBy(path(['value', 'length'])),
+  groupBy(prop('length')),
   map(length)
 )

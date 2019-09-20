@@ -2,9 +2,6 @@ import React from 'react'
 import { useStore, useSelector } from 'react-redux'
 import { Box2, Vector2 } from 'three'
 import { useThree } from 'react-three-fiber'
-import { prop } from 'ramda'
-
-import useModelStore from '../stores/model'
 
 export default SelectionGl
 
@@ -18,8 +15,6 @@ function SelectionGl (props) {
   const selectableScreenBounds = useSelector(
     select.selection.selectableScreenBounds
   )
-
-  const selects = useModelStore(prop('selects'))
 
   const { scene, camera } = useThree()
   // this optimization works because the camera doesn't move once selecting
@@ -47,8 +42,7 @@ function SelectionGl (props) {
         selections.push(uuid)
       }
     })
-    console.log('selects', selections)
-    selects(selections)
+    dispatch.parts.selects(selections)
   }, [isEnabled, isSelecting, selectionScreenBounds, selectableScreenBounds])
 
   return null
