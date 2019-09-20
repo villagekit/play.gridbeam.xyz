@@ -1,4 +1,5 @@
 export { camera } from './camera'
 export { parts } from './parts'
+export { persist } from './persist'
 export { selection } from './selection'
 export { spec } from './spec'

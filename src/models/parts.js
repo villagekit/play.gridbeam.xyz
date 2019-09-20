@@ -1,10 +1,6 @@
 import produce from 'immer'
 import { Math as ThreeMath } from 'three'
 import {
-  compressToEncodedURIComponent,
-  decompressFromEncodedURIComponent
-} from 'lz-string'
-import {
   complement,
   filter,
   equals,
@@ -13,7 +9,6 @@ import {
   groupBy,
   pipe,
   prop,
-  values,
   zipObj
 } from 'ramda'
 
@@ -21,19 +16,11 @@ export let parts = {
   name: 'parts',
   state: {
     parts: null,
-    isLoaded: false,
-    isMoving: false,
-    savedHash: ''
+    isMoving: false
   },
   reducers: {
-    setLoaded: produce((state, isLoaded) => {
-      state.isLoaded = isLoaded
-    }),
     setMoving: produce((state, moving) => {
       state.isMoving = moving
-    }),
-    setSavedHash: produce((state, hash) => {
-      state.savedHash = hash
     }),
     setParts: produce((state, parts) => {
       const uuids = parts.map(part => ThreeMath.generateUUID())
@@ -67,77 +54,9 @@ export let parts = {
       })
     })
   },
-  effects: dispatch => ({
-    loadParts: defaultParts => {
-      dispatch.parts.setLoaded(true)
-
-      const modelUriComponent = window.location.href.split('#')[1]
-      if (modelUriComponent == null) {
-        dispatch.parts.setParts(defaultParts)
-        return
-      }
-
-      const version = Number(modelUriComponent[0])
-
-      if (version === 1) {
-        const modelString = modelUriComponent.substring(1)
-
-        try {
-          var modelJson = decompressFromEncodedURIComponent(modelString)
-        } catch (err) {
-          throw new Error(
-            'gridbeam-editor/stores/model: could not parse model from Base64 in Url'
-          )
-        }
-
-        try {
-          var model = JSON.parse(modelJson)
-        } catch (err) {
-          throw new Error(
-            'gridbeam-editor/stores/model: could not parse model from Json in Url'
-          )
-        }
-
-        const { parts } = model
-
-        dispatch.parts.setParts(parts)
-      } else {
-        throw new Error(`Unexpected version: ${version}`)
-      }
-    },
-    saveParts: parts => {
-      const version = 1
-
-      const model = {
-        parts: values(parts)
-      }
-
-      try {
-        var modelJson = JSON.stringify(model)
-      } catch (err) {
-        throw new Error(
-          'gridbeam-editor/stores/model: could not stringify Json model'
-        )
-      }
-      try {
-        var modelBase64 = compressToEncodedURIComponent(modelJson)
-      } catch (err) {
-        throw new Error(
-          'gridbeam-editor/stores/model: could not stringify Base64 model'
-        )
-      }
-
-      const hash = '#' + version + modelBase64
-
-      dispatch.parts.setSavedHash(hash)
-
-      window.location.href = window.location.href.split('#')[0] + hash
-    }
-  }),
+  effects: dispatch => ({}),
   selectors: (slice, createSelector) => ({
-    isLoaded: () => slice(prop('isLoaded')),
     isMoving: () => slice(prop('isMoving')),
-    savedHash: () => slice(prop('savedHash')),
     hoveredUuids: () => slice(prop('hoveredUuids')),
     selectedUuids: () => slice(prop('selectedUuids')),
     raw: () => slice(prop('parts')),
@@ -179,8 +98,6 @@ export let parts = {
       )
   })
 }
-
-function computeCentroid (parts) {}
 
 createBeamHappening(parts, 'hover')
 createBeamHappening(parts, 'select')

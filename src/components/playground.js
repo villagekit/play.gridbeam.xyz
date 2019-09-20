@@ -14,16 +14,17 @@ function GridBeamPlayground ({ defaultParts }) {
   const { select, dispatch } = useStore()
 
   const rawParts = useSelector(select.parts.raw)
-  const isLoaded = useSelector(select.parts.isLoaded)
-  const savedHash = useSelector(select.parts.savedHash)
+  const isLoading = useSelector(select.persist.isLoading)
+  const isLoaded = useSelector(select.persist.isLoaded)
+  const savedHash = useSelector(select.persist.savedHash)
 
   const [numSaving, setNumSaving] = React.useState(0)
   const isSaving = numSaving > 0
 
   React.useEffect(() => {
-    if (isSaving) return
-    if (!isLoaded) dispatch.parts.loadParts(defaultParts)
-    else dispatch.parts.saveParts(rawParts)
+    if (isLoading || isSaving) return
+    if (!isLoaded) dispatch.persist.loadParts(defaultParts)
+    else dispatch.persist.saveParts(rawParts)
 
     return () => window.removeEventListener('hashchange', onHashChange)
 
@@ -33,10 +34,10 @@ function GridBeamPlayground ({ defaultParts }) {
         return
       }
       if (window.location.hash !== savedHash) {
-        dispatch.parts.loadParts()
+        dispatch.persist.loadParts()
       }
     }
-  }, [isSaving, isLoaded, rawParts, defaultParts, savedHash])
+  }, [isSaving, isLoading, isLoaded, rawParts, defaultParts, savedHash])
 
   if (rawParts == null) return null
 
