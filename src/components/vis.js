@@ -13,6 +13,7 @@ import { GlProvider } from './provider'
 import Beam from './beam'
 import Camera from './camera'
 import Selector from './selection-gl'
+import Clipboard from './clipboard'
 
 const texturePathsByMaterialType = {
   wood: require('../textures/pine.jpg')
@@ -72,6 +73,7 @@ function Vis (props) {
         <Camera />
         <Selector />
         <Background currentBeamWidth={currentBeamWidth} />
+        <Clipboard />
 
         {renderParts(parts)}
       </GlProvider>

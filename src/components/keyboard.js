@@ -56,7 +56,9 @@ const keyCodes = {
     KeyA: 'createBeam',
     KeyQ: 'removeSelected',
     KeyG: 'lengthenSelected',
-    KeyT: 'unlengthenSelected'
+    KeyT: 'unlengthenSelected',
+    Backspace: 'removeSelected',
+    Delete: 'removeSelected'
   },
   leftHanded: {
     KeyI: 'moveForward',
@@ -76,6 +78,8 @@ const keyCodes = {
     Semicolon: 'createBeam',
     KeyP: 'removeSelected',
     KeyH: 'lengthenSelected',
-    KeyY: 'unlengthenSelected'
+    KeyY: 'unlengthenSelected',
+    Backspace: 'removeSelected',
+    Delete: 'removeSelected'
   }
 }

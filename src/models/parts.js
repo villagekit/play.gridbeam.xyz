@@ -10,10 +10,10 @@ import {
   equals,
   keys,
   isEmpty,
-  values,
   groupBy,
   pipe,
   prop,
+  values,
   zipObj
 } from 'ramda'
 
@@ -38,6 +38,12 @@ export let parts = {
     addPart: produce((state, newPart) => {
       const uuid = ThreeMath.generateUUID()
       state.parts[uuid] = newPart
+    }),
+    addParts: produce((state, newParts) => {
+      newParts.forEach(newPart => {
+        const uuid = ThreeMath.generateUUID()
+        state.parts[uuid] = newPart
+      })
     }),
     update: produce((state, { uuid, updater }) => {
       const safeUpdater = SafeUpdater(updater)
