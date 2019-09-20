@@ -1,33 +1,24 @@
 import React from 'react'
+import { useStore, useSelector } from 'react-redux'
 import * as THREE from 'three'
 import { useThree } from 'react-three-fiber'
-import { Box } from 'rebass/styled-components'
-import { prop, forEach } from 'ramda'
-import produce from 'immer'
-import useSelectionStore from '../stores/selection'
+import { prop } from 'ramda'
+
 import useModelStore from '../stores/model'
 
 export default SelectionGl
 
-// - for each mesh, generate 2d screen box
-//   - https://stackoverflow.com/a/45879073
-// - generate selected bounds
-//   - startPoint and Box2.expandByPoint(endPoint)
-// - if selected bounds includes mesh box, it's in
-//   - Box2.containsBox
-//
-
 function SelectionGl (props) {
-  const isSelecting = useSelectionStore(prop('isSelecting'))
-  const startPoint = useSelectionStore(prop('startPoint'))
-  const endPoint = useSelectionStore(prop('endPoint'))
-  const isEnabled = useSelectionStore(prop('isEnabled'))
-  const selectableScreenBounds = useSelectionStore(
-    prop('selectableScreenBounds')
+  const { select, dispatch } = useStore()
+
+  const isEnabled = useSelector(select.selection.isEnabled)
+  const isSelecting = useSelector(select.selection.isSelecting)
+  const startPoint = useSelector(select.selection.startPoint)
+  const endPoint = useSelector(select.selection.endPoint)
+  const selectableScreenBounds = useSelector(
+    select.selection.selectableScreenBounds
   )
-  const updateSelectableScreenBounds = useSelectionStore(
-    prop('updateSelectableScreenBounds')
-  )
+
   const selects = useModelStore(prop('selects'))
 
   const { scene, camera } = useThree()
@@ -35,7 +26,7 @@ function SelectionGl (props) {
   React.useEffect(() => {
     if (!isEnabled) return
     if (!isSelecting) return
-    updateSelectableScreenBounds({ scene, camera })
+    dispatch.selection.updateSelectableScreenBounds({ scene, camera })
   }, [isEnabled, isSelecting])
 
   const selectionScreenBounds = React.useMemo(() => {

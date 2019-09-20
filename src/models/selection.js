@@ -1,41 +1,38 @@
+import produce from 'immer'
+import { prop } from 'ramda'
 import * as THREE from 'three'
-import { useState, useEffect } from 'react'
-import create from './'
 
-const [useSelectionStore] = create(set => ({
-  isEnabled: true,
-  enable: () =>
-    set(state => {
+export const selection = {
+  name: 'selection',
+  state: {
+    isEnabled: true,
+    isSelecting: false,
+    startPoint: { x: 0, y: 0 },
+    endPoint: { x: 0, y: 0 },
+    selectableScreenBounds: {}
+  },
+  reducers: {
+    enable: produce(state => {
       state.isEnabled = true
     }),
-  disable: () =>
-    set(state => {
+    disable: produce(state => {
       state.isEnabled = false
     }),
-  isSelecting: false,
-  startSelection: () =>
-    set(state => {
+    startSelection: produce(state => {
       state.isSelecting = true
     }),
-  endSelection: () =>
-    set(state => {
+    endSelection: produce(state => {
       state.isSelecting = false
     }),
-  startPoint: { x: 0, y: 0 },
-  endPoint: { x: 0, y: 0 },
-  setStartPoint: ({ x, y }) =>
-    set(state => {
+    setStartPoint: produce((state, { x, y }) => {
       state.startPoint.x = x
       state.startPoint.y = y
     }),
-  setEndPoint: ({ x, y }) =>
-    set(state => {
+    setEndPoint: produce((state, { x, y }) => {
       state.endPoint.x = x
       state.endPoint.y = y
     }),
-  selectableScreenBounds: {},
-  updateSelectableScreenBounds: ({ scene, camera }) =>
-    set(state => {
+    updateSelectableScreenBounds: produce((state, { scene, camera }) => {
       forEachMesh(scene, mesh => {
         state.selectableScreenBounds[mesh.uuid] = computeScreenBounds({
           mesh,
@@ -43,9 +40,15 @@ const [useSelectionStore] = create(set => ({
         })
       })
     })
-}))
-
-export default useSelectionStore
+  },
+  selectors: slice => ({
+    isEnabled: () => slice(prop('isEnabled')),
+    isSelecting: () => slice(prop('isSelecting')),
+    startPoint: () => slice(prop('startPoint')),
+    endPoint: () => slice(prop('endPoint')),
+    selectableScreenBounds: () => slice(prop('selectableScreenBounds'))
+  })
+}
 
 function forEachMesh (object, fn) {
   if (object.isMesh) {
@@ -79,8 +82,6 @@ function computeScreenBounds ({ mesh, camera }) {
     min.min(vertexScreenSpace)
     max.max(vertexScreenSpace)
   }
-
-  console.log('mesh', mesh.uuid, min, max)
 
   return new THREE.Box2(min, max)
 }

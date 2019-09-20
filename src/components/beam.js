@@ -1,10 +1,10 @@
 import React from 'react'
 import { useStore } from 'react-redux'
 import * as THREE from 'three'
-import { map, multiply, prop, range } from 'ramda'
+import { range } from 'ramda'
 import { useResource } from 'react-three-fiber'
+
 import useSpecStore from '../stores/spec'
-import useSelectionStore from '../stores/selection'
 import { getBeamWidth, getHoleDiameter } from '../selectors/spec'
 
 const rotationByDirection = {
@@ -30,8 +30,6 @@ function Beam (props) {
 
   const { dispatch } = useStore()
 
-  const enableSelectionBox = useSelectionStore(prop('enable'))
-  const disableSelectionBox = useSelectionStore(prop('disable'))
   const beamWidth = useSpecStore(getBeamWidth)
   const holeDiameter = useSpecStore(getHoleDiameter)
 
@@ -140,7 +138,7 @@ function Beam (props) {
         ev.stopPropagation()
         ev.target.setPointerCapture(ev.pointerId)
         dispatch.camera.disableControl()
-        disableSelectionBox()
+        dispatch.selection.disable()
         if (!isSelected) select()
         setAtMoveStart([ev.point, value.origin])
       }}
@@ -148,7 +146,7 @@ function Beam (props) {
         ev.stopPropagation()
         ev.target.releasePointerCapture(ev.pointerId)
         dispatch.camera.enableControl()
-        enableSelectionBox()
+        dispatch.selection.enable()
         setAtMoveStart(null)
       }}
       onPointerMove={handleMove}

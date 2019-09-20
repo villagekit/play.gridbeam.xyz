@@ -1,8 +1,8 @@
 import React from 'react'
 import { complement, prop } from 'ramda'
 import { default as styled } from 'styled-components'
+
 import useModelStore from '../stores/model'
-import useSelectionStore from '../stores/selection'
 import Sidebar from './sidebar'
 import Actions from './action'
 import SelectionBox from './selection-box'
