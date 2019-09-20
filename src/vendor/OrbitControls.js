@@ -540,6 +540,9 @@ function OrbitControls (object, domElement) {
         pan(-scope.keyPanSpeed, 0)
         needsUpdate = true
         break
+
+      default:
+        break
     }
 
     if (needsUpdate) {
@@ -688,6 +691,9 @@ function OrbitControls (object, domElement) {
         state = STATE.PAN
 
         break
+
+      default:
+        break
     }
 
     if (state !== STATE.NONE) {
@@ -723,6 +729,9 @@ function OrbitControls (object, domElement) {
 
         handleMouseMovePan(event)
 
+        break
+
+      default:
         break
     }
   }

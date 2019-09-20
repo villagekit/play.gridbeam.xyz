@@ -1,4 +1,4 @@
-import { prop, path } from 'ramda'
+import { path } from 'ramda'
 
 const INCH_TO_MM = 25.4
 

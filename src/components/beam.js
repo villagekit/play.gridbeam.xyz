@@ -179,28 +179,28 @@ function Holes (props) {
       <circleGeometry ref={geometryRef} args={[holeRadius, HOLE_SEGMENTS]} />
       {range(0, numHoles).map(index => (
         <React.Fragment key={index}>
-          // top
+          {/* top */}
           <mesh
             material={material}
             geometry={geometry}
             rotation={[0, 0, 0]}
             position={[index * beamWidth, 0, 0.01 + (1 / 2) * beamWidth]}
           />
-          // bottom
+          {/* bottom */}
           <mesh
             material={material}
             geometry={geometry}
             rotation={[Math.PI, 0, 0]}
             position={[index * beamWidth, 0, -0.01 - (1 / 2) * beamWidth]}
           />
-          // left
+          {/* left */}
           <mesh
             material={material}
             geometry={geometry}
             rotation={[(3 / 2) * Math.PI, 0, 0]}
             position={[index * beamWidth, 0.01 + (1 / 2) * beamWidth, 0]}
           />
-          // right
+          {/* right */}
           <mesh
             material={material}
             geometry={geometry}
@@ -223,25 +223,25 @@ function FirstHoleMarker (props) {
   const { beamWidth, holeDiameter } = props
   return (
     <group>
-      // top
+      {/* top */}
       <HoleMarker
         rotation={[-(1 / 2) * Math.PI, 0, 0]}
         position={[0, 0, 0.02 + (1 / 2) * beamWidth]}
         holeDiameter={holeDiameter}
       />
+      {/* bottom */}
       <HoleMarker
-        // bottom
         rotation={[(1 / 2) * Math.PI, 0, 0]}
         position={[0, 0, -0.02 - (1 / 2) * beamWidth]}
         holeDiameter={holeDiameter}
       />
-      // left
+      {/* left */}
       <HoleMarker
         rotation={[Math.PI, 0, 0]}
         position={[0, 0.02 + (1 / 2) * beamWidth, 0]}
         holeDiameter={holeDiameter}
       />
-      // right
+      {/* right */}
       <HoleMarker
         rotation={[0, 0, 0]}
         position={[0, -0.02 - (1 / 2) * beamWidth, 0]}

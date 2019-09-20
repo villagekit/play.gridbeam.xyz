@@ -1,21 +1,11 @@
 import React from 'react'
 import { Object3D, Vector3 } from 'three'
-import { Box, Flex, Text, Link, Image, Button } from 'rebass/styled-components'
-import { StaticQuery, graphql } from 'gatsby'
-import Img from 'gatsby-image'
-import shader from 'shader'
 
 import { withLayout } from '../components/layout'
 import SEO from '../components/seo'
 import Playground from '../components/playground'
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)
-
-/*
-
-http://localhost:8000/#N4IgbgpgTgzglgewHYgFwgIwgDQgA4CGUALjGgNqjECeeEaIARhAQLY4gAmcUEAxsUQp0ADw4IocAOZxh5AAzYMSgLq4ANhCRTiACzQAWAL7YqteumZsO3XgKEMxuCdNkVFyg2pCbtewyZmdAxW7Li2-ILIDNTikjJyyory3r46+qgArIEgNMGWLGFcPJEO6ABeca5yydgpGlrpaBjyRipGQA
-
-*/
 
 var defaultParts = [
   {
