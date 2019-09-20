@@ -64,12 +64,18 @@ function Help (props) {
         <dd>rotate prev</dd>
         <dt>A</dt>
         <dd>add</dd>
-        <dt>Q</dt>
+        <dt>Q or Backspace or Delete</dt>
         <dd>delete</dd>
         <dt>G</dt>
         <dd>lengthen</dd>
         <dt>T</dt>
         <dd>unlengthen</dd>
+        <dt>Ctrl+X</dt>
+        <dd>cut</dd>
+        <dt>Ctrl+C</dt>
+        <dd>copy</dd>
+        <dt>Ctrl+V</dt>
+        <dd>paste</dd>
       </Box>
       <Text m={2} fontFamily='body'>
         If you enjoyed this, please send &nbsp;
