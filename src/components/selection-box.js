@@ -44,12 +44,14 @@ function SelectionBox (props) {
 
     function handleMouseUp (ev) {
       if (!isEnabled) return
+      if (!isSelecting) return
       dispatch.selection.endSelection()
       handleEnd(ev)
     }
 
     function handleKeyUp (ev) {
       if (!isEnabled) return
+      if (!isSelecting) return
       if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') {
         dispatch.selection.endSelection()
       }
