@@ -44,7 +44,9 @@ module.exports = {
         matomoUrl: 'https://analytics.mikey.nz',
         siteUrl: 'https://play.gridbeam.xyz'
       }
-    }
+    },
+    'gatsby-plugin-ramda',
+    'gatsby-plugin-webpack-bundle-analyzer'
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.app/offline
     // 'gatsby-plugin-offline',
