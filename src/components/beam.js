@@ -1,6 +1,6 @@
 import React from 'react'
 import { useStore, useSelector } from 'react-redux'
-import * as THREE from 'three'
+import { BoxGeometry, Vector3, Plane, Color } from 'three'
 import { range } from 'ramda'
 import { useResource } from 'react-three-fiber'
 
@@ -38,7 +38,7 @@ function Beam (props) {
 
   const geometry = React.useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
-    var boxGeometry = new THREE.BoxGeometry(...boxSize, length)
+    var boxGeometry = new BoxGeometry(...boxSize, length)
 
     // translate beam so first hole is at (0, 0).
     // this way, the first hole is preserved across rotations.
@@ -62,44 +62,41 @@ function Beam (props) {
     if (atMoveStart == null) return
 
     const [pointAtMoveStart, originAtMoveStart] = atMoveStart
-    var intersectionPoint = new THREE.Vector3()
+    var intersectionPoint = new Vector3()
     var movementVector
 
     if (ev.shiftKey) {
       // TODO is this correct?
-      const verticalPlane = new THREE.Plane(
-        new THREE.Vector3(1, 0, 0),
-        -pointAtMoveStart.x
-      )
+      const verticalPlane = new Plane(new Vector3(1, 0, 0), -pointAtMoveStart.x)
       ev.ray.intersectPlane(verticalPlane, intersectionPoint)
-      movementVector = new THREE.Vector3(
+      movementVector = new Vector3(
         0,
         0,
         intersectionPoint.z - pointAtMoveStart.z
       )
     } else {
-      const horizontalPlane = new THREE.Plane(
-        new THREE.Vector3(0, 0, 1),
+      const horizontalPlane = new Plane(
+        new Vector3(0, 0, 1),
         -pointAtMoveStart.z
       )
       ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
-      movementVector = new THREE.Vector3()
+      movementVector = new Vector3()
         .copy(intersectionPoint)
         .sub(pointAtMoveStart)
     }
 
-    const beamMovementVector = new THREE.Vector3()
+    const beamMovementVector = new Vector3()
       .copy(movementVector)
       .divideScalar(beamWidth)
       .round()
 
-    const nextOrigin = new THREE.Vector3()
+    const nextOrigin = new Vector3()
       .fromArray(originAtMoveStart)
       .add(beamMovementVector)
 
-    const delta = new THREE.Vector3()
+    const delta = new Vector3()
       .copy(nextOrigin)
-      .sub(new THREE.Vector3().fromArray(value.origin))
+      .sub(new Vector3().fromArray(value.origin))
 
     move(delta.toArray())
   }, [uuid, isSelected, value, atMoveStart, beamWidth])
@@ -124,7 +121,7 @@ function Beam (props) {
 
   const color = React.useMemo(() => {
     const value = isSelected ? 'cyan' : isHovered ? 'magenta' : 'white'
-    return new THREE.Color(value)
+    return new Color(value)
   }, [isSelected, isHovered])
 
   return (

@@ -1,6 +1,11 @@
 import React from 'react'
 import { useStore, useSelector } from 'react-redux'
-import * as THREE from 'three'
+import {
+  TextureLoader,
+  PlaneBufferGeometry,
+  ShadowMaterial,
+  SpotLight
+} from 'three'
 import { Canvas, useThree } from 'react-three-fiber'
 import { map, prop } from 'ramda'
 import { mapValues } from 'lodash'
@@ -30,7 +35,7 @@ function Vis (props) {
 
   const texturesByMaterialType = React.useMemo(() => {
     return mapValues(texturePathsByMaterialType, texturePath => {
-      return new THREE.TextureLoader().load(texturePath)
+      return new TextureLoader().load(texturePath)
     })
   }, [texturePathsByMaterialType])
   const beamTexture = React.useMemo(() => {
@@ -72,12 +77,12 @@ function Background (props) {
   const floorLength = floorTiles * currentBeamWidth
 
   const planeGeometry = React.useMemo(() => {
-    var planeGeometry = new THREE.PlaneBufferGeometry(floorLength, floorLength)
+    var planeGeometry = new PlaneBufferGeometry(floorLength, floorLength)
     return planeGeometry
   }, [])
 
   const planeMaterial = React.useMemo(() => {
-    return new THREE.ShadowMaterial({ opacity: 0.2 })
+    return new ShadowMaterial({ opacity: 0.2 })
   }, [])
 
   const { scene, gl } = useThree()
@@ -86,7 +91,7 @@ function Background (props) {
   }, [])
 
   const spotLight = React.useMemo(() => {
-    var light = new THREE.SpotLight(0xffffff, 0)
+    var light = new SpotLight(0xffffff, 0)
     light.position.set(0, 300, 3000)
     light.castShadow = true
     light.shadow.camera.far = 100000

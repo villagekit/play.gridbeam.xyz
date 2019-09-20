@@ -1,6 +1,6 @@
 import produce from 'immer'
 import { prop } from 'ramda'
-import * as THREE from 'three'
+import { Box2, Vector2, Vector3 } from 'three'
 
 export const selection = {
   name: 'selection',
@@ -70,9 +70,9 @@ function forEachMesh (object, fn) {
 
 function computeScreenBounds ({ mesh, camera }) {
   var vertices = mesh.geometry.vertices
-  var vertex = new THREE.Vector3()
-  var min = new THREE.Vector2(1, 1)
-  var max = new THREE.Vector2(-1, -1)
+  var vertex = new Vector3()
+  var min = new Vector2(1, 1)
+  var max = new Vector2(-1, -1)
 
   for (var i = 0; i < vertices.length; i++) {
     var vertexWorldCoord = vertex
@@ -83,5 +83,5 @@ function computeScreenBounds ({ mesh, camera }) {
     max.max(vertexScreenSpace)
   }
 
-  return new THREE.Box2(min, max)
+  return new Box2(min, max)
 }

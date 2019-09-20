@@ -1,6 +1,6 @@
 import React from 'react'
 import { useStore, useSelector } from 'react-redux'
-import * as THREE from 'three'
+import { Box2, Vector2 } from 'three'
 import { useThree } from 'react-three-fiber'
 import { prop } from 'ramda'
 
@@ -30,10 +30,10 @@ function SelectionGl (props) {
   }, [isEnabled, isSelecting])
 
   const selectionScreenBounds = React.useMemo(() => {
-    var box = new THREE.Box2()
+    var box = new Box2()
     box.makeEmpty()
-    box.expandByPoint(new THREE.Vector2(startPoint.x, startPoint.y))
-    box.expandByPoint(new THREE.Vector2(endPoint.x, endPoint.y))
+    box.expandByPoint(new Vector2(startPoint.x, startPoint.y))
+    box.expandByPoint(new Vector2(endPoint.x, endPoint.y))
     return box
   }, [startPoint, endPoint])
 

@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import { Math as ThreeMath } from 'three'
 import create from './'
 import {
   compressToEncodedURIComponent,
@@ -15,14 +15,14 @@ const [useModelStore] = create(set => ({
     }),
   setParts: parts =>
     set(state => {
-      const uuids = parts.map(part => THREE.Math.generateUUID())
+      const uuids = parts.map(part => ThreeMath.generateUUID())
       state.parts = zipObj(uuids, parts)
     }),
   ...createBeamHappening(set, 'hover'),
   ...createBeamHappening(set, 'select'),
   addPart: newPart =>
     set(state => {
-      const uuid = THREE.Math.generateUUID()
+      const uuid = ThreeMath.generateUUID()
       state.parts[uuid] = newPart
     }),
   update: (uuid, updater) => {
