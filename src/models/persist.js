@@ -1,12 +1,8 @@
 import produce from 'immer'
 import { equals, pipe, prop, values } from 'ramda'
-import { promisify } from 'util'
-import { gzip, gunzip } from 'zlib'
+import { inflateRaw, deflateRaw, Z_BEST_COMPRESSION } from 'pako'
 
 import Codec from '../codec'
-
-const compress = promisify(gzip)
-const decompress = promisify(gunzip)
 
 export const persist = {
   name: 'persist',
@@ -23,7 +19,7 @@ export const persist = {
     })
   },
   effects: dispatch => ({
-    async loadParts (defaultParts) {
+    loadParts (defaultParts) {
       this.setLoadStatus('loading')
 
       const modelUriComponent = window.location.href.split('#')[1]
@@ -40,7 +36,7 @@ export const persist = {
         const modelBase64 = modelString
         const modelCompressed = Base64.decode(modelBase64)
         try {
-          var modelBuffer = await decompress(Buffer.from(modelCompressed))
+          var modelBuffer = inflateRaw(Buffer.from(modelCompressed))
         } catch (err) {
           console.error(err)
           throw new Error(
@@ -49,7 +45,7 @@ export const persist = {
         }
 
         try {
-          var model = Codec.Model.decode(modelBuffer)
+          var model = Codec.Model.decode(Buffer.from(modelBuffer))
         } catch (err) {
           console.error(err)
           throw new Error(
@@ -65,7 +61,7 @@ export const persist = {
 
       this.setLoadStatus('loaded')
     },
-    async saveParts (parts) {
+    saveParts (parts) {
       const version = 1
 
       const model = {
@@ -81,7 +77,9 @@ export const persist = {
         )
       }
       try {
-        var modelCompressed = await compress(Buffer.from(modelBuffer))
+        var modelCompressed = deflateRaw(Buffer.from(modelBuffer), {
+          level: Z_BEST_COMPRESSION
+        })
       } catch (err) {
         console.error(err)
         throw new Error(
@@ -94,12 +92,6 @@ export const persist = {
       const hash = '#' + version + modelBase64
 
       this.setSavedHash(hash)
-      console.log(
-        'saved',
-        modelBuffer.length,
-        modelCompressed.length,
-        modelBase64.length
-      )
 
       window.location.href = window.location.href.split('#')[0] + hash
     }

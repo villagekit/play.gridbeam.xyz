@@ -10,12 +10,6 @@ var encodings = require('protocol-buffers-encodings')
 var varint = encodings.varint
 var skip = encodings.skip
 
-exports.Direction = {
-  x: 0,
-  y: 1,
-  z: 2
-}
-
 exports.PartType = {
   Beam: 0,
   Skin: 1,
@@ -216,13 +210,7 @@ function defineGridPosition () {
 }
 
 function definePart () {
-  var enc = [
-    encodings.enum,
-    encodings.enum,
-    Rotation,
-    GridPosition,
-    encodings.varint
-  ]
+  var enc = [encodings.enum, Rotation, GridPosition, encodings.varint]
 
   Part.encodingLength = encodingLength
   Part.encode = encode
@@ -233,22 +221,18 @@ function definePart () {
     if (!defined(obj.type)) throw new Error('type is required')
     var len = enc[0].encodingLength(obj.type)
     length += 1 + len
-    if (defined(obj.direction)) {
-      var len = enc[1].encodingLength(obj.direction)
-      length += 1 + len
-    }
     if (defined(obj.rotation)) {
-      var len = enc[2].encodingLength(obj.rotation)
+      var len = enc[1].encodingLength(obj.rotation)
       length += varint.encodingLength(len)
       length += 1 + len
     }
     if (defined(obj.origin)) {
-      var len = enc[3].encodingLength(obj.origin)
+      var len = enc[2].encodingLength(obj.origin)
       length += varint.encodingLength(len)
       length += 1 + len
     }
     if (defined(obj.length)) {
-      var len = enc[4].encodingLength(obj.length)
+      var len = enc[3].encodingLength(obj.length)
       length += 1 + len
     }
     return length
@@ -262,29 +246,24 @@ function definePart () {
     buf[offset++] = 8
     enc[0].encode(obj.type, buf, offset)
     offset += enc[0].encode.bytes
-    if (defined(obj.direction)) {
-      buf[offset++] = 16
-      enc[1].encode(obj.direction, buf, offset)
+    if (defined(obj.rotation)) {
+      buf[offset++] = 18
+      varint.encode(enc[1].encodingLength(obj.rotation), buf, offset)
+      offset += varint.encode.bytes
+      enc[1].encode(obj.rotation, buf, offset)
       offset += enc[1].encode.bytes
     }
-    if (defined(obj.rotation)) {
+    if (defined(obj.origin)) {
       buf[offset++] = 26
-      varint.encode(enc[2].encodingLength(obj.rotation), buf, offset)
+      varint.encode(enc[2].encodingLength(obj.origin), buf, offset)
       offset += varint.encode.bytes
-      enc[2].encode(obj.rotation, buf, offset)
+      enc[2].encode(obj.origin, buf, offset)
       offset += enc[2].encode.bytes
     }
-    if (defined(obj.origin)) {
-      buf[offset++] = 34
-      varint.encode(enc[3].encodingLength(obj.origin), buf, offset)
-      offset += varint.encode.bytes
-      enc[3].encode(obj.origin, buf, offset)
-      offset += enc[3].encode.bytes
-    }
     if (defined(obj.length)) {
-      buf[offset++] = 40
-      enc[4].encode(obj.length, buf, offset)
-      offset += enc[4].encode.bytes
+      buf[offset++] = 32
+      enc[3].encode(obj.length, buf, offset)
+      offset += enc[3].encode.bytes
     }
     encode.bytes = offset - oldOffset
     return buf
@@ -298,7 +277,6 @@ function definePart () {
     var oldOffset = offset
     var obj = {
       type: 0,
-      direction: 0,
       rotation: null,
       origin: null,
       length: 0
@@ -320,24 +298,20 @@ function definePart () {
           found0 = true
           break
         case 2:
-          obj.direction = enc[1].decode(buf, offset)
+          var len = varint.decode(buf, offset)
+          offset += varint.decode.bytes
+          obj.rotation = enc[1].decode(buf, offset, offset + len)
           offset += enc[1].decode.bytes
           break
         case 3:
           var len = varint.decode(buf, offset)
           offset += varint.decode.bytes
-          obj.rotation = enc[2].decode(buf, offset, offset + len)
+          obj.origin = enc[2].decode(buf, offset, offset + len)
           offset += enc[2].decode.bytes
           break
         case 4:
-          var len = varint.decode(buf, offset)
-          offset += varint.decode.bytes
-          obj.origin = enc[3].decode(buf, offset, offset + len)
+          obj.length = enc[3].decode(buf, offset)
           offset += enc[3].decode.bytes
-          break
-        case 5:
-          obj.length = enc[4].decode(buf, offset)
-          offset += enc[4].decode.bytes
           break
         default:
           offset = skip(prefix & 7, buf, offset)

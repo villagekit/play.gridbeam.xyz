@@ -4,8 +4,6 @@ import { BoxGeometry, Vector3, Plane, Color } from 'three'
 import { range } from 'ramda'
 import { useResource } from 'react-three-fiber'
 
-import Codec from '../codec'
-
 export default Beam
 
 function Beam (props) {
@@ -267,11 +265,4 @@ function HoleMarker (props) {
       {...forwardedProps}
     />
   )
-}
-
-function addRotations (a, b) {
-  return {
-    inclination: a.inclination + b.inclination,
-    azimuth: a.azimuth + b.azimuth
-  }
 }
