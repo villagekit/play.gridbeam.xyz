@@ -4,26 +4,40 @@ import { Object3D, Vector3 } from 'three'
 import { withLayout } from '../components/layout'
 import SEO from '../components/seo'
 import Playground from '../components/playground'
+import Codec from '../codec'
+import { rotationByDirection } from '../models/parts'
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)
 
 var defaultParts = [
   {
-    type: 'beam',
-    direction: 'x',
-    origin: [0, 1, 1],
+    type: Codec.PartType.Beam,
+    rotation: rotationByDirection.x,
+    origin: {
+      x: 0,
+      y: 1,
+      z: 1
+    },
     length: 4
   },
   {
-    type: 'beam',
-    direction: 'y',
-    origin: [1, 0, 2],
+    type: Codec.PartType.Beam,
+    rotation: rotationByDirection.y,
+    origin: {
+      x: 1,
+      y: 0,
+      z: 2
+    },
     length: 6
   },
   {
-    type: 'beam',
-    direction: 'z',
-    origin: [0, 0, 0],
+    type: Codec.PartType.Beam,
+    rotation: rotationByDirection.z,
+    origin: {
+      x: 0,
+      y: 0,
+      z: 0
+    },
     length: 10
   }
 ]

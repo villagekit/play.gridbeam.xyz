@@ -10,6 +10,7 @@ import { Canvas, useThree } from 'react-three-fiber'
 import { map } from 'ramda'
 
 import { GlProvider } from './provider'
+import Codec from '../codec'
 import Beam from './beam'
 import Camera from './camera'
 import Scale from './scale'
@@ -50,12 +51,12 @@ function Vis (props) {
           select: () => dispatch.parts.selects([uuid]),
           move: delta =>
             dispatch.parts.updateSelected(part => {
-              part.origin[0] += delta[0]
-              part.origin[1] += delta[1]
-              part.origin[2] += delta[2]
+              part.origin.x += delta[0]
+              part.origin.y += delta[1]
+              part.origin.z += delta[2]
             })
         }
-        if (part.type === 'beam') {
+        if (part.type === Codec.PartType.Beam) {
           return <Beam key={part.uuid} {...partProps} texture={beamTexture} />
         }
         return null

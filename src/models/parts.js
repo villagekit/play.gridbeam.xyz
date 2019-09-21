@@ -12,6 +12,12 @@ import {
   zipObj
 } from 'ramda'
 
+export const rotationByDirection = {
+  x: { inclination: 0, azimuth: 0 },
+  y: { inclination: Math.PI / 2, azimuth: 0 },
+  z: { inclination: 0, azimuth: -Math.PI / 2 }
+}
+
 export let parts = {
   name: 'parts',
   state: {
@@ -19,8 +25,8 @@ export let parts = {
     isMoving: false
   },
   reducers: {
-    setMoving: produce((state, moving) => {
-      state.isMoving = moving
+    setMoving: produce((state, isMoving) => {
+      state.isMoving = isMoving
     }),
     setParts: produce((state, parts) => {
       const uuids = parts.map(part => ThreeMath.generateUUID())
@@ -133,6 +139,6 @@ function SafeUpdater (updater) {
   return value => {
     updater(value)
     if (value.length < 1) value.length = 1
-    if (value.origin[2] < 0) value.origin[2] = 0
+    if (value.origin.z < 0) value.origin.z = 0
   }
 }

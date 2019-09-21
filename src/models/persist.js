@@ -1,8 +1,9 @@
 import produce from 'immer'
 import { equals, pipe, prop, values } from 'ramda'
-import { Ubjson } from '@shelacek/ubjson'
 import { promisify } from 'util'
 import { gzip, gunzip } from 'zlib'
+
+import Codec from '../codec'
 
 const compress = promisify(gzip)
 const decompress = promisify(gunzip)
@@ -48,11 +49,11 @@ export const persist = {
         }
 
         try {
-          var model = Ubjson.decode(modelBuffer)
+          var model = Codec.Model.decode(modelBuffer)
         } catch (err) {
           console.error(err)
           throw new Error(
-            'gridbeam-editor/stores/model: could not parse model from ubjson'
+            'gridbeam-editor/stores/model: could not parse model from protocol buffer'
           )
         }
 
@@ -72,11 +73,11 @@ export const persist = {
       }
 
       try {
-        var modelBuffer = Ubjson.encode(model)
+        var modelBuffer = Codec.Model.encode(model)
       } catch (err) {
         console.error(err)
         throw new Error(
-          'gridbeam-editor/stores/model: could not encode model as ubjson'
+          'gridbeam-editor/stores/model: could not encode model as protocol buffer'
         )
       }
       try {
@@ -93,6 +94,12 @@ export const persist = {
       const hash = '#' + version + modelBase64
 
       this.setSavedHash(hash)
+      console.log(
+        'saved',
+        modelBuffer.length,
+        modelCompressed.length,
+        modelBase64.length
+      )
 
       window.location.href = window.location.href.split('#')[0] + hash
     }

@@ -1,0 +1,30 @@
+enum PartType {
+  Beam = 0;
+  Skin = 1;
+  Fastener = 2;
+  Accessory = 3;
+  Adapter = 4;
+}
+
+message Rotation {
+  optional float inclination = 1 [default = 0];
+  optional float azimuth = 2 [default = 0];
+}
+
+message GridPosition {
+  optional sint32 x = 1 [default = 0];
+  optional sint32 y = 2 [default = 0];
+  optional sint32 z = 3 [default = 0];
+}
+
+message Part {
+  required PartType type = 1;
+  optional Rotation rotation = 2;
+  optional GridPosition origin = 3;
+  // beam properties
+  optional uint32 length = 4;
+}
+
+message Model {
+  repeated Part parts = 1;
+}

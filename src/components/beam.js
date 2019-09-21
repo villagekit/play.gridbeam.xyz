@@ -4,18 +4,14 @@ import { BoxGeometry, Vector3, Plane, Color } from 'three'
 import { range } from 'ramda'
 import { useResource } from 'react-three-fiber'
 
-const rotationByDirection = {
-  x: { inclination: 0, azimuth: 0 },
-  y: { inclination: Math.PI / 2, azimuth: 0 },
-  z: { inclination: 0, azimuth: -Math.PI / 2 }
-}
+import Codec from '../codec'
 
 export default Beam
 
 function Beam (props) {
   const {
     uuid,
-    direction,
+    rotation,
     length,
     origin,
     isHovered,
@@ -33,9 +29,6 @@ function Beam (props) {
   const beamWidth = useSelector(selectors.spec.currentBeamWidth)
   const holeDiameter = useSelector(selectors.spec.currentHoleDiameter)
 
-  const rotation =
-    typeof direction === 'string' ? rotationByDirection[direction] : direction
-
   const geometry = React.useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
     var boxGeometry = new BoxGeometry(...boxSize, length)
@@ -49,9 +42,9 @@ function Beam (props) {
 
   const position = React.useMemo(() => {
     return [
-      (1 / 2 + origin[0]) * beamWidth,
-      (1 / 2 + origin[1]) * beamWidth,
-      (1 / 2 + origin[2]) * beamWidth
+      (1 / 2 + origin.x) * beamWidth,
+      (1 / 2 + origin.y) * beamWidth,
+      (1 / 2 + origin.z) * beamWidth
     ]
   }, [beamWidth, origin])
 
@@ -90,13 +83,15 @@ function Beam (props) {
       .divideScalar(beamWidth)
       .round()
 
-    const nextOrigin = new Vector3()
-      .fromArray(originAtMoveStart)
-      .add(beamMovementVector)
+    const nextOrigin = new Vector3(
+      originAtMoveStart.x,
+      originAtMoveStart.y,
+      originAtMoveStart.z
+    ).add(beamMovementVector)
 
     const delta = new Vector3()
       .copy(nextOrigin)
-      .sub(new Vector3().fromArray(origin))
+      .sub(new Vector3(origin.x, origin.y, origin.z))
 
     move(delta.toArray())
   }, [uuid, isSelected, origin, atMoveStart, beamWidth])
@@ -272,4 +267,11 @@ function HoleMarker (props) {
       {...forwardedProps}
     />
   )
+}
+
+function addRotations (a, b) {
+  return {
+    inclination: a.inclination + b.inclination,
+    azimuth: a.azimuth + b.azimuth
+  }
 }

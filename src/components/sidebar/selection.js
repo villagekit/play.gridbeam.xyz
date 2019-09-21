@@ -35,26 +35,26 @@ function Selection (props) {
         />
         <InputControl
           type='number'
-          name='origin[0]'
+          name='origin.x'
           label='origin.x'
-          path={['origin', 0]}
-          value={selected.origin[0]}
+          path={['origin', 'x']}
+          value={selected.origin.x}
           update={updater => dispatch.parts.update({ uuid, updater })}
         />
         <InputControl
           type='number'
-          name='origin[1]'
+          name='origin.y'
           label='origin.y'
-          path={['origin', 1]}
-          value={selected.origin[1]}
+          path={['origin', 'y']}
+          value={selected.origin.y}
           update={updater => dispatch.parts.update({ uuid, updater })}
         />
         <InputControl
           type='number'
-          name='origin[2]'
+          name='origin.z'
           label='origin.z'
-          path={['origin', 2]}
-          value={selected.origin[2]}
+          path={['origin', 'z']}
+          value={selected.origin.z}
           update={updater => dispatch.parts.update({ uuid, updater })}
         />
       </ControlSection>

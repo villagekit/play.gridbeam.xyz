@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import { useSelector, useStore } from 'react-redux'
-import { equals, map } from 'ramda'
-import modOp from 'mod-op'
+import { map } from 'ramda'
+
+import { rotationByDirection } from './models/parts'
+import Codec from './codec'
 
 function useCommands () {
   const { select, dispatch } = useStore()
@@ -31,40 +33,38 @@ function useCommands () {
 export default useCommands
 
 const commands = {
-  moveForward: ['updateSelected', part => part.origin[0]++],
-  moveBackward: ['updateSelected', part => part.origin[0]--],
-  moveRight: ['updateSelected', part => part.origin[1]++],
-  moveLeft: ['updateSelected', part => part.origin[1]--],
-  moveUp: ['updateSelected', part => part.origin[2]++],
-  moveDown: ['updateSelected', part => part.origin[2]--],
-  rotateNext: rotateUpdater(index => ++index),
-  rotatePrev: rotateUpdater(index => --index),
+  moveForward: ['updateSelected', part => part.origin.x++],
+  moveBackward: ['updateSelected', part => part.origin.y--],
+  moveRight: ['updateSelected', part => part.origin.y++],
+  moveLeft: ['updateSelected', part => part.origin.y--],
+  moveUp: ['updateSelected', part => part.origin.z++],
+  moveDown: ['updateSelected', part => part.origin.z--],
+  rotateNextInclination: [
+    'updateSelected',
+    part => (part.rotation.inclination += Math.PI / 2)
+  ],
+  rotatePrevInclination: [
+    'updateSelected',
+    part => (part.rotation.inclination -= Math.PI / 2)
+  ],
+  rotateNextAzimuth: [
+    'updateSelected',
+    part => (part.rotation.azimuth += Math.PI / 2)
+  ],
+  rotatePrevAzimuth: [
+    'updateSelected',
+    part => (part.rotation.azimuth -= Math.PI / 2)
+  ],
   createBeam: [
     'addPart',
     {
-      type: 'beam',
-      direction: 'x',
-      length: 5,
-      origin: [0, 0, 0]
+      type: Codec.PartType.Beam,
+      rotation: rotationByDirection.x,
+      origin: { x: 0, y: 0, z: 0 },
+      length: 5
     }
   ],
   removeSelected: ['removeSelected'],
   lengthenSelected: ['updateSelected', part => part.length++],
   unlengthenSelected: ['updateSelected', part => part.length--]
-}
-
-const directions = ['x', 'y', 'z']
-
-function rotateUpdater (indexUpdater) {
-  return [
-    'updateSelected',
-    part => {
-      const currentDirectionIndex = directions.findIndex(equals(part.direction))
-      const nextDirectionIndex = modOp(
-        indexUpdater(currentDirectionIndex),
-        directions.length
-      )
-      part.direction = directions[nextDirectionIndex]
-    }
-  ]
 }

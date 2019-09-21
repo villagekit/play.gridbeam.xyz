@@ -3,6 +3,8 @@ import { useSelector, useStore } from 'react-redux'
 import { Box, Text } from 'rebass/styled-components'
 import { length, pipe, groupBy, prop, map, sum } from 'ramda'
 
+import Codec from '../../codec'
+
 export default Parts
 
 function Parts (props) {
@@ -15,7 +17,7 @@ function Parts (props) {
       <Text as='h2' fontSize={4}>
         Parts
       </Text>
-      <BeamSummary beams={partsByType.beam} />
+      <BeamSummary beams={partsByType[Codec.PartType.Beam]} />
     </PartsContainer>
   )
 }
