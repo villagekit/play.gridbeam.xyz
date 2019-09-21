@@ -85,8 +85,10 @@ function Vis (props) {
 
 function Background (props) {
   const { currentBeamWidth } = props
-  const floorTiles = 128
-  const floorLength = floorTiles * currentBeamWidth
+  const numSmallFloorTiles = 256
+  const largeFloorTileScale = 8
+  const numLargeFloorTiles = numSmallFloorTiles / largeFloorTileScale
+  const floorLength = numSmallFloorTiles * currentBeamWidth
 
   const planeGeometry = React.useMemo(() => {
     var planeGeometry = new PlaneBufferGeometry(floorLength, floorLength)
@@ -121,7 +123,11 @@ function Background (props) {
       <hemisphereLight args={[0xffffff, 0x404040]} />
       <axesHelper args={[floorLength]} position={[0, 0, 0.01]} />
       <gridHelper
-        args={[floorLength, floorTiles]}
+        args={[floorLength, numSmallFloorTiles, 0x444444, 0xdddddd]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      />
+      <gridHelper
+        args={[floorLength, numLargeFloorTiles, 0x444444, 0x888888]}
         rotation={[-Math.PI / 2, 0, 0]}
       />
       <mesh

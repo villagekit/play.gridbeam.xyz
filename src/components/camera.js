@@ -23,11 +23,11 @@ function Camera (props) {
 
   React.useEffect(() => {
     const controls = controlsRef.current
-    camera.far = 10000
-    camera.position.set(5000, 0, 0)
+    camera.far = 100000
+    camera.position.set(10000, 0, 0)
     controls.rotateLeft(-Math.PI / 32)
     controls.rotateUp(Math.PI / 64)
-    camera.zoom = 1
+    camera.zoom = 0.5
     camera.updateProjectionMatrix()
     controls.update()
   }, [])
