@@ -9,38 +9,47 @@ import { rotationByDirection } from '../models/parts'
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)
 
-var defaultParts = [
-  {
-    type: Codec.PartType.Beam,
-    rotation: rotationByDirection.x,
-    origin: {
-      x: 0,
-      y: 1,
-      z: 1
+var defaultModel = {
+  specId: Codec.SpecId.og,
+  parts: [
+    {
+      type: Codec.PartType.Beam,
+      sizeId: Codec.SizeId['1.5in'],
+      materialId: Codec.MaterialId.wood,
+      rotation: rotationByDirection.x,
+      origin: {
+        x: 0,
+        y: 1,
+        z: 1
+      },
+      length: 4
     },
-    length: 4
-  },
-  {
-    type: Codec.PartType.Beam,
-    rotation: rotationByDirection.y,
-    origin: {
-      x: 1,
-      y: 0,
-      z: 2
+    {
+      type: Codec.PartType.Beam,
+      sizeId: Codec.SizeId['1.5in'],
+      materialId: Codec.MaterialId.wood,
+      rotation: rotationByDirection.y,
+      origin: {
+        x: 1,
+        y: 0,
+        z: 2
+      },
+      length: 6
     },
-    length: 6
-  },
-  {
-    type: Codec.PartType.Beam,
-    rotation: rotationByDirection.z,
-    origin: {
-      x: 0,
-      y: 0,
-      z: 0
-    },
-    length: 10
-  }
-]
+    {
+      type: Codec.PartType.Beam,
+      sizeId: Codec.SizeId['1.5in'],
+      materialId: Codec.MaterialId.wood,
+      rotation: rotationByDirection.z,
+      origin: {
+        x: 0,
+        y: 0,
+        z: 0
+      },
+      length: 10
+    }
+  ]
+}
 
 function Page () {
   return (
@@ -56,7 +65,7 @@ function Page () {
           'furniture'
         ]}
       />
-      <Playground defaultParts={defaultParts} />
+      <Playground defaultModel={defaultModel} />
     </>
   )
 }

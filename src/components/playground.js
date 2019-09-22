@@ -10,10 +10,11 @@ import Keyboard from './keyboard'
 
 export default GridBeamPlayground
 
-function GridBeamPlayground ({ defaultParts }) {
+function GridBeamPlayground ({ defaultModel }) {
   const { select, dispatch } = useStore()
 
-  const rawParts = useSelector(select.parts.raw)
+  const parts = useSelector(select.parts.raw)
+  const specId = useSelector(select.spec.currentSpecId)
   const isLoading = useSelector(select.persist.isLoading)
   const isLoaded = useSelector(select.persist.isLoaded)
   const savedHash = useSelector(select.persist.savedHash)
@@ -23,8 +24,8 @@ function GridBeamPlayground ({ defaultParts }) {
 
   React.useEffect(() => {
     if (isLoading || isSaving) return
-    if (!isLoaded) dispatch.persist.loadParts(defaultParts)
-    else dispatch.persist.saveParts(rawParts)
+    if (!isLoaded) dispatch.persist.load(defaultModel)
+    else dispatch.persist.save({ parts, specId })
 
     return () => window.removeEventListener('hashchange', onHashChange)
 
@@ -34,12 +35,12 @@ function GridBeamPlayground ({ defaultParts }) {
         return
       }
       if (window.location.hash !== savedHash) {
-        dispatch.persist.loadParts()
+        dispatch.persist.load()
       }
     }
-  }, [isSaving, isLoading, isLoaded, rawParts, defaultParts, savedHash])
+  }, [isSaving, isLoading, isLoaded, parts, defaultModel, savedHash])
 
-  if (rawParts == null) return null
+  if (parts == null || specId == null) return null
 
   return (
     <Container>

@@ -10,6 +10,7 @@ const SPECS = [
     id: Codec.SpecId.og,
     label: 'og',
     systemOfMeasurement: 'imperial',
+    defaultSizeId: Codec.SizeId['1.5in'],
     sizes: [
       {
         id: Codec.SizeId['1.5in'],
@@ -18,6 +19,7 @@ const SPECS = [
         commonBeamLengths: [2, 3, 4, 6, 8, i => i * 4]
       }
     ],
+    defaultMaterialId: Codec.MaterialId.wood,
     materials: [
       {
         id: Codec.MaterialId.wood,
@@ -37,13 +39,16 @@ const SPECS = [
 export const spec = {
   state: {
     specs: SPECS,
-    currentSpecId: Codec.SpecId.og,
-    currentSizeId: Codec.SizeId['1.5in'],
-    currentMaterialId: Codec.MaterialId.wood
+    currentSpecId: null,
+    currentSizeId: null,
+    currentMaterialId: null
   },
   reducers: {
     setCurrentSpecId: produce((state, specId) => {
       state.currentSpecId = specId
+      const spec = state.specs.find(spec => spec.id === specId)
+      state.currentSizeId = spec.defaultSizeId
+      state.currentMaterialId = spec.defaultMaterialId
     }),
     setCurrentSizeId: produce((state, sizeId) => {
       state.currentSizeId = sizeId

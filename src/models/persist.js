@@ -19,12 +19,13 @@ export const persist = {
     })
   },
   effects: dispatch => ({
-    loadParts (defaultParts) {
+    load (defaultModel) {
       this.setLoadStatus('loading')
 
       const modelUriComponent = window.location.href.split('#')[1]
       if (modelUriComponent == null) {
-        dispatch.parts.setParts(defaultParts)
+        dispatch.parts.setParts(defaultModel.parts)
+        dispatch.spec.setCurrentSpecId(defaultModel.specId)
         this.setLoadStatus('loaded')
         return
       }
@@ -53,18 +54,20 @@ export const persist = {
           )
         }
 
-        const { parts } = model
+        const { parts, specId } = model
         dispatch.parts.setParts(parts)
+        dispatch.spec.setCurrentSpecId(specId)
       } else {
         throw new Error(`Unexpected version: ${version}`)
       }
 
       this.setLoadStatus('loaded')
     },
-    saveParts (parts) {
+    save ({ parts, specId }) {
       const version = 1
 
       const model = {
+        specId,
         parts: values(parts)
       }
 
