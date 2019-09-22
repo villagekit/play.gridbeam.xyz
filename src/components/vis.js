@@ -18,7 +18,7 @@ import Selector from './selection-gl'
 import Clipboard from './clipboard'
 
 const texturePathsByMaterialType = {
-  wood: require('../textures/pine.jpg')
+  [Codec.MaterialId.wood]: require('../textures/pine.jpg')
 }
 
 export default Vis
@@ -28,7 +28,8 @@ function Vis (props) {
 
   const parts = useSelector(select.parts.all)
 
-  const currentBeamWidth = useSelector(select.spec.currentBeamWidth)
+  const currentSize = useSelector(select.spec.currentSize)
+  const currentBeamWidth = currentSize.normalizedBeamWidth
 
   const texturesByMaterialType = React.useMemo(() => {
     return map(texturePath => {

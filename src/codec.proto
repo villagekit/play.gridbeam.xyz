@@ -17,14 +17,42 @@ message GridPosition {
   optional sint32 z = 3 [default = 0];
 }
 
+enum SpecId {
+  og = 0;
+}
+
+enum SizeId {
+  // imperial
+  1.5in = 0;
+  1in = 1;
+  2in = 2;
+
+  // metric
+  25mm = 3;
+  40mm = 4;
+  50mm = 5;
+}
+
+enum MaterialId {
+  wood = 0;
+  aluminum = 1;
+  steel = 2;
+}
+
 message Part {
   required PartType type = 1;
   optional Rotation rotation = 2;
   optional GridPosition origin = 3;
+
   // beam properties
   optional uint32 length = 4;
+
+  // spec properties
+  optional SizeId sizeId = 5 [default = 0];
+  optional MaterialId materialId = 6 [default = 0];
 }
 
 message Model {
   repeated Part parts = 1;
+  optional SpecId specId = 2 [default = 0];
 }

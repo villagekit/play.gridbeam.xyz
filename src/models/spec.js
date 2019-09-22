@@ -1,25 +1,34 @@
 import produce from 'immer'
-import { groupBy, pipe, prop } from 'ramda'
+import { groupBy, indexBy, map, pipe, prop } from 'ramda'
+
+import Codec from '../codec'
 
 const INCH_TO_MM = 25.4
 
 const SPECS = [
   {
-    name: 'og',
+    id: Codec.SpecId.og,
+    label: 'og',
     systemOfMeasurement: 'imperial',
     sizes: [
       {
-        name: '1.5in',
+        id: Codec.SizeId['1.5in'],
+        label: '1.5 inch',
         beamWidth: 1.5,
         commonBeamLengths: [2, 3, 4, 6, 8, i => i * 4]
       }
     ],
     materials: [
       {
-        name: 'wood',
-        sizes: ['1.5in'],
-        holeDiameters: [5 / 16],
-        boltDiameters: [1 / 4]
+        id: Codec.MaterialId.wood,
+        label: 'wood',
+        sizes: [
+          {
+            id: Codec.SizeId['1.5in'],
+            holeDiameter: 5 / 16,
+            boltDiameter: 1 / 4
+          }
+        ]
       }
     ]
   }
@@ -28,27 +37,31 @@ const SPECS = [
 export const spec = {
   state: {
     specs: SPECS,
-    currentSpecName: 'og',
-    currentSizeName: '1.5in',
-    currentMaterialName: 'wood'
+    currentSpecId: Codec.SpecId.og,
+    currentSizeId: Codec.SizeId['1.5in'],
+    currentMaterialId: Codec.MaterialId.wood
   },
   reducers: {
-    setCurrentSpecName: produce((state, specName) => {
-      state.currentSpecName = specName
+    setCurrentSpecId: produce((state, specId) => {
+      state.currentSpecId = specId
     }),
-    setCurrentSizeName: produce((state, sizeName) => {
-      state.currentSizeName = sizeName
+    setCurrentSizeId: produce((state, sizeId) => {
+      state.currentSizeId = sizeId
     }),
-    setCurrentMaterialName: produce((state, materialName) => {
-      state.currentMaterialName = materialName
+    setCurrentMaterialId: produce((state, materialId) => {
+      state.currentMaterialId = materialId
     })
   },
   selectors: (slice, createSelector) => ({
+    currentSpecId: () => slice(prop('currentSpecId')),
+    currentSizeId: () => slice(prop('currentSizeId')),
+    currentMaterialId: () => slice(prop('currentMaterialId')),
+
     currentSpec () {
       return createSelector(
         slice(prop('specs')),
-        slice(prop('currentSpecName')),
-        (specs, specName) => specs.find(spec => spec.name === specName)
+        slice(prop('currentSpecId')),
+        (specs, specId) => specs.find(spec => spec.id === specId)
       )
     },
     specsBySystemOfMeasurement () {
@@ -57,19 +70,63 @@ export const spec = {
         groupBy(prop('systemOfMeasurement'))
       )
     },
-    currentMaterial () {
+    currentSpecSizes () {
       return createSelector(
         this.currentSpec,
-        slice(prop('currentMaterialName')),
-        (spec, materialName) =>
-          spec.materials.find(material => material.name === materialName)
+        spec =>
+          pipe(
+            map(
+              produce(size => {
+                size.normalizedBeamWidth = normalizeValueToMetric(
+                  size.beamWidth,
+                  spec.systemOfMeasurement
+                )
+              })
+            ),
+            indexBy(prop('id'))
+          )(spec.sizes)
+      )
+    },
+    currentSpecMaterials () {
+      return createSelector(
+        this.currentSpec,
+        spec =>
+          pipe(
+            map(
+              produce(material => {
+                material.sizes = pipe(
+                  map(
+                    produce(materialSize => {
+                      materialSize.normalizedHoleDiameter = normalizeValueToMetric(
+                        materialSize.holeDiameter,
+                        spec.systemOfMeasurement
+                      )
+                      materialSize.normalizedBoltDiameter = normalizeValueToMetric(
+                        materialSize.boltDiameter,
+                        spec.systemOfMeasurement
+                      )
+                    })
+                  ),
+                  indexBy(prop('id'))
+                )(material.sizes)
+              })
+            ),
+            indexBy(prop('id'))
+          )(spec.materials)
       )
     },
     currentSize () {
       return createSelector(
-        this.currentSpec,
-        slice(prop('currentSizeName')),
-        (spec, sizeName) => spec.sizes.find(size => size.name === sizeName)
+        slice(prop('currentSizeId')),
+        this.currentSpecSizes,
+        prop
+      )
+    },
+    currentMaterial () {
+      return createSelector(
+        slice(prop('currentMaterialId')),
+        this.currentSpecMaterials,
+        prop
       )
     },
     currentSystemOfMeasurement () {
@@ -77,44 +134,10 @@ export const spec = {
         this.currentSpec,
         prop('systemOfMeasurement')
       )
-    },
-    currentBeamWidth () {
-      return createSelector(
-        this.currentSystemOfMeasurement,
-        pipe(
-          this.currentSize,
-          prop('beamWidth')
-        ),
-        maybeConvertToMetric
-      )
-    },
-    currentHoleDiameter () {
-      return createSelector(
-        this.currentSystemOfMeasurement,
-        slice(prop('currentSizeName')),
-        this.currentMaterial,
-        (systemOfMeasurement, sizeName, material) => {
-          const sizeIndex = material.sizes.findIndex(size => size === sizeName)
-          const holeDiameter = material.holeDiameters[sizeIndex]
-          return maybeConvertToMetric(systemOfMeasurement, holeDiameter)
-        }
-      )
-    },
-    currentBoltDiameter () {
-      return createSelector(
-        this.currentSystemOfMeasurement,
-        slice(prop('currentSizeName')),
-        this.currentMaterial,
-        (systemOfMeasurement, sizeName, material) => {
-          const sizeIndex = material.sizes.findIndex(size => size === sizeName)
-          const boltDiameter = material.boltDiameters[sizeIndex]
-          return maybeConvertToMetric(systemOfMeasurement, boltDiameter)
-        }
-      )
     }
   })
 }
 
-function maybeConvertToMetric (systemOfMeasurement, value) {
+function normalizeValueToMetric (value, systemOfMeasurement) {
   return systemOfMeasurement === 'imperial' ? value * INCH_TO_MM : value
 }

@@ -18,6 +18,25 @@ exports.PartType = {
   Adapter: 4
 }
 
+exports.SpecId = {
+  og: 0
+}
+
+exports.SizeId = {
+  '1.5in': 0,
+  '1in': 1,
+  '2in': 2,
+  '25mm': 3,
+  '40mm': 4,
+  '50mm': 5
+}
+
+exports.MaterialId = {
+  wood: 0,
+  aluminum: 1,
+  steel: 2
+}
+
 var Rotation = (exports.Rotation = {
   buffer: true,
   encodingLength: null,
@@ -210,7 +229,14 @@ function defineGridPosition () {
 }
 
 function definePart () {
-  var enc = [encodings.enum, Rotation, GridPosition, encodings.varint]
+  var enc = [
+    encodings.enum,
+    Rotation,
+    GridPosition,
+    encodings.varint,
+    encodings.enum,
+    encodings.enum
+  ]
 
   Part.encodingLength = encodingLength
   Part.encode = encode
@@ -233,6 +259,14 @@ function definePart () {
     }
     if (defined(obj.length)) {
       var len = enc[3].encodingLength(obj.length)
+      length += 1 + len
+    }
+    if (defined(obj.sizeId)) {
+      var len = enc[4].encodingLength(obj.sizeId)
+      length += 1 + len
+    }
+    if (defined(obj.materialId)) {
+      var len = enc[5].encodingLength(obj.materialId)
       length += 1 + len
     }
     return length
@@ -265,6 +299,16 @@ function definePart () {
       enc[3].encode(obj.length, buf, offset)
       offset += enc[3].encode.bytes
     }
+    if (defined(obj.sizeId)) {
+      buf[offset++] = 40
+      enc[4].encode(obj.sizeId, buf, offset)
+      offset += enc[4].encode.bytes
+    }
+    if (defined(obj.materialId)) {
+      buf[offset++] = 48
+      enc[5].encode(obj.materialId, buf, offset)
+      offset += enc[5].encode.bytes
+    }
     encode.bytes = offset - oldOffset
     return buf
   }
@@ -279,7 +323,9 @@ function definePart () {
       type: 0,
       rotation: null,
       origin: null,
-      length: 0
+      length: 0,
+      sizeId: 0,
+      materialId: 0
     }
     var found0 = false
     while (true) {
@@ -313,6 +359,14 @@ function definePart () {
           obj.length = enc[3].decode(buf, offset)
           offset += enc[3].decode.bytes
           break
+        case 5:
+          obj.sizeId = enc[4].decode(buf, offset)
+          offset += enc[4].decode.bytes
+          break
+        case 6:
+          obj.materialId = enc[5].decode(buf, offset)
+          offset += enc[5].decode.bytes
+          break
         default:
           offset = skip(prefix & 7, buf, offset)
       }
@@ -321,7 +375,7 @@ function definePart () {
 }
 
 function defineModel () {
-  var enc = [Part]
+  var enc = [Part, encodings.enum]
 
   Model.encodingLength = encodingLength
   Model.encode = encode
@@ -336,6 +390,10 @@ function defineModel () {
         length += varint.encodingLength(len)
         length += 1 + len
       }
+    }
+    if (defined(obj.specId)) {
+      var len = enc[1].encodingLength(obj.specId)
+      length += 1 + len
     }
     return length
   }
@@ -354,6 +412,11 @@ function defineModel () {
         offset += enc[0].encode.bytes
       }
     }
+    if (defined(obj.specId)) {
+      buf[offset++] = 16
+      enc[1].encode(obj.specId, buf, offset)
+      offset += enc[1].encode.bytes
+    }
     encode.bytes = offset - oldOffset
     return buf
   }
@@ -365,7 +428,8 @@ function defineModel () {
       throw new Error('Decoded message is not valid')
     var oldOffset = offset
     var obj = {
-      parts: []
+      parts: [],
+      specId: 0
     }
     while (true) {
       if (end <= offset) {
@@ -381,6 +445,10 @@ function defineModel () {
           offset += varint.decode.bytes
           obj.parts.push(enc[0].decode(buf, offset, offset + len))
           offset += enc[0].decode.bytes
+          break
+        case 2:
+          obj.specId = enc[1].decode(buf, offset)
+          offset += enc[1].decode.bytes
           break
         default:
           offset = skip(prefix & 7, buf, offset)

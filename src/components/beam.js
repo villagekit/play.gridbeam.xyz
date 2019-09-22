@@ -18,19 +18,26 @@ function Beam (props) {
     isSelected,
     select,
     move,
+    sizeId,
+    materialId,
     texturesByMaterialType
   } = props
 
   const { select: selectors, dispatch } = useStore()
 
-  // TODO: spec should be stored per beam
-  const beamWidth = useSelector(selectors.spec.currentBeamWidth)
-  const holeDiameter = useSelector(selectors.spec.currentHoleDiameter)
-  const beamMaterial = useSelector(selectors.spec.currentMaterial)
+  const currentSpecSizes = useSelector(selectors.spec.currentSpecSizes)
+  const currentSpecMaterials = useSelector(selectors.spec.currentSpecMaterials)
+
+  const beamSpecSize = currentSpecSizes[sizeId]
+  const beamSpecMaterial = currentSpecMaterials[materialId]
+  const beamSpecMaterialSize = beamSpecMaterial.sizes[sizeId]
+
+  const beamWidth = beamSpecSize.normalizedBeamWidth
+  const holeDiameter = beamSpecMaterialSize.normalizedHoleDiameter
 
   const beamTexture = React.useMemo(() => {
-    return texturesByMaterialType[beamMaterial.name]
-  }, [beamMaterial])
+    return texturesByMaterialType[beamSpecMaterial.id]
+  }, [beamSpecMaterial])
 
   const geometry = React.useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
