@@ -18,7 +18,7 @@ import Selector from './selection-gl'
 import Clipboard from './clipboard'
 
 const texturePathsByMaterialType = {
-  [Codec.MaterialId.wood]: require('../textures/pine.jpg')
+  [Codec.MaterialId.Wood]: require('../textures/pine.jpg')
 }
 
 export default Vis

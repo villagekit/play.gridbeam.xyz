@@ -19,10 +19,10 @@ const SPECS = [
         commonBeamLengths: [2, 3, 4, 6, 8, i => i * 4]
       }
     ],
-    defaultMaterialId: Codec.MaterialId.wood,
+    defaultMaterialId: Codec.MaterialId.Wood,
     materials: [
       {
-        id: Codec.MaterialId.wood,
+        id: Codec.MaterialId.Wood,
         label: 'wood',
         sizes: [
           {

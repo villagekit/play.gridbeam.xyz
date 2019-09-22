@@ -32,9 +32,9 @@ exports.SizeId = {
 }
 
 exports.MaterialId = {
-  wood: 0,
-  aluminum: 1,
-  steel: 2
+  Wood: 0,
+  Aluminum: 1,
+  Steel: 2
 }
 
 var Rotation = (exports.Rotation = {

@@ -6,6 +6,8 @@ import { map } from 'ramda'
 import setIn from 'set-in'
 import { useDebounce } from 'react-debounce-hook'
 
+import Codec from '../../codec'
+
 export default Selection
 
 function Selection (props) {
@@ -16,6 +18,7 @@ function Selection (props) {
   const renderSelectedParts = React.useMemo(() => {
     const renderBeam = (uuid, selected) => (
       <ControlSection key={uuid} title='beam'>
+        {/*
         <SelectControl
           name='direction'
           label='direction'
@@ -24,6 +27,7 @@ function Selection (props) {
           value={selected.direction}
           update={updater => dispatch.parts.update({ uuid, updater })}
         />
+        */}
         <InputControl
           type='number'
           name='length'
@@ -61,7 +65,7 @@ function Selection (props) {
     )
 
     const renderers = {
-      beam: renderBeam
+      [Codec.PartType.Beam]: renderBeam
     }
 
     return map(selected => {

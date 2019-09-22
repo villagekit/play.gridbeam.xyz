@@ -15,7 +15,7 @@ var defaultModel = {
     {
       type: Codec.PartType.Beam,
       sizeId: Codec.SizeId['1.5in'],
-      materialId: Codec.MaterialId.wood,
+      materialId: Codec.MaterialId.Wood,
       rotation: rotationByDirection.x,
       origin: {
         x: 0,
@@ -27,7 +27,7 @@ var defaultModel = {
     {
       type: Codec.PartType.Beam,
       sizeId: Codec.SizeId['1.5in'],
-      materialId: Codec.MaterialId.wood,
+      materialId: Codec.MaterialId.Wood,
       rotation: rotationByDirection.y,
       origin: {
         x: 1,
@@ -39,7 +39,7 @@ var defaultModel = {
     {
       type: Codec.PartType.Beam,
       sizeId: Codec.SizeId['1.5in'],
-      materialId: Codec.MaterialId.wood,
+      materialId: Codec.MaterialId.Wood,
       rotation: rotationByDirection.z,
       origin: {
         x: 0,
