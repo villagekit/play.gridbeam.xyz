@@ -28,7 +28,6 @@ function Vis (props) {
 
   const parts = useSelector(select.parts.all)
 
-  const currentBeamMaterial = useSelector(select.spec.currentBeamMaterial)
   const currentBeamWidth = useSelector(select.spec.currentBeamWidth)
 
   const texturesByMaterialType = React.useMemo(() => {
@@ -36,9 +35,6 @@ function Vis (props) {
       return new TextureLoader().load(texturePath)
     }, texturePathsByMaterialType)
   }, [texturePathsByMaterialType])
-  const beamTexture = React.useMemo(() => {
-    return texturesByMaterialType[currentBeamMaterial]
-  }, [currentBeamMaterial])
 
   const renderParts = React.useMemo(
     () =>
@@ -57,11 +53,17 @@ function Vis (props) {
             })
         }
         if (part.type === Codec.PartType.Beam) {
-          return <Beam key={part.uuid} {...partProps} texture={beamTexture} />
+          return (
+            <Beam
+              key={part.uuid}
+              {...partProps}
+              texturesByMaterialType={texturesByMaterialType}
+            />
+          )
         }
         return null
       }),
-    [parts, beamTexture]
+    [parts, texturesByMaterialType]
   )
 
   return (

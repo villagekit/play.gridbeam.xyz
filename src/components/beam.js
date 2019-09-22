@@ -18,7 +18,7 @@ function Beam (props) {
     isSelected,
     select,
     move,
-    texture
+    texturesByMaterialType
   } = props
 
   const { select: selectors, dispatch } = useStore()
@@ -26,6 +26,11 @@ function Beam (props) {
   // TODO: spec should be stored per beam
   const beamWidth = useSelector(selectors.spec.currentBeamWidth)
   const holeDiameter = useSelector(selectors.spec.currentHoleDiameter)
+  const beamMaterial = useSelector(selectors.spec.currentMaterial)
+
+  const beamTexture = React.useMemo(() => {
+    return texturesByMaterialType[beamMaterial.name]
+  }, [beamMaterial])
 
   const geometry = React.useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
@@ -145,7 +150,7 @@ function Beam (props) {
     >
       <mesh uuid={uuid} geometry={geometry} castShadow receiveShadow>
         <meshLambertMaterial attach='material' color={color}>
-          <primitive object={texture} attach='map' />
+          <primitive object={beamTexture} attach='map' />
         </meshLambertMaterial>
       </mesh>
       <Holes
