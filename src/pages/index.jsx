@@ -5,7 +5,7 @@ import { withLayout } from '../components/layout'
 import SEO from '../components/seo'
 import Playground from '../components/playground'
 import Codec from '../codec'
-import { rotationByDirection } from '../models/parts'
+import { directionByAxis } from '../models/parts'
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)
 
@@ -16,36 +16,36 @@ var defaultModel = {
       type: Codec.PartType.Beam,
       sizeId: Codec.SizeId['1.5in'],
       materialId: Codec.MaterialId.Wood,
-      rotation: rotationByDirection.x,
       origin: {
         x: 0,
         y: 1,
         z: 1
       },
+      direction: directionByAxis.x,
       length: 4
     },
     {
       type: Codec.PartType.Beam,
       sizeId: Codec.SizeId['1.5in'],
       materialId: Codec.MaterialId.Wood,
-      rotation: rotationByDirection.y,
       origin: {
         x: 1,
         y: 0,
         z: 2
       },
+      direction: directionByAxis.y,
       length: 6
     },
     {
       type: Codec.PartType.Beam,
       sizeId: Codec.SizeId['1.5in'],
       materialId: Codec.MaterialId.Wood,
-      rotation: rotationByDirection.z,
       origin: {
         x: 0,
         y: 0,
         z: 0
       },
+      direction: directionByAxis.z,
       length: 10
     }
   ]

@@ -35,13 +35,18 @@ const ACTIONS = [
     whenSelected: true
   },
   {
-    id: 'rotateNextInclination',
-    label: 'Rotate Incliation',
+    id: 'rotatePlusX',
+    label: 'Rotate +X',
     whenSelected: true
   },
   {
-    id: 'rotateNextAzimuth',
-    label: 'Rotate Azimuth',
+    id: 'rotatePlusY',
+    label: 'Rotate +Y',
+    whenSelected: true
+  },
+  {
+    id: 'rotatePlusZ',
+    label: 'Rotate +Z',
     whenSelected: true
   },
   {

@@ -37,7 +37,7 @@ exports.MaterialId = {
   Steel: 2
 }
 
-var Rotation = (exports.Rotation = {
+var Direction = (exports.Direction = {
   buffer: true,
   encodingLength: null,
   encode: null,
@@ -65,17 +65,17 @@ var Model = (exports.Model = {
   decode: null
 })
 
-defineRotation()
+defineDirection()
 defineGridPosition()
 definePart()
 defineModel()
 
-function defineRotation () {
+function defineDirection () {
   var enc = [encodings.float]
 
-  Rotation.encodingLength = encodingLength
-  Rotation.encode = encode
-  Rotation.decode = decode
+  Direction.encodingLength = encodingLength
+  Direction.encode = encode
+  Direction.decode = decode
 
   function encodingLength (obj) {
     var length = 0
@@ -231,11 +231,11 @@ function defineGridPosition () {
 function definePart () {
   var enc = [
     encodings.enum,
-    Rotation,
     GridPosition,
-    encodings.varint,
     encodings.enum,
-    encodings.enum
+    encodings.enum,
+    Direction,
+    encodings.varint
   ]
 
   Part.encodingLength = encodingLength
@@ -247,26 +247,26 @@ function definePart () {
     if (!defined(obj.type)) throw new Error('type is required')
     var len = enc[0].encodingLength(obj.type)
     length += 1 + len
-    if (defined(obj.rotation)) {
-      var len = enc[1].encodingLength(obj.rotation)
+    if (defined(obj.origin)) {
+      var len = enc[1].encodingLength(obj.origin)
       length += varint.encodingLength(len)
       length += 1 + len
     }
-    if (defined(obj.origin)) {
-      var len = enc[2].encodingLength(obj.origin)
+    if (defined(obj.sizeId)) {
+      var len = enc[2].encodingLength(obj.sizeId)
+      length += 1 + len
+    }
+    if (defined(obj.materialId)) {
+      var len = enc[3].encodingLength(obj.materialId)
+      length += 1 + len
+    }
+    if (defined(obj.direction)) {
+      var len = enc[4].encodingLength(obj.direction)
       length += varint.encodingLength(len)
       length += 1 + len
     }
     if (defined(obj.length)) {
-      var len = enc[3].encodingLength(obj.length)
-      length += 1 + len
-    }
-    if (defined(obj.sizeId)) {
-      var len = enc[4].encodingLength(obj.sizeId)
-      length += 1 + len
-    }
-    if (defined(obj.materialId)) {
-      var len = enc[5].encodingLength(obj.materialId)
+      var len = enc[5].encodingLength(obj.length)
       length += 1 + len
     }
     return length
@@ -280,33 +280,33 @@ function definePart () {
     buf[offset++] = 8
     enc[0].encode(obj.type, buf, offset)
     offset += enc[0].encode.bytes
-    if (defined(obj.rotation)) {
+    if (defined(obj.origin)) {
       buf[offset++] = 18
-      varint.encode(enc[1].encodingLength(obj.rotation), buf, offset)
+      varint.encode(enc[1].encodingLength(obj.origin), buf, offset)
       offset += varint.encode.bytes
-      enc[1].encode(obj.rotation, buf, offset)
+      enc[1].encode(obj.origin, buf, offset)
       offset += enc[1].encode.bytes
     }
-    if (defined(obj.origin)) {
-      buf[offset++] = 26
-      varint.encode(enc[2].encodingLength(obj.origin), buf, offset)
-      offset += varint.encode.bytes
-      enc[2].encode(obj.origin, buf, offset)
+    if (defined(obj.sizeId)) {
+      buf[offset++] = 24
+      enc[2].encode(obj.sizeId, buf, offset)
       offset += enc[2].encode.bytes
     }
-    if (defined(obj.length)) {
+    if (defined(obj.materialId)) {
       buf[offset++] = 32
-      enc[3].encode(obj.length, buf, offset)
+      enc[3].encode(obj.materialId, buf, offset)
       offset += enc[3].encode.bytes
     }
-    if (defined(obj.sizeId)) {
-      buf[offset++] = 40
-      enc[4].encode(obj.sizeId, buf, offset)
+    if (defined(obj.direction)) {
+      buf[offset++] = 42
+      varint.encode(enc[4].encodingLength(obj.direction), buf, offset)
+      offset += varint.encode.bytes
+      enc[4].encode(obj.direction, buf, offset)
       offset += enc[4].encode.bytes
     }
-    if (defined(obj.materialId)) {
+    if (defined(obj.length)) {
       buf[offset++] = 48
-      enc[5].encode(obj.materialId, buf, offset)
+      enc[5].encode(obj.length, buf, offset)
       offset += enc[5].encode.bytes
     }
     encode.bytes = offset - oldOffset
@@ -321,11 +321,11 @@ function definePart () {
     var oldOffset = offset
     var obj = {
       type: 0,
-      rotation: null,
       origin: null,
-      length: 0,
       sizeId: 0,
-      materialId: 0
+      materialId: 0,
+      direction: null,
+      length: 0
     }
     var found0 = false
     while (true) {
@@ -346,25 +346,25 @@ function definePart () {
         case 2:
           var len = varint.decode(buf, offset)
           offset += varint.decode.bytes
-          obj.rotation = enc[1].decode(buf, offset, offset + len)
+          obj.origin = enc[1].decode(buf, offset, offset + len)
           offset += enc[1].decode.bytes
           break
         case 3:
-          var len = varint.decode(buf, offset)
-          offset += varint.decode.bytes
-          obj.origin = enc[2].decode(buf, offset, offset + len)
+          obj.sizeId = enc[2].decode(buf, offset)
           offset += enc[2].decode.bytes
           break
         case 4:
-          obj.length = enc[3].decode(buf, offset)
+          obj.materialId = enc[3].decode(buf, offset)
           offset += enc[3].decode.bytes
           break
         case 5:
-          obj.sizeId = enc[4].decode(buf, offset)
+          var len = varint.decode(buf, offset)
+          offset += varint.decode.bytes
+          obj.direction = enc[4].decode(buf, offset, offset + len)
           offset += enc[4].decode.bytes
           break
         case 6:
-          obj.materialId = enc[5].decode(buf, offset)
+          obj.length = enc[5].decode(buf, offset)
           offset += enc[5].decode.bytes
           break
         default:

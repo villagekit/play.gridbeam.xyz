@@ -7,11 +7,12 @@ import { useResource } from 'react-three-fiber'
 export default Beam
 
 function Beam (props) {
+  const direction = { inclination: 0, azimuth: 0 }
   const {
     uuid,
-    rotation,
-    length,
     origin,
+    //    direction,
+    length,
     isHovered,
     hover,
     unhover,
@@ -128,11 +129,19 @@ function Beam (props) {
     return new Color(isSelected ? 'cyan' : isHovered ? 'magenta' : 'white')
   }, [isSelected, isHovered])
 
+  /*
+      rotation={[
+        0,
+        -direction.azimuth,
+        (1 / 2) * Math.PI - direction.inclination
+      ]}
+  */
+
   return (
     <group
       name={uuid}
+      rotation={[0, direction.inclination, direction.azimuth]}
       position={position}
-      rotation={[0, rotation.azimuth, rotation.inclination]}
       onClick={handleClick}
       onPointerDown={ev => {
         ev.stopPropagation()

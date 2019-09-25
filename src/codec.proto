@@ -6,7 +6,7 @@ enum PartType {
   Adapter = 4;
 }
 
-message Rotation {
+message Direction {
   optional float inclination = 1 [default = 0];
   optional float azimuth = 2 [default = 0];
 }
@@ -41,15 +41,16 @@ enum MaterialId {
 
 message Part {
   required PartType type = 1;
-  optional Rotation rotation = 2;
-  optional GridPosition origin = 3;
-
-  // beam properties
-  optional uint32 length = 4;
+  optional GridPosition origin = 2;
 
   // spec properties
-  optional SizeId sizeId = 5 [default = 0];
-  optional MaterialId materialId = 6 [default = 0];
+  optional SizeId sizeId = 3 [default = 0];
+  optional MaterialId materialId = 4 [default = 0];
+
+  // beam properties
+  optional Direction direction = 5;
+  optional uint32 length = 6;
+
 }
 
 message Model {

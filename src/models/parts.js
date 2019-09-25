@@ -12,10 +12,11 @@ import {
   zipObj
 } from 'ramda'
 
-export const rotationByDirection = {
-  x: { inclination: 0, azimuth: 0 },
-  y: { inclination: Math.PI / 2, azimuth: 0 },
-  z: { inclination: 0, azimuth: -Math.PI / 2 }
+const ROTATION = 2 * Math.PI
+export const directionByAxis = {
+  x: { inclination: (1 / 4) * ROTATION, azimuth: 0 },
+  y: { inclination: (1 / 4) * ROTATION, azimuth: (1 / 4) * ROTATION },
+  z: { inclination: 0, azimuth: 0 }
 }
 
 export let parts = {
