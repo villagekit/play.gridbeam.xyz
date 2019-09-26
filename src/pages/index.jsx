@@ -5,7 +5,7 @@ import { withLayout } from '../components/layout'
 import SEO from '../components/seo'
 import Playground from '../components/playground'
 import Codec from '../codec'
-import { directionByAxis } from '../models/parts'
+import { directionByAxis } from '../helpers/direction'
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)
 

@@ -1,17 +1,24 @@
 import React from 'react'
 import { useStore, useSelector } from 'react-redux'
-import { BoxGeometry, Vector3, Plane, Color } from 'three'
+import {
+  Math as _Math,
+  BoxGeometry,
+  Vector3,
+  Plane,
+  Color,
+  //  Spherical,
+  Euler
+} from 'three'
 import { range } from 'ramda'
 import { useResource } from 'react-three-fiber'
 
 export default Beam
 
 function Beam (props) {
-  const direction = { inclination: 0, azimuth: 0 }
   const {
     uuid,
     origin,
-    //    direction,
+    direction,
     length,
     isHovered,
     hover,
@@ -23,6 +30,8 @@ function Beam (props) {
     materialId,
     texturesByMaterialType
   } = props
+
+  console.log('direction', direction)
 
   const { select: selectors, dispatch } = useStore()
 
@@ -129,19 +138,25 @@ function Beam (props) {
     return new Color(isSelected ? 'cyan' : isHovered ? 'magenta' : 'white')
   }, [isSelected, isHovered])
 
-  /*
-      rotation={[
-        0,
-        -direction.azimuth,
-        (1 / 2) * Math.PI - direction.inclination
-      ]}
-  */
+  const rotation = React.useMemo(() => {
+    return directionToRotation(direction)
+  }, [direction])
+
+  // TODO: figure out the proper solution to this.
+  // i just did a radical guess, and it checked.
+  function directionToRotation (direction) {
+    const { x, y, z } = direction
+    const radius = Math.sqrt(x * x + y * y + z * z)
+    const theta = -Math.atan2(z, y)
+    const phi = Math.acos(x / radius)
+    return new Euler(0, theta, phi, 'ZYX')
+  }
 
   return (
     <group
       name={uuid}
-      rotation={[0, direction.inclination, direction.azimuth]}
       position={position}
+      rotation={rotation}
       onClick={handleClick}
       onPointerDown={ev => {
         ev.stopPropagation()

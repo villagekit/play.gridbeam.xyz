@@ -79,12 +79,16 @@ function defineDirection () {
 
   function encodingLength (obj) {
     var length = 0
-    if (defined(obj.inclination)) {
-      var len = enc[0].encodingLength(obj.inclination)
+    if (defined(obj.x)) {
+      var len = enc[0].encodingLength(obj.x)
       length += 1 + len
     }
-    if (defined(obj.azimuth)) {
-      var len = enc[0].encodingLength(obj.azimuth)
+    if (defined(obj.y)) {
+      var len = enc[0].encodingLength(obj.y)
+      length += 1 + len
+    }
+    if (defined(obj.z)) {
+      var len = enc[0].encodingLength(obj.z)
       length += 1 + len
     }
     return length
@@ -94,14 +98,19 @@ function defineDirection () {
     if (!offset) offset = 0
     if (!buf) buf = Buffer.allocUnsafe(encodingLength(obj))
     var oldOffset = offset
-    if (defined(obj.inclination)) {
+    if (defined(obj.x)) {
       buf[offset++] = 13
-      enc[0].encode(obj.inclination, buf, offset)
+      enc[0].encode(obj.x, buf, offset)
       offset += enc[0].encode.bytes
     }
-    if (defined(obj.azimuth)) {
+    if (defined(obj.y)) {
       buf[offset++] = 21
-      enc[0].encode(obj.azimuth, buf, offset)
+      enc[0].encode(obj.y, buf, offset)
+      offset += enc[0].encode.bytes
+    }
+    if (defined(obj.z)) {
+      buf[offset++] = 29
+      enc[0].encode(obj.z, buf, offset)
       offset += enc[0].encode.bytes
     }
     encode.bytes = offset - oldOffset
@@ -115,8 +124,9 @@ function defineDirection () {
       throw new Error('Decoded message is not valid')
     var oldOffset = offset
     var obj = {
-      inclination: 0,
-      azimuth: 0
+      x: 0,
+      y: 0,
+      z: 0
     }
     while (true) {
       if (end <= offset) {
@@ -128,11 +138,15 @@ function defineDirection () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-          obj.inclination = enc[0].decode(buf, offset)
+          obj.x = enc[0].decode(buf, offset)
           offset += enc[0].decode.bytes
           break
         case 2:
-          obj.azimuth = enc[0].decode(buf, offset)
+          obj.y = enc[0].decode(buf, offset)
+          offset += enc[0].decode.bytes
+          break
+        case 3:
+          obj.z = enc[0].decode(buf, offset)
           offset += enc[0].decode.bytes
           break
         default:

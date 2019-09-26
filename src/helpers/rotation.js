@@ -1,25 +1,42 @@
-import { Spherical, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-export const ROTATION = Math.PI * 2
+export const ROTATION = 2 * Math.PI
 
 export function rotateDirection (direction, axis, angle) {
-  // THREE's spherical coordinates are such that:
-  //
-  // azimuth = phi = angle from the y axis
-  // inclination = theta = angle around the y axis
-  //
-  const { inclination, azimuth } = direction
-  const nextCartesian = new Vector3()
-    .setFromSphericalCoords(1, azimuth, inclination)
-    .applyAxisAngle(axis, angle)
-  const nextSpherical = new Spherical().setFromCartesianCoords(
-    nextCartesian.x,
-    nextCartesian.y,
-    nextCartesian.z
+  const { x, y, z } = direction
+  var nextVector = new Vector3(x, y, z).applyAxisAngle(axis, angle)
+  // normalize values
+  nextVector.x = normalizeRotationValue(nextVector.x)
+  nextVector.y = normalizeRotationValue(nextVector.y)
+  nextVector.z = normalizeRotationValue(nextVector.z)
+  return { x: nextVector.x, y: nextVector.y, z: nextVector.z }
+}
+
+/*
+export function rotateX (vector, angle) {
+  var rotation = new Matrix()
+  rotation.set(
+    1,
+    0,
+    0,
+    0,
+    Math.cos(angle),
+    -Math.sin(angle),
+    0,
+    Math.sin(angle),
+    Math.cos(angle)
   )
-  console.log('cartesian', direction, nextCartesian, nextSpherical)
-  return {
-    inclination: nextSpherical.theta,
-    azimuth: nextSpherical.phi
-  }
+  return vector.applyMatrix3(rotation)
+}
+*/
+
+function normalizeRotationValue (value) {
+  value = roundToPrecision(value)
+  if (Object.is(value, -0)) return 0
+  return value
+}
+
+function roundToPrecision (value, precision = 10) {
+  var multiplier = Math.pow(10, precision)
+  return Math.round(value * multiplier) / multiplier
 }
