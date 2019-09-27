@@ -1,6 +1,16 @@
-import { Vector3 } from 'three'
+import { Euler, Vector3 } from 'three'
 
 export const ROTATION = 2 * Math.PI
+
+// TODO: figure out the proper solution to this.
+// i just did a radical guess, and it checked.
+export function directionToRotation (direction) {
+  const { x, y, z } = direction
+  const radius = Math.sqrt(x * x + y * y + z * z)
+  const theta = -Math.atan2(z, y)
+  const phi = Math.acos(x / radius)
+  return new Euler(0, theta, phi, 'ZYX')
+}
 
 export function rotateDirection (direction, axis, angle) {
   const { x, y, z } = direction

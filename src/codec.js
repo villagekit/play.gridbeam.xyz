@@ -18,6 +18,15 @@ exports.PartType = {
   Adapter: 4
 }
 
+exports.AxisDirection = {
+  X: 0,
+  '-X': 1,
+  Y: 2,
+  '-Y': 3,
+  Z: 4,
+  '-Z': 5
+}
+
 exports.SpecId = {
   og: 0
 }
@@ -249,6 +258,7 @@ function definePart () {
     encodings.enum,
     encodings.enum,
     Direction,
+    encodings.enum,
     encodings.varint
   ]
 
@@ -258,6 +268,10 @@ function definePart () {
 
   function encodingLength (obj) {
     var length = 0
+    if (+defined(obj.direction) + +defined(obj.axisDirection) > 1)
+      throw new Error(
+        'only one of the properties defined in oneof direction_oneof can be set'
+      )
     if (!defined(obj.type)) throw new Error('type is required')
     var len = enc[0].encodingLength(obj.type)
     length += 1 + len
@@ -279,8 +293,12 @@ function definePart () {
       length += varint.encodingLength(len)
       length += 1 + len
     }
+    if (defined(obj.axisDirection)) {
+      var len = enc[5].encodingLength(obj.axisDirection)
+      length += 1 + len
+    }
     if (defined(obj.length)) {
-      var len = enc[5].encodingLength(obj.length)
+      var len = enc[6].encodingLength(obj.length)
       length += 1 + len
     }
     return length
@@ -290,6 +308,10 @@ function definePart () {
     if (!offset) offset = 0
     if (!buf) buf = Buffer.allocUnsafe(encodingLength(obj))
     var oldOffset = offset
+    if (+defined(obj.direction) + +defined(obj.axisDirection) > 1)
+      throw new Error(
+        'only one of the properties defined in oneof direction_oneof can be set'
+      )
     if (!defined(obj.type)) throw new Error('type is required')
     buf[offset++] = 8
     enc[0].encode(obj.type, buf, offset)
@@ -318,10 +340,15 @@ function definePart () {
       enc[4].encode(obj.direction, buf, offset)
       offset += enc[4].encode.bytes
     }
-    if (defined(obj.length)) {
+    if (defined(obj.axisDirection)) {
       buf[offset++] = 48
-      enc[5].encode(obj.length, buf, offset)
+      enc[5].encode(obj.axisDirection, buf, offset)
       offset += enc[5].encode.bytes
+    }
+    if (defined(obj.length)) {
+      buf[offset++] = 56
+      enc[6].encode(obj.length, buf, offset)
+      offset += enc[6].encode.bytes
     }
     encode.bytes = offset - oldOffset
     return buf
@@ -339,6 +366,7 @@ function definePart () {
       sizeId: 0,
       materialId: 0,
       direction: null,
+      axisDirection: 0,
       length: 0
     }
     var found0 = false
@@ -372,14 +400,20 @@ function definePart () {
           offset += enc[3].decode.bytes
           break
         case 5:
+          delete obj.axisDirection
           var len = varint.decode(buf, offset)
           offset += varint.decode.bytes
           obj.direction = enc[4].decode(buf, offset, offset + len)
           offset += enc[4].decode.bytes
           break
         case 6:
-          obj.length = enc[5].decode(buf, offset)
+          delete obj.direction
+          obj.axisDirection = enc[5].decode(buf, offset)
           offset += enc[5].decode.bytes
+          break
+        case 7:
+          obj.length = enc[6].decode(buf, offset)
+          offset += enc[6].decode.bytes
           break
         default:
           offset = skip(prefix & 7, buf, offset)

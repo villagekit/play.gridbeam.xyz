@@ -6,6 +6,15 @@ enum PartType {
   Adapter = 4;
 }
 
+enum AxisDirection {
+  X = 0;
+  -X = 1;
+  Y = 2;
+  -Y = 3;
+  Z = 4;
+  -Z = 5;
+}
+
 message Direction {
   optional float x = 1 [default = 0];
   optional float y = 2 [default = 0];
@@ -49,9 +58,12 @@ message Part {
   optional MaterialId materialId = 4 [default = 0];
 
   // beam properties
-  optional Direction direction = 5;
-  optional uint32 length = 6;
+  oneof direction_oneof {
+    Direction direction = 5;
+    AxisDirection axisDirection = 6;
+  }
 
+  uint32 length = 7;
 }
 
 message Model {

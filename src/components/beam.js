@@ -1,16 +1,10 @@
 import React from 'react'
 import { useStore, useSelector } from 'react-redux'
-import {
-  Math as _Math,
-  BoxGeometry,
-  Vector3,
-  Plane,
-  Color,
-  //  Spherical,
-  Euler
-} from 'three'
+import { BoxGeometry, Vector3, Plane, Color } from 'three'
 import { range } from 'ramda'
 import { useResource } from 'react-three-fiber'
+
+import { directionToRotation } from '../helpers/rotation'
 
 export default Beam
 
@@ -30,8 +24,6 @@ function Beam (props) {
     materialId,
     texturesByMaterialType
   } = props
-
-  console.log('direction', direction)
 
   const { select: selectors, dispatch } = useStore()
 
@@ -141,16 +133,6 @@ function Beam (props) {
   const rotation = React.useMemo(() => {
     return directionToRotation(direction)
   }, [direction])
-
-  // TODO: figure out the proper solution to this.
-  // i just did a radical guess, and it checked.
-  function directionToRotation (direction) {
-    const { x, y, z } = direction
-    const radius = Math.sqrt(x * x + y * y + z * z)
-    const theta = -Math.atan2(z, y)
-    const phi = Math.acos(x / radius)
-    return new Euler(0, theta, phi, 'ZYX')
-  }
 
   return (
     <group

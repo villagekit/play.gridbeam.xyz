@@ -2,6 +2,7 @@ import produce from 'immer'
 import { equals, pipe, prop, values } from 'ramda'
 import { inflateRaw, deflateRaw, Z_BEST_COMPRESSION } from 'pako'
 
+import { axisToDirection, directionToAxis } from '../helpers/direction'
 import Codec from '../codec'
 
 export const persist = {
@@ -54,7 +55,10 @@ export const persist = {
           )
         }
 
-        const { parts, specId } = model
+        var { parts, specId } = model
+
+        parts = parts.map(inflatePart)
+
         dispatch.parts.setParts(parts)
         dispatch.spec.setCurrentSpecId(specId)
       } else {
@@ -66,9 +70,11 @@ export const persist = {
     save ({ parts, specId }) {
       const version = 1
 
+      parts = values(parts).map(deflatePart)
+
       const model = {
         specId,
-        parts: values(parts)
+        parts
       }
 
       try {
@@ -139,3 +145,20 @@ const Base64 = {
     return Buffer.from(this.unescape(str), 'base64')
   }
 }
+
+const inflatePart = produce(part => {
+  if (part.axisDirection != null) {
+    part.direction = axisToDirection(part.axisDirection)
+    delete part.axisDirection
+  }
+})
+
+const deflatePart = produce(part => {
+  if (part.direction != null) {
+    const axisDirection = directionToAxis(part.direction)
+    if (axisDirection != null) {
+      part.axisDirection = axisDirection
+      delete part.direction
+    }
+  }
+})

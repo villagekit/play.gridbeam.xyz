@@ -21,7 +21,7 @@ var defaultModel = {
         y: 1,
         z: 1
       },
-      direction: directionByAxis.x,
+      direction: directionByAxis[Codec.AxisDirection.X],
       length: 4
     },
     {
@@ -33,7 +33,7 @@ var defaultModel = {
         y: 0,
         z: 2
       },
-      direction: directionByAxis.y,
+      direction: directionByAxis[Codec.AxisDirection.Y],
       length: 6
     },
     {
@@ -45,7 +45,7 @@ var defaultModel = {
         y: 0,
         z: 0
       },
-      direction: directionByAxis.z,
+      direction: directionByAxis[Codec.AxisDirection.Z],
       length: 10
     }
   ]
