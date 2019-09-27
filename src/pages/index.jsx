@@ -2,7 +2,7 @@ import React from 'react'
 import { Object3D, Vector3 } from 'three'
 
 import { withLayout } from '../components/layout'
-import SEO from '../components/seo'
+import Head from '../components/head'
 import Playground from '../components/playground'
 import Codec from '../codec'
 import { directionByAxis } from '../helpers/direction'
@@ -54,7 +54,7 @@ var defaultModel = {
 function Page () {
   return (
     <>
-      <SEO
+      <Head
         keywords={[
           'grid',
           'beam',
