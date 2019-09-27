@@ -20,9 +20,9 @@ function Head ({ description, lang, meta, keywords, title }) {
             defaultTitle={data.site.siteMetadata.title}
             meta={[
               {
-                name: 'viweport',
+                name: 'viewport',
                 content:
-                  'width=device-wedth, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'
+                  'width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'
               },
               {
                 name: 'description',
