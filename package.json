@@ -23,6 +23,7 @@
     "immer": "^3.2.0",
     "mod-op": "^1.0.1",
     "pako": "^1.0.10",
+    "pepjs": "^0.5.2",
     "prop-types": "^15.7.2",
     "protocol-buffers-encodings": "^1.1.0",
     "ramda": "^0.26.1",
