@@ -6,44 +6,44 @@
   "author": "Michael Williams <michael.williams@enspiral.com>",
   "dependencies": {
     "@jscad/csg": "^0.7.0",
-    "@rematch/core": "^1.2.0",
+    "@rematch/core": "^1.4.0",
     "@rematch/select": "^2.0.5",
     "csg-to-mesh": "^1.0.2",
-    "gatsby": "^2.3.24",
-    "gatsby-image": "^2.0.39",
-    "gatsby-plugin-manifest": "^2.0.29",
-    "gatsby-plugin-matomo": "^0.7.2",
+    "gatsby": "^2.20.36",
+    "gatsby-image": "^2.3.5",
+    "gatsby-plugin-manifest": "^2.3.7",
+    "gatsby-plugin-matomo": "^0.8.3",
     "gatsby-plugin-ramda": "^1.0.0",
-    "gatsby-plugin-react-helmet": "^3.0.12",
-    "gatsby-plugin-sharp": "^2.0.35",
-    "gatsby-plugin-styled-components": "^3.0.7",
+    "gatsby-plugin-react-helmet": "^3.2.5",
+    "gatsby-plugin-sharp": "^2.5.7",
+    "gatsby-plugin-styled-components": "^3.2.4",
     "gatsby-plugin-webpack-bundle-analyzer": "^1.0.5",
-    "gatsby-source-filesystem": "^2.0.29",
-    "gatsby-transformer-sharp": "^2.1.18",
-    "immer": "^3.2.0",
+    "gatsby-source-filesystem": "^2.2.5",
+    "gatsby-transformer-sharp": "^2.4.7",
+    "immer": "^6.0.3",
     "mod-op": "^1.0.1",
-    "pako": "^1.0.10",
+    "pako": "^1.0.11",
     "pepjs": "^0.5.2",
     "prop-types": "^15.7.2",
     "protocol-buffers-encodings": "^1.1.0",
-    "ramda": "^0.26.1",
-    "react": "^16.8.6",
-    "react-debounce-hook": "^1.1.18",
-    "react-dom": "^16.8.6",
-    "react-helmet": "^5.2.0",
-    "react-redux": "^7.1.1",
-    "react-three-fiber": "^2.3.6",
-    "reakit": "1.0.0-beta.5",
-    "rebass": "^4.0.2",
+    "ramda": "^0.27.0",
+    "react": "^16.13.1",
+    "react-debounce-hook": "^1.1.19",
+    "react-dom": "^16.13.1",
+    "react-helmet": "^6.0.0",
+    "react-redux": "^7.2.0",
+    "react-three-fiber": "^4.1.1",
+    "reakit": "^1.0.0-rc.1",
+    "rebass": "^4.0.7",
     "set-in": "^2.0.0",
     "shader": "^1.0.0",
-    "styled-components": "^4.3.1",
-    "styled-reset": "^2.0.15",
-    "three": "^0.107.0",
+    "styled-components": "^5.1.0",
+    "styled-reset": "^4.1.4",
+    "three": "^0.115.0",
     "typeface-bungee": "0.0.72",
-    "typeface-ibm-plex-sans": "0.0.61",
-    "typeface-ibm-plex-serif": "0.0.61",
-    "use-clipboard-copy": "^0.1.1"
+    "typeface-ibm-plex-sans": "0.0.75",
+    "typeface-ibm-plex-serif": "0.0.75",
+    "use-clipboard-copy": "^0.1.2"
   },
   "license": "AGPL-3.0",
   "scripts": {
@@ -57,11 +57,11 @@
     "test": "standard"
   },
   "devDependencies": {
-    "husky": "^2.4.1",
-    "lint-staged": "^8.2.0",
-    "prettier-standard": "^9.1.1",
-    "protocol-buffers": "^4.1.0",
-    "standard": "^12.0.1"
+    "husky": "^4.2.5",
+    "lint-staged": "^10.1.7",
+    "prettier-standard": "^16.3.0",
+    "protocol-buffers": "^4.1.2",
+    "standard": "^14.3.3"
   },
   "repository": {
     "type": "git",
@@ -73,11 +73,9 @@
     }
   },
   "lint-staged": {
-    "linters": {
-      "src/**/*.js": [
-        "prettier-standard",
-        "git add"
-      ]
-    }
+    "src/**/*.js": [
+      "prettier-standard",
+      "git add"
+    ]
   }
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box3, Vector3 } from 'three'
-import { extend, useThree, useRender } from 'react-three-fiber'
+import { extend, useThree, useFrame } from 'react-three-fiber'
 import { useStore, useSelector } from 'react-redux'
 import { map, prop } from 'ramda'
 
@@ -32,8 +32,8 @@ function Camera (props) {
     controls.update()
   }, [])
 
-  useRender(() => {
-    controlsRef.current.update()
+  useFrame(() => {
+    if (controlsRef.current) controlsRef.current.update()
   })
 
   // center camera on parts

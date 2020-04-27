@@ -80,8 +80,6 @@ definePart()
 defineModel()
 
 function defineDirection () {
-  var enc = [encodings.float]
-
   Direction.encodingLength = encodingLength
   Direction.encode = encode
   Direction.decode = decode
@@ -89,15 +87,15 @@ function defineDirection () {
   function encodingLength (obj) {
     var length = 0
     if (defined(obj.x)) {
-      var len = enc[0].encodingLength(obj.x)
+      var len = encodings.float.encodingLength(obj.x)
       length += 1 + len
     }
     if (defined(obj.y)) {
-      var len = enc[0].encodingLength(obj.y)
+      var len = encodings.float.encodingLength(obj.y)
       length += 1 + len
     }
     if (defined(obj.z)) {
-      var len = enc[0].encodingLength(obj.z)
+      var len = encodings.float.encodingLength(obj.z)
       length += 1 + len
     }
     return length
@@ -109,18 +107,18 @@ function defineDirection () {
     var oldOffset = offset
     if (defined(obj.x)) {
       buf[offset++] = 13
-      enc[0].encode(obj.x, buf, offset)
-      offset += enc[0].encode.bytes
+      encodings.float.encode(obj.x, buf, offset)
+      offset += encodings.float.encode.bytes
     }
     if (defined(obj.y)) {
       buf[offset++] = 21
-      enc[0].encode(obj.y, buf, offset)
-      offset += enc[0].encode.bytes
+      encodings.float.encode(obj.y, buf, offset)
+      offset += encodings.float.encode.bytes
     }
     if (defined(obj.z)) {
       buf[offset++] = 29
-      enc[0].encode(obj.z, buf, offset)
-      offset += enc[0].encode.bytes
+      encodings.float.encode(obj.z, buf, offset)
+      offset += encodings.float.encode.bytes
     }
     encode.bytes = offset - oldOffset
     return buf
@@ -147,16 +145,16 @@ function defineDirection () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-          obj.x = enc[0].decode(buf, offset)
-          offset += enc[0].decode.bytes
+          obj.x = encodings.float.decode(buf, offset)
+          offset += encodings.float.decode.bytes
           break
         case 2:
-          obj.y = enc[0].decode(buf, offset)
-          offset += enc[0].decode.bytes
+          obj.y = encodings.float.decode(buf, offset)
+          offset += encodings.float.decode.bytes
           break
         case 3:
-          obj.z = enc[0].decode(buf, offset)
-          offset += enc[0].decode.bytes
+          obj.z = encodings.float.decode(buf, offset)
+          offset += encodings.float.decode.bytes
           break
         default:
           offset = skip(prefix & 7, buf, offset)
@@ -166,8 +164,6 @@ function defineDirection () {
 }
 
 function defineGridPosition () {
-  var enc = [encodings.sint64]
-
   GridPosition.encodingLength = encodingLength
   GridPosition.encode = encode
   GridPosition.decode = decode
@@ -175,15 +171,15 @@ function defineGridPosition () {
   function encodingLength (obj) {
     var length = 0
     if (defined(obj.x)) {
-      var len = enc[0].encodingLength(obj.x)
+      var len = encodings.sint64.encodingLength(obj.x)
       length += 1 + len
     }
     if (defined(obj.y)) {
-      var len = enc[0].encodingLength(obj.y)
+      var len = encodings.sint64.encodingLength(obj.y)
       length += 1 + len
     }
     if (defined(obj.z)) {
-      var len = enc[0].encodingLength(obj.z)
+      var len = encodings.sint64.encodingLength(obj.z)
       length += 1 + len
     }
     return length
@@ -195,18 +191,18 @@ function defineGridPosition () {
     var oldOffset = offset
     if (defined(obj.x)) {
       buf[offset++] = 8
-      enc[0].encode(obj.x, buf, offset)
-      offset += enc[0].encode.bytes
+      encodings.sint64.encode(obj.x, buf, offset)
+      offset += encodings.sint64.encode.bytes
     }
     if (defined(obj.y)) {
       buf[offset++] = 16
-      enc[0].encode(obj.y, buf, offset)
-      offset += enc[0].encode.bytes
+      encodings.sint64.encode(obj.y, buf, offset)
+      offset += encodings.sint64.encode.bytes
     }
     if (defined(obj.z)) {
       buf[offset++] = 24
-      enc[0].encode(obj.z, buf, offset)
-      offset += enc[0].encode.bytes
+      encodings.sint64.encode(obj.z, buf, offset)
+      offset += encodings.sint64.encode.bytes
     }
     encode.bytes = offset - oldOffset
     return buf
@@ -233,16 +229,16 @@ function defineGridPosition () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-          obj.x = enc[0].decode(buf, offset)
-          offset += enc[0].decode.bytes
+          obj.x = encodings.sint64.decode(buf, offset)
+          offset += encodings.sint64.decode.bytes
           break
         case 2:
-          obj.y = enc[0].decode(buf, offset)
-          offset += enc[0].decode.bytes
+          obj.y = encodings.sint64.decode(buf, offset)
+          offset += encodings.sint64.decode.bytes
           break
         case 3:
-          obj.z = enc[0].decode(buf, offset)
-          offset += enc[0].decode.bytes
+          obj.z = encodings.sint64.decode(buf, offset)
+          offset += encodings.sint64.decode.bytes
           break
         default:
           offset = skip(prefix & 7, buf, offset)
@@ -252,16 +248,6 @@ function defineGridPosition () {
 }
 
 function definePart () {
-  var enc = [
-    encodings.enum,
-    GridPosition,
-    encodings.enum,
-    encodings.enum,
-    Direction,
-    encodings.enum,
-    encodings.varint
-  ]
-
   Part.encodingLength = encodingLength
   Part.encode = encode
   Part.decode = decode
@@ -273,32 +259,32 @@ function definePart () {
         'only one of the properties defined in oneof direction_oneof can be set'
       )
     if (!defined(obj.type)) throw new Error('type is required')
-    var len = enc[0].encodingLength(obj.type)
+    var len = encodings.enum.encodingLength(obj.type)
     length += 1 + len
     if (defined(obj.origin)) {
-      var len = enc[1].encodingLength(obj.origin)
+      var len = GridPosition.encodingLength(obj.origin)
       length += varint.encodingLength(len)
       length += 1 + len
     }
     if (defined(obj.sizeId)) {
-      var len = enc[2].encodingLength(obj.sizeId)
+      var len = encodings.enum.encodingLength(obj.sizeId)
       length += 1 + len
     }
     if (defined(obj.materialId)) {
-      var len = enc[3].encodingLength(obj.materialId)
+      var len = encodings.enum.encodingLength(obj.materialId)
       length += 1 + len
     }
     if (defined(obj.direction)) {
-      var len = enc[4].encodingLength(obj.direction)
+      var len = Direction.encodingLength(obj.direction)
       length += varint.encodingLength(len)
       length += 1 + len
     }
     if (defined(obj.axisDirection)) {
-      var len = enc[5].encodingLength(obj.axisDirection)
+      var len = encodings.enum.encodingLength(obj.axisDirection)
       length += 1 + len
     }
     if (defined(obj.length)) {
-      var len = enc[6].encodingLength(obj.length)
+      var len = encodings.varint.encodingLength(obj.length)
       length += 1 + len
     }
     return length
@@ -314,41 +300,41 @@ function definePart () {
       )
     if (!defined(obj.type)) throw new Error('type is required')
     buf[offset++] = 8
-    enc[0].encode(obj.type, buf, offset)
-    offset += enc[0].encode.bytes
+    encodings.enum.encode(obj.type, buf, offset)
+    offset += encodings.enum.encode.bytes
     if (defined(obj.origin)) {
       buf[offset++] = 18
-      varint.encode(enc[1].encodingLength(obj.origin), buf, offset)
+      varint.encode(GridPosition.encodingLength(obj.origin), buf, offset)
       offset += varint.encode.bytes
-      enc[1].encode(obj.origin, buf, offset)
-      offset += enc[1].encode.bytes
+      GridPosition.encode(obj.origin, buf, offset)
+      offset += GridPosition.encode.bytes
     }
     if (defined(obj.sizeId)) {
       buf[offset++] = 24
-      enc[2].encode(obj.sizeId, buf, offset)
-      offset += enc[2].encode.bytes
+      encodings.enum.encode(obj.sizeId, buf, offset)
+      offset += encodings.enum.encode.bytes
     }
     if (defined(obj.materialId)) {
       buf[offset++] = 32
-      enc[3].encode(obj.materialId, buf, offset)
-      offset += enc[3].encode.bytes
+      encodings.enum.encode(obj.materialId, buf, offset)
+      offset += encodings.enum.encode.bytes
     }
     if (defined(obj.direction)) {
       buf[offset++] = 42
-      varint.encode(enc[4].encodingLength(obj.direction), buf, offset)
+      varint.encode(Direction.encodingLength(obj.direction), buf, offset)
       offset += varint.encode.bytes
-      enc[4].encode(obj.direction, buf, offset)
-      offset += enc[4].encode.bytes
+      Direction.encode(obj.direction, buf, offset)
+      offset += Direction.encode.bytes
     }
     if (defined(obj.axisDirection)) {
       buf[offset++] = 48
-      enc[5].encode(obj.axisDirection, buf, offset)
-      offset += enc[5].encode.bytes
+      encodings.enum.encode(obj.axisDirection, buf, offset)
+      offset += encodings.enum.encode.bytes
     }
     if (defined(obj.length)) {
       buf[offset++] = 56
-      enc[6].encode(obj.length, buf, offset)
-      offset += enc[6].encode.bytes
+      encodings.varint.encode(obj.length, buf, offset)
+      offset += encodings.varint.encode.bytes
     }
     encode.bytes = offset - oldOffset
     return buf
@@ -381,39 +367,39 @@ function definePart () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-          obj.type = enc[0].decode(buf, offset)
-          offset += enc[0].decode.bytes
+          obj.type = encodings.enum.decode(buf, offset)
+          offset += encodings.enum.decode.bytes
           found0 = true
           break
         case 2:
           var len = varint.decode(buf, offset)
           offset += varint.decode.bytes
-          obj.origin = enc[1].decode(buf, offset, offset + len)
-          offset += enc[1].decode.bytes
+          obj.origin = GridPosition.decode(buf, offset, offset + len)
+          offset += GridPosition.decode.bytes
           break
         case 3:
-          obj.sizeId = enc[2].decode(buf, offset)
-          offset += enc[2].decode.bytes
+          obj.sizeId = encodings.enum.decode(buf, offset)
+          offset += encodings.enum.decode.bytes
           break
         case 4:
-          obj.materialId = enc[3].decode(buf, offset)
-          offset += enc[3].decode.bytes
+          obj.materialId = encodings.enum.decode(buf, offset)
+          offset += encodings.enum.decode.bytes
           break
         case 5:
           delete obj.axisDirection
           var len = varint.decode(buf, offset)
           offset += varint.decode.bytes
-          obj.direction = enc[4].decode(buf, offset, offset + len)
-          offset += enc[4].decode.bytes
+          obj.direction = Direction.decode(buf, offset, offset + len)
+          offset += Direction.decode.bytes
           break
         case 6:
           delete obj.direction
-          obj.axisDirection = enc[5].decode(buf, offset)
-          offset += enc[5].decode.bytes
+          obj.axisDirection = encodings.enum.decode(buf, offset)
+          offset += encodings.enum.decode.bytes
           break
         case 7:
-          obj.length = enc[6].decode(buf, offset)
-          offset += enc[6].decode.bytes
+          obj.length = encodings.varint.decode(buf, offset)
+          offset += encodings.varint.decode.bytes
           break
         default:
           offset = skip(prefix & 7, buf, offset)
@@ -423,8 +409,6 @@ function definePart () {
 }
 
 function defineModel () {
-  var enc = [Part, encodings.enum]
-
   Model.encodingLength = encodingLength
   Model.encode = encode
   Model.decode = decode
@@ -434,13 +418,13 @@ function defineModel () {
     if (defined(obj.parts)) {
       for (var i = 0; i < obj.parts.length; i++) {
         if (!defined(obj.parts[i])) continue
-        var len = enc[0].encodingLength(obj.parts[i])
+        var len = Part.encodingLength(obj.parts[i])
         length += varint.encodingLength(len)
         length += 1 + len
       }
     }
     if (defined(obj.specId)) {
-      var len = enc[1].encodingLength(obj.specId)
+      var len = encodings.enum.encodingLength(obj.specId)
       length += 1 + len
     }
     return length
@@ -454,16 +438,16 @@ function defineModel () {
       for (var i = 0; i < obj.parts.length; i++) {
         if (!defined(obj.parts[i])) continue
         buf[offset++] = 10
-        varint.encode(enc[0].encodingLength(obj.parts[i]), buf, offset)
+        varint.encode(Part.encodingLength(obj.parts[i]), buf, offset)
         offset += varint.encode.bytes
-        enc[0].encode(obj.parts[i], buf, offset)
-        offset += enc[0].encode.bytes
+        Part.encode(obj.parts[i], buf, offset)
+        offset += Part.encode.bytes
       }
     }
     if (defined(obj.specId)) {
       buf[offset++] = 16
-      enc[1].encode(obj.specId, buf, offset)
-      offset += enc[1].encode.bytes
+      encodings.enum.encode(obj.specId, buf, offset)
+      offset += encodings.enum.encode.bytes
     }
     encode.bytes = offset - oldOffset
     return buf
@@ -491,12 +475,12 @@ function defineModel () {
         case 1:
           var len = varint.decode(buf, offset)
           offset += varint.decode.bytes
-          obj.parts.push(enc[0].decode(buf, offset, offset + len))
-          offset += enc[0].decode.bytes
+          obj.parts.push(Part.decode(buf, offset, offset + len))
+          offset += Part.decode.bytes
           break
         case 2:
-          obj.specId = enc[1].decode(buf, offset)
-          offset += enc[1].decode.bytes
+          obj.specId = encodings.enum.decode(buf, offset)
+          offset += encodings.enum.decode.bytes
           break
         default:
           offset = skip(prefix & 7, buf, offset)

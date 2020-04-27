@@ -1,5 +1,5 @@
 import produce from 'immer'
-import { Math as ThreeMath } from 'three'
+import { MathUtils } from 'three'
 import {
   complement,
   filter,
@@ -23,16 +23,16 @@ export let parts = {
       state.isMoving = isMoving
     }),
     setParts: produce((state, parts) => {
-      const uuids = parts.map(part => ThreeMath.generateUUID())
+      const uuids = parts.map(part => MathUtils.generateUUID())
       state.parts = zipObj(uuids, parts)
     }),
     addPart: produce((state, newPart) => {
-      const uuid = ThreeMath.generateUUID()
+      const uuid = MathUtils.generateUUID()
       state.parts[uuid] = newPart
     }),
     addParts: produce((state, newParts) => {
       newParts.forEach(newPart => {
-        const uuid = ThreeMath.generateUUID()
+        const uuid = MathUtils.generateUUID()
         state.parts[uuid] = newPart
       })
     }),
@@ -79,23 +79,11 @@ export let parts = {
     selected: models =>
       createSelector(
         models.parts.all,
-        filter(
-          pipe(
-            prop('isSelected'),
-            equals(true)
-          )
-        )
+        filter(pipe(prop('isSelected'), equals(true)))
       ),
     hasSelected: models =>
-      createSelector(
-        models.parts.selectedUuids,
-        complement(isEmpty)
-      ),
-    byType: models =>
-      createSelector(
-        models.parts.all,
-        groupBy(prop('type'))
-      )
+      createSelector(models.parts.selectedUuids, complement(isEmpty)),
+    byType: models => createSelector(models.parts.all, groupBy(prop('type')))
   })
 }
 
