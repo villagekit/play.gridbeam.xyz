@@ -133,7 +133,7 @@ export const getHasSelectedAnyParts = createSelector(
   getSelectedUuids,
   complement(isEmpty)
 )
-export const getPartByType = createSelector(getParts, groupBy(prop('type')))
+export const getPartsByType = createSelector(getParts, groupBy(prop('type')))
 
 function buildPartHappening (happen) {
   const happenAction = createAction(`parts/do${capitalize(happen)}Part`)

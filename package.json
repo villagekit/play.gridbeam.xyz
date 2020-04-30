@@ -35,7 +35,6 @@
     "react-three-fiber": "^4.1.1",
     "reakit": "^1.0.0-rc.1",
     "rebass": "^4.0.7",
-    "set-in": "^2.0.0",
     "shader": "^1.0.0",
     "styled-components": "^5.1.0",
     "styled-reset": "^4.1.4",

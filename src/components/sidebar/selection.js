@@ -3,10 +3,9 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Box, Flex, Text } from 'rebass/styled-components'
 import { Group } from 'reakit/Group'
 import { map } from 'ramda'
-import setIn from 'set-in'
 import { useDebounce } from 'react-debounce-hook'
 
-import { getSelectedParts, doUpdateParts } from './'
+import { getSelectedParts, doUpdatePart } from '../../store'
 import Codec from '../../codec'
 
 export default Selection
@@ -36,7 +35,7 @@ function Selection (props) {
           path={['length']}
           value={selected.length}
           min={1}
-          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
+          update={updater => dispatch(doUpdatePart({ uuid, updater }))}
         />
         <InputControl
           type='number'
@@ -44,7 +43,7 @@ function Selection (props) {
           label='origin.x'
           path={['origin', 'x']}
           value={selected.origin.x}
-          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
+          update={updater => dispatch(doUpdatePart({ uuid, updater }))}
         />
         <InputControl
           type='number'
@@ -52,7 +51,7 @@ function Selection (props) {
           label='origin.y'
           path={['origin', 'y']}
           value={selected.origin.y}
-          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
+          update={updater => dispatch(doUpdatePart({ uuid, updater }))}
         />
         <InputControl
           type='number'
@@ -60,7 +59,7 @@ function Selection (props) {
           label='origin.z'
           path={['origin', 'z']}
           value={selected.origin.z}
-          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
+          update={updater => dispatch(doUpdatePart({ uuid, updater }))}
         />
       </ControlSection>
     )
