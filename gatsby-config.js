@@ -45,7 +45,7 @@ module.exports = {
         siteUrl: 'https://play.gridbeam.xyz'
       }
     },
-    'gatsby-plugin-ramda',
+    'gatsby-plugin-lodash',
     'gatsby-plugin-webpack-bundle-analyzer'
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.app/offline

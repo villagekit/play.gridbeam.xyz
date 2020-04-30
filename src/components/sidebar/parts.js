@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { Box, Text } from 'rebass/styled-components'
-import { length, pipe, groupBy, prop, map, sum } from 'ramda'
+import { groupBy, map, sum } from 'lodash'
 
 import { getPartsByType } from '../../store'
 import Codec from '../../codec'
@@ -102,6 +102,10 @@ function BeamSummary (props) {
   )
 }
 
-const calculateTotalLength = pipe(map(prop('length')), sum)
+function calculateTotalLength (beams) {
+  return sum(map(beams, 'length'))
+}
 
-const calculateNumBeamsByLength = pipe(groupBy(prop('length')), map(length))
+function calculateNumBeamsByLength (beams) {
+  return map(groupBy(beams, 'length'), 'length')
+}

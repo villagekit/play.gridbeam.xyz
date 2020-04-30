@@ -1,4 +1,4 @@
-import { equals } from 'ramda'
+import { isEqual } from 'lodash'
 
 import Codec from '../codec'
 
@@ -20,6 +20,6 @@ export function axisToDirection (axis) {
 export function directionToAxis (direction) {
   return axes.find(axis => {
     const axisDirection = directionByAxis[axis]
-    return equals(direction, axisDirection)
+    return isEqual(direction, axisDirection)
   })
 }

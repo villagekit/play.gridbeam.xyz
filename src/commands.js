@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { map } from 'ramda'
+import { mapValues } from 'lodash'
 
 import {
   doAddPart,
@@ -30,7 +30,7 @@ function useCommands () {
   }
 
   const readyCommands = useMemo(() => {
-    return map(methodGen => {
+    return mapValues(commands, methodGen => {
       const [methodName, ...methodArgs] = methodGen({
         specId,
         sizeId,
@@ -42,7 +42,7 @@ function useCommands () {
         return () => {}
       }
       return () => dispatch(method(...methodArgs))
-    }, commands)
+    })
   }, [hasSelected])
 
   return readyCommands

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   TextureLoader,
@@ -7,7 +7,7 @@ import {
   SpotLight
 } from 'three'
 import { Canvas, useThree } from 'react-three-fiber'
-import { map } from 'ramda'
+import { mapValues } from 'lodash'
 
 import {
   doHoverPart,
@@ -40,14 +40,14 @@ function Vis (props) {
   const currentBeamWidth = currentSize.normalizedBeamWidth
 
   const texturesByMaterialType = React.useMemo(() => {
-    return map(texturePath => {
+    return mapValues(texturePathsByMaterialType, texturePath => {
       return new TextureLoader().load(texturePath)
-    }, texturePathsByMaterialType)
+    })
   }, [texturePathsByMaterialType])
 
-  const renderParts = React.useMemo(
-    () =>
-      map(part => {
+  const renderParts = useCallback(
+    parts =>
+      parts.map(part => {
         const { uuid } = part
         const partProps = {
           ...part,

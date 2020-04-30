@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { BoxGeometry, Vector3, Plane, Color } from 'three'
-import { range } from 'ramda'
+import { range } from 'lodash'
 import { useResource } from 'react-three-fiber'
 
 import {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { values } from 'ramda'
+import { values } from 'lodash'
 
 import { doRemoveSelectedParts, doAddParts, getSelectedParts } from '../store'
 

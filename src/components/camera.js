@@ -2,7 +2,7 @@ import React from 'react'
 import { Box3, Vector3 } from 'three'
 import { extend, useThree, useFrame } from 'react-three-fiber'
 import { useSelector } from 'react-redux'
-import { map, prop } from 'ramda'
+import { map } from 'lodash'
 
 import {
   getIsCameraControlEnabled,
@@ -57,7 +57,7 @@ function Camera (props) {
       new Vector3(0, 0, 0).copy(controlsRef.current.target)
       return
     }
-    const uuids = map(prop('uuid'), centeredParts)
+    const uuids = map(centeredParts, 'uuid')
     const box = compute3dBounds(scene, uuids)
     box.getCenter(controlsRef.current.target)
   }, [isMoving, scene, parts, selectedParts])

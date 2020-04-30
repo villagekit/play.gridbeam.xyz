@@ -1,17 +1,14 @@
 import { createAction, createSelector, createSlice } from '@reduxjs/toolkit'
 import { MathUtils } from 'three'
-import { capitalize } from 'lodash'
 import {
-  complement,
-  filter,
-  equals,
-  keys,
-  isEmpty,
+  capitalize,
   groupBy,
-  pipe,
-  prop,
-  zipObj
-} from 'ramda'
+  isEmpty,
+  keys,
+  map,
+  property,
+  zipObject
+} from 'lodash'
 
 import createUpdater from '../helpers/updater'
 
@@ -33,7 +30,7 @@ export const partsSlice = createSlice({
     doSetParts: (state, action) => {
       const parts = action.payload
       const uuids = parts.map(part => MathUtils.generateUUID())
-      state.entities = zipObj(uuids, parts)
+      state.entities = zipObject(uuids, parts)
     },
     doAddPart: (state, action) => {
       const uuid = MathUtils.generateUUID()
@@ -96,27 +93,30 @@ export const {
 
 export default partsSlice.reducer
 
-export const getPartsState = prop('parts')
+export const getPartsState = property('parts')
 export const getAnyPartIsMoving = createSelector(
   getPartsState,
-  prop('isMoving')
+  property('isMoving')
 )
 export const getHoveredUuids = createSelector(
   getPartsState,
-  prop('hoveredUuids')
+  property('hoveredUuids')
 )
 export const getSelectedUuids = createSelector(
   getPartsState,
-  prop('selectedUuids')
+  property('selectedUuids')
 )
-export const getPartsEntities = createSelector(getPartsState, prop('entities'))
+export const getPartsEntities = createSelector(
+  getPartsState,
+  property('entities')
+)
 export const getParts = createSelector(
   getPartsEntities,
   getHoveredUuids,
   getSelectedUuids,
   (parts, hoveredUuids, selectedUuids) => {
     parts = parts == null ? {} : parts
-    return Object.entries(parts).map(([uuid, part]) =>
+    return map(parts, (part, uuid) =>
       Object.assign({}, part, {
         uuid,
         isHovered: Boolean(uuid in hoveredUuids),
@@ -125,15 +125,16 @@ export const getParts = createSelector(
     )
   }
 )
-export const getSelectedParts = createSelector(
-  getParts,
-  filter(pipe(prop('isSelected'), equals(true)))
+export const getSelectedParts = createSelector(getParts, parts =>
+  parts.filter(part => part.isSelected === true)
 )
 export const getHasSelectedAnyParts = createSelector(
   getSelectedUuids,
-  complement(isEmpty)
+  selectedUuids => !isEmpty(selectedUuids)
 )
-export const getPartsByType = createSelector(getParts, groupBy(prop('type')))
+export const getPartsByType = createSelector(getParts, parts => {
+  return groupBy(parts, 'type')
+})
 
 function buildPartHappening (happen) {
   const happenAction = createAction(`parts/do${capitalize(happen)}Part`)
@@ -162,7 +163,7 @@ function buildPartHappening (happen) {
     builder.addCase(happensAction, (state, action) => {
       const uuids = action.payload
       const happenedUuidsObject = state[`${happen}edUuids`]
-      const happenedUuids = Object.keys(happenedUuidsObject)
+      const happenedUuids = keys(happenedUuidsObject)
       // remove any uuids no longer happening
       happenedUuids.forEach(uuid => {
         if (!uuids.includes(uuid)) {

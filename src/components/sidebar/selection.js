@@ -2,7 +2,7 @@ import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Box, Flex, Text } from 'rebass/styled-components'
 import { Group } from 'reakit/Group'
-import { map } from 'ramda'
+import { map } from 'lodash'
 import { useDebounce } from 'react-debounce-hook'
 
 import { getSelectedParts, doUpdatePart } from '../../store'
