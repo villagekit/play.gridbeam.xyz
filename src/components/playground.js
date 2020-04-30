@@ -1,7 +1,16 @@
 import React from 'react'
-import { useSelector, useStore } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
+import {
+  doAsyncLoadModel,
+  doAsyncSaveModel,
+  getPartsEntities,
+  getCurrentSpecId,
+  getIsLoading,
+  getIsLoaded,
+  getSavedHash
+} from '../store'
 import Sidebar from './sidebar'
 import Actions from './action'
 import SelectionBox from './selection-box'
@@ -11,21 +20,21 @@ import Keyboard from './keyboard'
 export default GridBeamPlayground
 
 function GridBeamPlayground ({ defaultModel }) {
-  const { select, dispatch } = useStore()
+  const dispatch = useDispatch()
 
-  const parts = useSelector(select.parts.raw)
-  const specId = useSelector(select.spec.currentSpecId)
-  const isLoading = useSelector(select.persist.isLoading)
-  const isLoaded = useSelector(select.persist.isLoaded)
-  const savedHash = useSelector(select.persist.savedHash)
+  const parts = useSelector(getPartsEntities)
+  const specId = useSelector(getCurrentSpecId)
+  const isLoading = useSelector(getIsLoading)
+  const isLoaded = useSelector(getIsLoaded)
+  const savedHash = useSelector(getSavedHash)
 
   const [numSaving, setNumSaving] = React.useState(0)
   const isSaving = numSaving > 0
 
   React.useEffect(() => {
     if (isLoading || isSaving) return
-    if (!isLoaded) dispatch.persist.load(defaultModel)
-    else dispatch.persist.save({ parts, specId })
+    if (!isLoaded) dispatch(doAsyncLoadModel(defaultModel))
+    else dispatch(doAsyncSaveModel({ parts, specId }))
 
     return () => window.removeEventListener('hashchange', onHashChange)
 
@@ -35,7 +44,7 @@ function GridBeamPlayground ({ defaultModel }) {
         return
       }
       if (window.location.hash !== savedHash) {
-        dispatch.persist.load()
+        dispatch(doAsyncLoadModel())
       }
     }
   }, [isSaving, isLoading, isLoaded, parts, defaultModel, savedHash])

@@ -1,16 +1,15 @@
 import React from 'react'
-import { useSelector, useStore } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { Box, Text } from 'rebass/styled-components'
 import { length, pipe, groupBy, prop, map, sum } from 'ramda'
 
+import { getPartsByType } from '../../store'
 import Codec from '../../codec'
 
 export default Parts
 
 function Parts (props) {
-  const { select } = useStore()
-
-  const partsByType = useSelector(select.parts.byType)
+  const partsByType = useSelector(getPartsByType)
 
   return (
     <PartsContainer>
@@ -103,12 +102,6 @@ function BeamSummary (props) {
   )
 }
 
-const calculateTotalLength = pipe(
-  map(prop('length')),
-  sum
-)
+const calculateTotalLength = pipe(map(prop('length')), sum)
 
-const calculateNumBeamsByLength = pipe(
-  groupBy(prop('length')),
-  map(length)
-)
+const calculateNumBeamsByLength = pipe(groupBy(prop('length')), map(length))

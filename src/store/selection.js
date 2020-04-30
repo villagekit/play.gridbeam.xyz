@@ -1,10 +1,10 @@
-import produce from 'immer'
-import { prop } from 'ramda'
+import { createSelector, createSlice } from '@reduxjs/toolkit'
+import { property } from 'lodash'
 import { Box2, Vector2, Vector3 } from 'three'
 
-export const selection = {
+export const selectionSlice = createSlice({
   name: 'selection',
-  state: {
+  initialState: {
     isEnabled: true,
     isSelecting: false,
     startPoint: { x: 0, y: 0 },
@@ -12,43 +12,74 @@ export const selection = {
     selectableScreenBounds: {}
   },
   reducers: {
-    enable: produce(state => {
+    doEnableSelection: state => {
       state.isEnabled = true
-    }),
-    disable: produce(state => {
+    },
+    doDisableSelection: state => {
       state.isEnabled = false
-    }),
-    startSelection: produce(state => {
+    },
+    doStartSelection: state => {
       state.isSelecting = true
-    }),
-    endSelection: produce(state => {
+    },
+    doEndSelection: state => {
       state.isSelecting = false
-    }),
-    setStartPoint: produce((state, { x, y }) => {
+    },
+    doSetSelectionStartPoint: (state, action) => {
+      const { x, y } = action.payload
       state.startPoint.x = x
       state.startPoint.y = y
-    }),
-    setEndPoint: produce((state, { x, y }) => {
+    },
+    doSetSelectionEndPoint: (state, action) => {
+      const { x, y } = action.payload
       state.endPoint.x = x
       state.endPoint.y = y
-    }),
-    updateSelectableScreenBounds: produce((state, { scene, camera }) => {
+    },
+    doUpdateSelectableScreenBounds: (state, action) => {
+      const { scene, camera } = action.payload
       forEachMesh(scene, mesh => {
         state.selectableScreenBounds[mesh.uuid] = computeScreenBounds({
           mesh,
           camera
         })
       })
-    })
-  },
-  selectors: slice => ({
-    isEnabled: () => slice(prop('isEnabled')),
-    isSelecting: () => slice(prop('isSelecting')),
-    startPoint: () => slice(prop('startPoint')),
-    endPoint: () => slice(prop('endPoint')),
-    selectableScreenBounds: () => slice(prop('selectableScreenBounds'))
-  })
-}
+    }
+  }
+})
+
+export const {
+  doEnableSelection,
+  doDisableSelection,
+  doStartSelection,
+  doEndSelection,
+  doSetSelectionStartPoint,
+  doSetSelectionEndPoint,
+  doUpdateSelectableScreenBounds
+} = selectionSlice.actions
+
+export default selectionSlice.reducer
+
+export const getSelectionState = property('selection')
+export const getIsSelectionEnabled = createSelector(
+  getSelectionState,
+  property('isEnabled')
+)
+export const getIsSelecting = createSelector(
+  getSelectionState,
+  property('isSelecting')
+)
+export const getSelectionStartPoint = createSelector(
+  getSelectionState,
+  property('startPoint')
+)
+export const getSelectionEndPoint = createSelector(
+  getSelectionState,
+  property('endPoint')
+)
+
+export const getSelectableScreenBounds = createSelector(
+  getSelectionState,
+  property('selectableScreenBounds')
+)
 
 function forEachMesh (object, fn) {
   if (object.isMesh) {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useStore, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   TextureLoader,
   PlaneBufferGeometry,
@@ -9,6 +9,14 @@ import {
 import { Canvas, useThree } from 'react-three-fiber'
 import { map } from 'ramda'
 
+import {
+  doHoverPart,
+  doUnhoverPart,
+  doSelectParts,
+  doUpdateSelectedParts,
+  getParts,
+  getCurrentSpecSize
+} from '../store'
 import { GlProvider } from './provider'
 import Codec from '../codec'
 import Beam from './beam'
@@ -24,11 +32,11 @@ const texturePathsByMaterialType = {
 export default Vis
 
 function Vis (props) {
-  const { select, dispatch } = useStore()
+  const dispatch = useDispatch()
 
-  const parts = useSelector(select.parts.all)
+  const parts = useSelector(getParts)
 
-  const currentSize = useSelector(select.spec.currentSize)
+  const currentSize = useSelector(getCurrentSpecSize)
   const currentBeamWidth = currentSize.normalizedBeamWidth
 
   const texturesByMaterialType = React.useMemo(() => {
@@ -43,15 +51,17 @@ function Vis (props) {
         const { uuid } = part
         const partProps = {
           ...part,
-          hover: () => dispatch.parts.hover(uuid),
-          unhover: () => dispatch.parts.unhover(uuid),
-          select: () => dispatch.parts.selects([uuid]),
+          hover: () => dispatch(doHoverPart(uuid)),
+          unhover: () => dispatch(doUnhoverPart(uuid)),
+          select: () => dispatch(doSelectParts([uuid])),
           move: delta =>
-            dispatch.parts.updateSelected(part => {
-              part.origin.x += delta[0]
-              part.origin.y += delta[1]
-              part.origin.z += delta[2]
-            })
+            dispatch(
+              doUpdateSelectedParts(part => {
+                part.origin.x += delta[0]
+                part.origin.y += delta[1]
+                part.origin.z += delta[2]
+              })
+            )
         }
         if (part.type === Codec.PartType.Beam) {
           return (
@@ -71,7 +81,7 @@ function Vis (props) {
     <Canvas
       orthographic
       onPointerMissed={() => {
-        dispatch.parts.selects([])
+        dispatch(doSelectParts([]))
       }}
     >
       <GlProvider>

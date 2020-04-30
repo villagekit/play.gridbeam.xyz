@@ -1,19 +1,30 @@
 import React from 'react'
-import { useStore, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Box } from 'rebass/styled-components'
+
+import {
+  doEndSelection,
+  doStartSelection,
+  doSetSelectionStartPoint,
+  doSetSelectionEndPoint,
+  getIsSelectionEnabled,
+  getIsSelecting,
+  getSelectionStartPoint,
+  getSelectionEndPoint
+} from '../store'
 
 export default SelectionBox
 
 function SelectionBox (props) {
-  const { select, dispatch } = useStore()
+  const dispatch = useDispatch()
 
-  const isEnabled = useSelector(select.selection.isEnabled)
-  const isSelecting = useSelector(select.selection.isSelecting)
-  const startPoint = useSelector(select.selection.startPoint)
-  const endPoint = useSelector(select.selection.endPoint)
+  const isEnabled = useSelector(getIsSelectionEnabled)
+  const isSelecting = useSelector(getIsSelecting)
+  const startPoint = useSelector(getSelectionStartPoint)
+  const endPoint = useSelector(getSelectionEndPoint)
 
   React.useEffect(() => {
-    if (!isEnabled) dispatch.selection.endSelection()
+    if (!isEnabled) dispatch(doEndSelection())
   }, [isEnabled])
 
   React.useEffect(() => {
@@ -32,7 +43,7 @@ function SelectionBox (props) {
     function handleMouseDown (ev) {
       if (!isEnabled) return
       if (!ev.shiftKey) return
-      dispatch.selection.startSelection()
+      dispatch(doStartSelection())
       handleStart(ev)
     }
 
@@ -45,7 +56,7 @@ function SelectionBox (props) {
     function handleMouseUp (ev) {
       if (!isEnabled) return
       if (!isSelecting) return
-      dispatch.selection.endSelection()
+      dispatch(doEndSelection())
       handleEnd(ev)
     }
 
@@ -53,21 +64,25 @@ function SelectionBox (props) {
       if (!isEnabled) return
       if (!isSelecting) return
       if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') {
-        dispatch.selection.endSelection()
+        dispatch(doEndSelection())
       }
     }
 
     function handleStart (ev) {
-      dispatch.selection.setStartPoint({
-        x: (ev.clientX / window.innerWidth) * 2 - 1,
-        y: -(ev.clientY / window.innerHeight) * 2 + 1
-      })
+      dispatch(
+        doSetSelectionStartPoint({
+          x: (ev.clientX / window.innerWidth) * 2 - 1,
+          y: -(ev.clientY / window.innerHeight) * 2 + 1
+        })
+      )
     }
     function handleEnd (ev) {
-      dispatch.selection.setEndPoint({
-        x: (ev.clientX / window.innerWidth) * 2 - 1,
-        y: -(ev.clientY / window.innerHeight) * 2 + 1
-      })
+      dispatch(
+        doSetSelectionEndPoint({
+          x: (ev.clientX / window.innerWidth) * 2 - 1,
+          y: -(ev.clientY / window.innerHeight) * 2 + 1
+        })
+      )
     }
   }, [isEnabled, isSelecting])
 

@@ -1,27 +1,35 @@
 import React from 'react'
-import { useStore, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Box2, Vector2 } from 'three'
 import { useThree } from 'react-three-fiber'
+
+import {
+  doSelectParts,
+  doUpdateSelectableScreenBounds,
+  getIsSelectionEnabled,
+  getIsSelecting,
+  getSelectionStartPoint,
+  getSelectionEndPoint,
+  getSelectableScreenBounds
+} from '../store'
 
 export default SelectionGl
 
 function SelectionGl (props) {
-  const { select, dispatch } = useStore()
+  const dispatch = useDispatch()
 
-  const isEnabled = useSelector(select.selection.isEnabled)
-  const isSelecting = useSelector(select.selection.isSelecting)
-  const startPoint = useSelector(select.selection.startPoint)
-  const endPoint = useSelector(select.selection.endPoint)
-  const selectableScreenBounds = useSelector(
-    select.selection.selectableScreenBounds
-  )
+  const isEnabled = useSelector(getIsSelectionEnabled)
+  const isSelecting = useSelector(getIsSelecting)
+  const startPoint = useSelector(getSelectionStartPoint)
+  const endPoint = useSelector(getSelectionEndPoint)
+  const selectableScreenBounds = useSelector(getSelectableScreenBounds)
 
   const { scene, camera } = useThree()
   // this optimization works because the camera doesn't move once selecting
   React.useEffect(() => {
     if (!isEnabled) return
     if (!isSelecting) return
-    dispatch.selection.updateSelectableScreenBounds({ scene, camera })
+    dispatch(doUpdateSelectableScreenBounds({ scene, camera }))
   }, [isEnabled, isSelecting])
 
   const selectionScreenBounds = React.useMemo(() => {
@@ -42,7 +50,7 @@ function SelectionGl (props) {
         selections.push(uuid)
       }
     })
-    dispatch.parts.selects(selections)
+    dispatch(doSelectParts(selections))
   }, [isEnabled, isSelecting, selectionScreenBounds, selectableScreenBounds])
 
   return null

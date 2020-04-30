@@ -1,23 +1,32 @@
 import { useMemo } from 'react'
-import { useSelector, useStore } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { map } from 'ramda'
 
+import {
+  doAddPart,
+  doUpdateSelectedParts,
+  doRemoveSelectedParts,
+  getCurrentSpecId,
+  getCurrentSizeId,
+  getCurrentMaterialId,
+  getHasSelectedAnyParts
+} from './store'
 import { X_AXIS, Y_AXIS, Z_AXIS } from './helpers/axis'
 import { ROTATION, rotateDirection } from './helpers/rotation'
 import Codec from './codec'
 
 function useCommands () {
-  const { select, dispatch } = useStore()
+  const dispatch = useDispatch()
 
-  const hasSelected = useSelector(select.parts.hasSelected)
-  const specId = useSelector(select.spec.currentSpecId)
-  const sizeId = useSelector(select.spec.currentSizeId)
-  const materialId = useSelector(select.spec.currentMaterialId)
+  const hasSelected = useSelector(getHasSelectedAnyParts)
+  const specId = useSelector(getCurrentSpecId)
+  const sizeId = useSelector(getCurrentSizeId)
+  const materialId = useSelector(getCurrentMaterialId)
 
   const methods = {
-    addPart: dispatch.parts.addPart,
-    updateSelected: dispatch.parts.updateSelected,
-    removeSelected: dispatch.parts.removeSelected
+    doAddPart,
+    doUpdateSelectedParts,
+    doRemoveSelectedParts
   }
 
   const readyCommands = useMemo(() => {
@@ -32,7 +41,7 @@ function useCommands () {
       if (methodName.endsWith('Selected') && !hasSelected) {
         return () => {}
       }
-      return () => method(...methodArgs)
+      return () => dispatch(method(...methodArgs))
     }, commands)
   }, [hasSelected])
 
@@ -42,20 +51,38 @@ function useCommands () {
 export default useCommands
 
 const commands = {
-  moveForward: () => ['updateSelected', part => part.origin.x++],
-  moveBackward: () => ['updateSelected', part => part.origin.y--],
-  moveRight: () => ['updateSelected', part => part.origin.y++],
-  moveLeft: () => ['updateSelected', part => part.origin.y--],
-  moveUp: () => ['updateSelected', part => part.origin.z++],
-  moveDown: () => ['updateSelected', part => part.origin.z--],
-  rotatePlusX: () => ['updateSelected', rotateUpdater(X_AXIS, ROTATION / 4)],
-  rotateMinusX: () => ['updateSelected', rotateUpdater(X_AXIS, -ROTATION / 4)],
-  rotatePlusY: () => ['updateSelected', rotateUpdater(Y_AXIS, ROTATION / 4)],
-  rotateMinusY: () => ['updateSelected', rotateUpdater(Y_AXIS, -ROTATION / 4)],
-  rotatePlusZ: () => ['updateSelected', rotateUpdater(Z_AXIS, ROTATION / 4)],
-  rotateMinusZ: () => ['updateSelected', rotateUpdater(Z_AXIS, -ROTATION / 4)],
+  moveForward: () => ['doUpdateSelectedParts', part => part.origin.x++],
+  moveBackward: () => ['doUpdateSelectedParts', part => part.origin.x--],
+  moveRight: () => ['doUpdateSelectedParts', part => part.origin.y++],
+  moveLeft: () => ['doUpdateSelectedParts', part => part.origin.y--],
+  moveUp: () => ['doUpdateSelectedParts', part => part.origin.z++],
+  moveDown: () => ['doUpdateSelectedParts', part => part.origin.z--],
+  rotatePlusX: () => [
+    'doUpdateSelectedParts',
+    rotateUpdater(X_AXIS, ROTATION / 4)
+  ],
+  rotateMinusX: () => [
+    'doUpdateSelectedParts',
+    rotateUpdater(X_AXIS, -ROTATION / 4)
+  ],
+  rotatePlusY: () => [
+    'doUpdateSelectedParts',
+    rotateUpdater(Y_AXIS, ROTATION / 4)
+  ],
+  rotateMinusY: () => [
+    'doUpdateSelectedParts',
+    rotateUpdater(Y_AXIS, -ROTATION / 4)
+  ],
+  rotatePlusZ: () => [
+    'doUpdateSelectedParts',
+    rotateUpdater(Z_AXIS, ROTATION / 4)
+  ],
+  rotateMinusZ: () => [
+    'doUpdateSelectedParts',
+    rotateUpdater(Z_AXIS, -ROTATION / 4)
+  ],
   createBeam: ({ specId, sizeId, materialId }) => [
-    'addPart',
+    'doAddPart',
     {
       type: Codec.PartType.Beam,
       direction: { x: 0, y: 0, z: 0 },
@@ -65,9 +92,9 @@ const commands = {
       materialId
     }
   ],
-  removeSelected: () => ['removeSelected'],
-  lengthenSelected: () => ['updateSelected', part => part.length++],
-  unlengthenSelected: () => ['updateSelected', part => part.length--]
+  doRemoveSelectedParts: () => ['doRemoveSelectedParts'],
+  lengthenSelected: () => ['doUpdateSelectedParts', part => part.length++],
+  unlengthenSelected: () => ['doUpdateSelectedParts', part => part.length--]
 }
 
 function rotateUpdater (axis, angle) {

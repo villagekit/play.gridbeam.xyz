@@ -1,9 +1,16 @@
 import React from 'react'
 import { Box3, Vector3 } from 'three'
 import { extend, useThree, useFrame } from 'react-three-fiber'
-import { useStore, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { map, prop } from 'ramda'
 
+import {
+  getIsCameraControlEnabled,
+  getParts,
+  getSelectedParts,
+  getAnyPartIsMoving,
+  getIsSelecting
+} from '../store'
 import OrbitControls from '../vendor/OrbitControls'
 
 extend({ OrbitControls })
@@ -14,12 +21,11 @@ function Camera (props) {
   const controlsRef = React.useRef()
   const { camera, scene } = useThree()
 
-  const { select } = useStore()
-  const isControlEnabled = useSelector(select.camera.isControlEnabled)
-  const parts = useSelector(select.parts.all)
-  const selectedParts = useSelector(select.parts.selected)
-  const isMoving = useSelector(select.parts.isMoving)
-  const isSelecting = useSelector(select.selection.isSelecting)
+  const isControlEnabled = useSelector(getIsCameraControlEnabled)
+  const parts = useSelector(getParts)
+  const selectedParts = useSelector(getSelectedParts)
+  const isMoving = useSelector(getAnyPartIsMoving)
+  const isSelecting = useSelector(getIsSelecting)
 
   React.useEffect(() => {
     const controls = controlsRef.current

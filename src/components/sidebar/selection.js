@@ -1,19 +1,20 @@
 import React from 'react'
-import { useSelector, useStore } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Box, Flex, Text } from 'rebass/styled-components'
 import { Group } from 'reakit/Group'
 import { map } from 'ramda'
 import setIn from 'set-in'
 import { useDebounce } from 'react-debounce-hook'
 
+import { getSelectedParts, doUpdateParts } from './'
 import Codec from '../../codec'
 
 export default Selection
 
 function Selection (props) {
-  const { select, dispatch } = useStore()
+  const dispatch = useDispatch()
 
-  const selectedParts = useSelector(select.parts.selected)
+  const selectedParts = useSelector(getSelectedParts)
 
   const renderSelectedParts = React.useMemo(() => {
     const renderBeam = (uuid, selected) => (
@@ -25,7 +26,7 @@ function Selection (props) {
           options={['x', 'y', 'z']}
           path={['direction']}
           value={selected.direction}
-          update={updater => dispatch.parts.update({ uuid, updater })}
+          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
         />
         */}
         <InputControl
@@ -35,7 +36,7 @@ function Selection (props) {
           path={['length']}
           value={selected.length}
           min={1}
-          update={updater => dispatch.parts.update({ uuid, updater })}
+          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
         />
         <InputControl
           type='number'
@@ -43,7 +44,7 @@ function Selection (props) {
           label='origin.x'
           path={['origin', 'x']}
           value={selected.origin.x}
-          update={updater => dispatch.parts.update({ uuid, updater })}
+          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
         />
         <InputControl
           type='number'
@@ -51,7 +52,7 @@ function Selection (props) {
           label='origin.y'
           path={['origin', 'y']}
           value={selected.origin.y}
-          update={updater => dispatch.parts.update({ uuid, updater })}
+          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
         />
         <InputControl
           type='number'
@@ -59,7 +60,7 @@ function Selection (props) {
           label='origin.z'
           path={['origin', 'z']}
           value={selected.origin.z}
-          update={updater => dispatch.parts.update({ uuid, updater })}
+          update={updater => dispatch(doUpdateParts({ uuid, updater }))}
         />
       </ControlSection>
     )

@@ -1,7 +1,9 @@
 import React from 'react'
-import { useSelector, useStore } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { Flex, Button } from 'rebass/styled-components'
+
 import useCommands from '../commands'
+import { getHasSelectedAnyParts } from '../store'
 
 const ACTIONS = [
   {
@@ -73,9 +75,7 @@ const ACTIONS = [
 export default ActionButtons
 
 function ActionButtons (props) {
-  const { select } = useStore()
-
-  const hasSelected = useSelector(select.parts.hasSelected)
+  const hasSelected = useSelector(getHasSelectedAnyParts)
 
   const commands = useCommands()
 

@@ -2,8 +2,10 @@ import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
 import { ThemeProvider } from 'styled-components'
 
-import store from '../store'
+import createStore from '../store'
 import theme from '../theme'
+
+const store = createStore()
 
 export const DomProvider = ({ children }) => (
   <ReduxProvider store={store}>

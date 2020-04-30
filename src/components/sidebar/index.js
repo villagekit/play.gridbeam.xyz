@@ -1,7 +1,8 @@
 import React from 'react'
-import { useStore } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { Box, Flex, Button } from 'rebass/styled-components'
 
+import { doDisableCameraControl, doEnableCameraControl } from '../../store'
 import SelectionWidget from './selection'
 import PartsWidget from './parts'
 import ShareWidget from './share'
@@ -71,12 +72,12 @@ function Sidebar (props) {
 }
 
 const SidebarContainer = props => {
-  const { dispatch } = useStore()
+  const dispatch = useDispatch()
   const handleMouseOver = React.useCallback(ev => {
-    dispatch.camera.disableControl()
+    dispatch(doDisableCameraControl())
   }, [])
   const handleMouseOut = React.useCallback(ev => {
-    dispatch.camera.enableControl()
+    dispatch(doEnableCameraControl())
   }, [])
 
   return (

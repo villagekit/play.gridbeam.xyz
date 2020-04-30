@@ -1,9 +1,18 @@
 import React from 'react'
-import { useStore, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { BoxGeometry, Vector3, Plane, Color } from 'three'
 import { range } from 'ramda'
 import { useResource } from 'react-three-fiber'
 
+import {
+  doDisableCameraControl,
+  doDisableSelection,
+  doEnableCameraControl,
+  doEnableSelection,
+  doSetAnyPartIsMoving,
+  getCurrentSpecSizes,
+  getCurrentSpecMaterials
+} from '../store'
 import { directionToRotation } from '../helpers/rotation'
 
 export default Beam
@@ -25,10 +34,10 @@ function Beam (props) {
     texturesByMaterialType
   } = props
 
-  const { select: selectors, dispatch } = useStore()
+  const dispatch = useDispatch()
 
-  const currentSpecSizes = useSelector(selectors.spec.currentSpecSizes)
-  const currentSpecMaterials = useSelector(selectors.spec.currentSpecMaterials)
+  const currentSpecSizes = useSelector(getCurrentSpecSizes)
+  const currentSpecMaterials = useSelector(getCurrentSpecMaterials)
 
   const beamSpecSize = currentSpecSizes[sizeId]
   const beamSpecMaterial = currentSpecMaterials[materialId]
@@ -61,70 +70,85 @@ function Beam (props) {
   }, [beamWidth, origin])
 
   const [atMoveStart, setAtMoveStart] = React.useState(null)
-  const handleMove = React.useCallback(ev => {
-    ev.stopPropagation()
-    if (ev.buttons <= 0) return
-    if (atMoveStart == null) return
+  const handleMove = React.useCallback(
+    ev => {
+      ev.stopPropagation()
+      if (ev.buttons <= 0) return
+      if (atMoveStart == null) return
 
-    const [pointAtMoveStart, originAtMoveStart] = atMoveStart
-    var intersectionPoint = new Vector3()
-    var movementVector
+      const [pointAtMoveStart, originAtMoveStart] = atMoveStart
+      var intersectionPoint = new Vector3()
+      var movementVector
 
-    if (ev.shiftKey) {
-      // TODO is this correct?
-      const verticalPlane = new Plane(new Vector3(1, 0, 0), -pointAtMoveStart.x)
-      ev.ray.intersectPlane(verticalPlane, intersectionPoint)
-      movementVector = new Vector3(
-        0,
-        0,
-        intersectionPoint.z - pointAtMoveStart.z
-      )
-    } else {
-      const horizontalPlane = new Plane(
-        new Vector3(0, 0, 1),
-        -pointAtMoveStart.z
-      )
-      ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
-      movementVector = new Vector3()
-        .copy(intersectionPoint)
-        .sub(pointAtMoveStart)
-    }
+      if (ev.shiftKey) {
+        // TODO is this correct?
+        const verticalPlane = new Plane(
+          new Vector3(1, 0, 0),
+          -pointAtMoveStart.x
+        )
+        ev.ray.intersectPlane(verticalPlane, intersectionPoint)
+        movementVector = new Vector3(
+          0,
+          0,
+          intersectionPoint.z - pointAtMoveStart.z
+        )
+      } else {
+        const horizontalPlane = new Plane(
+          new Vector3(0, 0, 1),
+          -pointAtMoveStart.z
+        )
+        ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
+        movementVector = new Vector3()
+          .copy(intersectionPoint)
+          .sub(pointAtMoveStart)
+      }
 
-    const beamMovementVector = new Vector3()
-      .copy(movementVector)
-      .divideScalar(beamWidth)
-      .round()
+      const beamMovementVector = new Vector3()
+        .copy(movementVector)
+        .divideScalar(beamWidth)
+        .round()
 
-    const nextOrigin = new Vector3(
-      originAtMoveStart.x,
-      originAtMoveStart.y,
-      originAtMoveStart.z
-    ).add(beamMovementVector)
+      const nextOrigin = new Vector3(
+        originAtMoveStart.x,
+        originAtMoveStart.y,
+        originAtMoveStart.z
+      ).add(beamMovementVector)
 
-    const delta = new Vector3()
-      .copy(nextOrigin)
-      .sub(new Vector3(origin.x, origin.y, origin.z))
+      const delta = new Vector3()
+        .copy(nextOrigin)
+        .sub(new Vector3(origin.x, origin.y, origin.z))
 
-    move(delta.toArray())
-  }, [uuid, isSelected, origin, atMoveStart, beamWidth])
+      move(delta.toArray())
+    },
+    [uuid, isSelected, origin, atMoveStart, beamWidth]
+  )
 
-  const handleHover = React.useCallback(ev => {
-    ev.stopPropagation()
-    // console.log('hover', uuid)
-    hover()
-  }, [uuid, hover])
+  const handleHover = React.useCallback(
+    ev => {
+      ev.stopPropagation()
+      // console.log('hover', uuid)
+      hover()
+    },
+    [uuid, hover]
+  )
 
-  const handleUnhover = React.useCallback(ev => {
-    ev.stopPropagation()
-    // console.log('unhover', uuid)
-    unhover()
-  }, [uuid, unhover])
+  const handleUnhover = React.useCallback(
+    ev => {
+      ev.stopPropagation()
+      // console.log('unhover', uuid)
+      unhover()
+    },
+    [uuid, unhover]
+  )
 
-  const handleClick = React.useCallback(ev => {
-    ev.stopPropagation()
-    // console.log('click x', ev.detail)
-    // if (ev.detail > 1) select()
-  }, [uuid, select])
+  const handleClick = React.useCallback(
+    ev => {
+      ev.stopPropagation()
+      // console.log('click x', ev.detail)
+      // if (ev.detail > 1) select()
+    },
+    [uuid, select]
+  )
 
   const color = React.useMemo(() => {
     return new Color(isSelected ? 'cyan' : isHovered ? 'magenta' : 'white')
@@ -143,18 +167,18 @@ function Beam (props) {
       onPointerDown={ev => {
         ev.stopPropagation()
         ev.target.setPointerCapture(ev.pointerId)
-        dispatch.camera.disableControl()
-        dispatch.selection.disable()
-        dispatch.parts.setMoving(true)
+        dispatch(doDisableCameraControl())
+        dispatch(doDisableSelection())
+        dispatch(doSetAnyPartIsMoving(true))
         if (!isSelected) select()
         setAtMoveStart([ev.point, origin])
       }}
       onPointerUp={ev => {
         ev.stopPropagation()
         ev.target.releasePointerCapture(ev.pointerId)
-        dispatch.camera.enableControl()
-        dispatch.selection.enable()
-        dispatch.parts.setMoving(false)
+        dispatch(doEnableCameraControl())
+        dispatch(doEnableSelection())
+        dispatch(doSetAnyPartIsMoving(false))
         setAtMoveStart(null)
       }}
       onPointerMove={handleMove}

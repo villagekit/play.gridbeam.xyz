@@ -1,25 +1,27 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useSelector, useStore } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { values } from 'ramda'
+
+import { doRemoveSelectedParts, doAddParts, getSelectedParts } from '../store'
 
 export default Clipboard
 
 function Clipboard (props) {
-  const { select, dispatch } = useStore()
+  const dispatch = useDispatch()
 
-  const selectedParts = useSelector(select.parts.selected)
+  const selectedParts = useSelector(getSelectedParts)
 
   const [clipboard, setClipboard] = useState()
 
   const cut = useCallback(() => {
     setClipboard(values(selectedParts))
-    dispatch.parts.removeSelected()
+    dispatch(doRemoveSelectedParts())
   }, [selectedParts])
   const copy = useCallback(() => {
     setClipboard(values(selectedParts))
   }, [selectedParts])
   const paste = useCallback(() => {
-    dispatch.parts.addParts(clipboard)
+    dispatch(doAddParts(clipboard))
   }, [clipboard])
 
   useEffect(() => {
