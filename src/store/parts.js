@@ -13,6 +13,8 @@ import {
   zipObj
 } from 'ramda'
 
+import createUpdater from '../helpers/updater'
+
 const hoverHappening = buildPartHappening('hover')
 const selectHappening = buildPartHappening('select')
 
@@ -46,12 +48,12 @@ export const partsSlice = createSlice({
     },
     doUpdatePart: (state, action) => {
       const { uuid, updater } = action.payload
-      const safeUpdater = SafeUpdater(updater)
+      const safeUpdater = SafeUpdater(createUpdater(updater))
       safeUpdater(state.entities[uuid])
     },
     doUpdateSelectedParts: (state, action) => {
       const updater = action.payload
-      const safeUpdater = SafeUpdater(updater)
+      const safeUpdater = SafeUpdater(createUpdater(updater))
       const { selectedUuids } = state
       keys(selectedUuids).forEach(uuid => {
         safeUpdater(state.entities[uuid])

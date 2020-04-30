@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Box2, Vector2 } from 'three'
+import { Box2, Vector2, Vector3 } from 'three'
 import { useThree } from 'react-three-fiber'
 
 import {

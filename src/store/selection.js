@@ -1,6 +1,20 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
-import { property } from 'lodash'
+import { flow, mapValues, property } from 'lodash'
 import { Box2, Vector2, Vector3 } from 'three'
+
+export const doUpdateSelectableScreenBounds = ({
+  scene,
+  camera
+}) => dispatch => {
+  const selectableScreenBounds = {}
+  forEachMesh(scene, mesh => {
+    selectableScreenBounds[mesh.uuid] = computeScreenBounds({
+      mesh,
+      camera
+    })
+  })
+  dispatch(doSetSelectableScreenBounds(selectableScreenBounds))
+}
 
 export const selectionSlice = createSlice({
   name: 'selection',
@@ -34,14 +48,8 @@ export const selectionSlice = createSlice({
       state.endPoint.x = x
       state.endPoint.y = y
     },
-    doUpdateSelectableScreenBounds: (state, action) => {
-      const { scene, camera } = action.payload
-      forEachMesh(scene, mesh => {
-        state.selectableScreenBounds[mesh.uuid] = computeScreenBounds({
-          mesh,
-          camera
-        })
-      })
+    doSetSelectableScreenBounds: (state, action) => {
+      state.selectableScreenBounds = action.payload
     }
   }
 })
@@ -53,7 +61,7 @@ export const {
   doEndSelection,
   doSetSelectionStartPoint,
   doSetSelectionEndPoint,
-  doUpdateSelectableScreenBounds
+  doSetSelectableScreenBounds
 } = selectionSlice.actions
 
 export default selectionSlice.reducer
@@ -78,7 +86,15 @@ export const getSelectionEndPoint = createSelector(
 
 export const getSelectableScreenBounds = createSelector(
   getSelectionState,
-  property('selectableScreenBounds')
+  flow(property('selectableScreenBounds'), selectableScreenBounds => {
+    return mapValues(selectableScreenBounds, bounds => {
+      const { min, max } = bounds
+      return new Box2(
+        new Vector2().fromArray(min),
+        new Vector2().fromArray(max)
+      )
+    })
+  })
 )
 
 function forEachMesh (object, fn) {
@@ -114,5 +130,8 @@ function computeScreenBounds ({ mesh, camera }) {
     max.max(vertexScreenSpace)
   }
 
-  return new Box2(min, max)
+  return {
+    min: min.toArray(),
+    max: max.toArray()
+  }
 }

@@ -106,8 +106,10 @@ const InputControl = props => {
   }, [value])
 
   const handleUpdate = React.useCallback(value => {
-    update(object => {
-      setIn(object, path, Number(value))
+    update({
+      update: 'set',
+      path,
+      value: Number(value)
     })
   }, [])
   const handleChange = React.useCallback(ev => {
@@ -139,8 +141,10 @@ const SelectControl = props => {
   }, [value])
 
   const handleUpdate = React.useCallback(value => {
-    update(object => {
-      setIn(object, path, value)
+    update({
+      update: 'set',
+      path,
+      value
     })
   }, [])
   const handleChange = React.useCallback(ev => {

@@ -51,35 +51,53 @@ function useCommands () {
 export default useCommands
 
 const commands = {
-  moveForward: () => ['doUpdateSelectedParts', part => part.origin.x++],
-  moveBackward: () => ['doUpdateSelectedParts', part => part.origin.x--],
-  moveRight: () => ['doUpdateSelectedParts', part => part.origin.y++],
-  moveLeft: () => ['doUpdateSelectedParts', part => part.origin.y--],
-  moveUp: () => ['doUpdateSelectedParts', part => part.origin.z++],
-  moveDown: () => ['doUpdateSelectedParts', part => part.origin.z--],
+  moveForward: () => [
+    'doUpdateSelectedParts',
+    { update: 'add', path: 'origin.x', value: 1 }
+  ],
+  moveBackward: () => [
+    'doUpdateSelectedParts',
+    { update: 'sub', path: 'origin.x', value: 1 }
+  ],
+  moveRight: () => [
+    'doUpdateSelectedParts',
+    { update: 'add', path: 'origin.y', value: 1 }
+  ],
+  moveLeft: () => [
+    'doUpdateSelectedParts',
+    { update: 'sub', path: 'origin.y', value: 1 }
+  ],
+  moveRight: () => [
+    'doUpdateSelectedParts',
+    { update: 'add', path: 'origin.z', value: 1 }
+  ],
+  moveLeft: () => [
+    'doUpdateSelectedParts',
+    { update: 'sub', path: 'origin.z', value: 1 }
+  ],
   rotatePlusX: () => [
     'doUpdateSelectedParts',
-    rotateUpdater(X_AXIS, ROTATION / 4)
+    { update: 'rotate', path: 'direction', axis: X_AXIS, angle: ROTATION / 4 }
   ],
   rotateMinusX: () => [
     'doUpdateSelectedParts',
-    rotateUpdater(X_AXIS, -ROTATION / 4)
+    { update: 'rotate', path: 'direction', axis: X_AXIS, angle: -ROTATION / 4 }
   ],
   rotatePlusY: () => [
     'doUpdateSelectedParts',
-    rotateUpdater(Y_AXIS, ROTATION / 4)
+    { update: 'rotate', path: 'direction', axis: Y_AXIS, angle: ROTATION / 4 }
   ],
   rotateMinusY: () => [
     'doUpdateSelectedParts',
-    rotateUpdater(Y_AXIS, -ROTATION / 4)
+    { update: 'rotate', path: 'direction', axis: Y_AXIS, angle: -ROTATION / 4 }
   ],
   rotatePlusZ: () => [
     'doUpdateSelectedParts',
-    rotateUpdater(Z_AXIS, ROTATION / 4)
+    { update: 'rotate', path: 'direction', axis: Z_AXIS, angle: ROTATION / 4 }
   ],
   rotateMinusZ: () => [
     'doUpdateSelectedParts',
-    rotateUpdater(Z_AXIS, -ROTATION / 4)
+    { update: 'rotate', path: 'direction', axis: Z_AXIS, angle: -ROTATION / 4 }
   ],
   createBeam: ({ specId, sizeId, materialId }) => [
     'doAddPart',
@@ -92,14 +110,13 @@ const commands = {
       materialId
     }
   ],
-  doRemoveSelectedParts: () => ['doRemoveSelectedParts'],
-  lengthenSelected: () => ['doUpdateSelectedParts', part => part.length++],
-  unlengthenSelected: () => ['doUpdateSelectedParts', part => part.length--]
-}
-
-function rotateUpdater (axis, angle) {
-  return part => {
-    const nextDirection = rotateDirection(part.direction, axis, angle)
-    Object.assign(part.direction, nextDirection)
-  }
+  removeSelectedParts: () => ['doRemoveSelectedParts'],
+  lengthenSelected: () => [
+    'doUpdateSelectedParts',
+    { update: 'add', path: 'length', value: 1 }
+  ],
+  unlengthenSelected: () => [
+    'doUpdateSelectedParts',
+    { update: 'sub', path: 'length', value: 1 }
+  ]
 }

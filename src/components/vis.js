@@ -56,11 +56,11 @@ function Vis (props) {
           select: () => dispatch(doSelectParts([uuid])),
           move: delta =>
             dispatch(
-              doUpdateSelectedParts(part => {
-                part.origin.x += delta[0]
-                part.origin.y += delta[1]
-                part.origin.z += delta[2]
-              })
+              doUpdateSelectedParts([
+                { update: 'add', path: 'origin.x', value: delta[0] },
+                { update: 'add', path: 'origin.y', value: delta[1] },
+                { update: 'add', path: 'origin.z', value: delta[2] }
+              ])
             )
         }
         if (part.type === Codec.PartType.Beam) {
