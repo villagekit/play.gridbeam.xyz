@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Flex, Button } from 'rebass/styled-components'
+import { Flex, Button } from 'theme-ui'
 
 import useCommands from '../commands'
 import { getHasSelectedAnyParts } from '../store'
@@ -100,17 +100,21 @@ function ActionButtons (props) {
 
 const ActionsContainer = props => (
   <Flex
-    flexDirection='column'
-    css={{ position: 'absolute', left: 0, bottom: 0 }}
+    sx={{
+      flexDirection: 'column',
+      position: 'absolute',
+      left: 0,
+      bottom: 0
+    }}
     {...props}
   />
 )
 
 const ActionButton = ({ label, handleClick }) => (
   <Button
-    bg='darkmagenta'
-    m={1}
-    css={{
+    sx={{
+      backgroundColor: 'darkmagenta',
+      margin: 1,
       zIndex: 1
     }}
     onClick={handleClick}

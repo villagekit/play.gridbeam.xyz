@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Box } from 'rebass/styled-components'
+import { Box } from 'theme-ui'
 
 import {
   doEndSelection,

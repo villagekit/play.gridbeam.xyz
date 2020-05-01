@@ -1,51 +1,49 @@
 import React from 'react'
-import { Box, Flex, Text } from 'rebass/styled-components'
+import { Box, Flex, Text } from 'theme-ui'
 
 export default Help
 
 function Help (props) {
   return (
-    <Flex m={2} p={3} flexDirection='column'>
-      <Text m={2} fontSize={2} fontFamily='heading'>
-        Welcome to the GridBeam Playground!
-      </Text>
-      <Text m={2} fontFamily='body'>
+    <Flex sx={{ margin: 2, padding: 3, flexDirection: 'column' }}>
+      <HelpHeading>Welcome to the GridBeam Playground!</HelpHeading>
+      <HelpText>
         At the moment works best with a mouse and keyboard. Touchscreens are not
         yet supported.
-      </Text>
-      <Text m={2} fontFamily='body'>
+      </HelpText>
+      <HelpText>
         Left click and drag to orbit the camera. Right click and drag to pan the
         camera.
-      </Text>
-      <Text m={2} fontFamily='body'>
+      </HelpText>
+      <HelpText>
         To select a single beam, click on it. To select many beams, press shift,
         then click and drag a selection box over the beams you want to select.
-      </Text>
-      <Text m={2} fontFamily='body'>
+      </HelpText>
+      <HelpText>
         Click and drag on a beam (or on your selected beams) to move them around
         horizontally. Press shift to move them around vertically.
-      </Text>
-      <Text m={2} fontFamily='body'>
+      </HelpText>
+      <HelpText>
         The figure in the scene is a scale reference aimed to be roughly 170 cm
         or ~5' 7''.
-      </Text>
+      </HelpText>
       <Box
         as='dl'
-        m={3}
-        fontSize={-1}
-        fontFamily='body'
-        css={{
+        sx={{
+          margin: 3,
+          fontSize: 1,
+          fontFamily: 'body',
           width: '100%',
           dt: {
             display: 'inline-block',
             width: '50%',
-            paddingRight: '0.25rem',
+            paddingRight: 1,
             textAlign: 'right'
           },
           dd: {
             display: 'inline-block',
             width: '50%',
-            paddingLeft: '0.25rem',
+            paddingLeft: 1,
             textAlign: 'left'
           }
         }}
@@ -81,13 +79,21 @@ function Help (props) {
         <dt>Ctrl+V</dt>
         <dd>paste</dd>
       </Box>
-      <Text m={2} fontFamily='body'>
+      <HelpText>
         If you enjoyed this, please send &nbsp;
         <a href='https://dinosaur.is' target='_window'>
           Mikey
         </a>
         &nbsp; a message!
-      </Text>
+      </HelpText>
     </Flex>
   )
 }
+
+const HelpHeading = props => (
+  <Text sx={{ margin: 2, fontSize: 3, fontFamily: 'heading' }} {...props} />
+)
+
+const HelpText = props => (
+  <Text sx={{ margin: 2, fontSize: 2, fontFamily: 'body' }} {...props} />
+)

@@ -1,7 +1,6 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Box, Flex, Text } from 'rebass/styled-components'
-import { Group } from 'reakit/Group'
+import { Box, Flex, Label, Select, Slider, Text } from 'theme-ui'
 import { map } from 'lodash'
 import { useDebounce } from 'react-debounce-hook'
 
@@ -28,8 +27,7 @@ function Selection (props) {
           update={updater => dispatch(doUpdateParts({ uuid, updater }))}
         />
         */}
-        <InputControl
-          type='number'
+        <SliderControl
           name='length'
           label='length'
           path={['length']}
@@ -37,24 +35,21 @@ function Selection (props) {
           min={1}
           update={updater => dispatch(doUpdatePart({ uuid, updater }))}
         />
-        <InputControl
-          type='number'
+        <SliderControl
           name='origin.x'
           label='origin.x'
           path={['origin', 'x']}
           value={selected.origin.x}
           update={updater => dispatch(doUpdatePart({ uuid, updater }))}
         />
-        <InputControl
-          type='number'
+        <SliderControl
           name='origin.y'
           label='origin.y'
           path={['origin', 'y']}
           value={selected.origin.y}
           update={updater => dispatch(doUpdatePart({ uuid, updater }))}
         />
-        <InputControl
-          type='number'
+        <SliderControl
           name='origin.z'
           label='origin.z'
           path={['origin', 'z']}
@@ -68,11 +63,12 @@ function Selection (props) {
       [Codec.PartType.Beam]: renderBeam
     }
 
-    return map(selected => {
-      const renderer = renderers[selected.type]
-      const { uuid } = selected
-      return renderer(uuid, selected)
-    })
+    return selectedParts =>
+      map(selectedParts, selectedPart => {
+        const renderer = renderers[selectedPart.type]
+        const { uuid } = selectedPart
+        return renderer(uuid, selectedPart)
+      })
   }, [])
 
   return (
@@ -82,7 +78,9 @@ function Selection (props) {
   )
 }
 
-const SelectionContainer = props => <Flex flexDirection='column' {...props} />
+const SelectionContainer = props => (
+  <Flex sx={{ flexDirection: 'column' }} {...props} />
+)
 
 const ControlSection = props => {
   const { title, children } = props
@@ -90,12 +88,12 @@ const ControlSection = props => {
   return (
     <Box p={3}>
       <Text fontSize={3}>{title}</Text>
-      <Box as={Group}>{children}</Box>
+      <Box>{children}</Box>
     </Box>
   )
 }
 
-const InputControl = props => {
+const SliderControl = props => {
   const { name, label, path, value, update, ...inputProps } = props
 
   const [nextValue, setValue] = React.useState(value)
@@ -119,8 +117,8 @@ const InputControl = props => {
 
   return (
     <ControlContainer>
-      <label name={name}>{label}</label>
-      <input
+      <Label htmlFor={name}>{label}</Label>
+      <Slider
         name={name}
         value={nextValue}
         onChange={handleChange}
@@ -155,7 +153,7 @@ const SelectControl = props => {
   return (
     <ControlContainer>
       <label name={name}>{label}</label>
-      <select
+      <Select
         name={name}
         value={nextValue}
         onChange={handleChange}
@@ -166,7 +164,7 @@ const SelectControl = props => {
             {option}
           </option>
         ))}
-      </select>
+      </Select>
     </ControlContainer>
   )
 }

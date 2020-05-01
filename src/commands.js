@@ -67,11 +67,11 @@ const commands = {
     'doUpdateSelectedParts',
     { update: 'sub', path: 'origin.y', value: 1 }
   ],
-  moveRight: () => [
+  moveUp: () => [
     'doUpdateSelectedParts',
     { update: 'add', path: 'origin.z', value: 1 }
   ],
-  moveLeft: () => [
+  moveDown: () => [
     'doUpdateSelectedParts',
     { update: 'sub', path: 'origin.z', value: 1 }
   ],
@@ -110,7 +110,7 @@ const commands = {
       materialId
     }
   ],
-  removeSelectedParts: () => ['doRemoveSelectedParts'],
+  removeSelected: () => ['doRemoveSelectedParts'],
   lengthenSelected: () => [
     'doUpdateSelectedParts',
     { update: 'add', path: 'length', value: 1 }

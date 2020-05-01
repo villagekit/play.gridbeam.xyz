@@ -26,7 +26,7 @@ export default function createUpdater (updateDescriptor) {
 const updaters = {
   set: ({ value }) => () => value,
   add: ({ value: valueToAdd }) => value => value + valueToAdd,
-  sub: ({ value: valueToSub }) => value => value + valueToSub,
+  sub: ({ value: valueToSub }) => value => value - valueToSub,
   clamp: ({ max = -Math.Infinity, min = Math.Infinity }) => value =>
     clamp(value, min, max),
   rotate: ({ axis, angle }) => value => rotateDirection(value, axis, angle)

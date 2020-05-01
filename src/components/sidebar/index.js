@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { Box, Flex, Button } from 'rebass/styled-components'
+import { Box, Flex, Button } from 'theme-ui'
 
 import { doDisableCameraControl, doEnableCameraControl } from '../../store'
 import SelectionWidget from './selection'
@@ -82,8 +82,8 @@ const SidebarContainer = props => {
 
   return (
     <Flex
-      flexDirection='column'
-      css={{
+      sx={{
+        flexDirection: 'column',
         width: '40em',
         userSelect: 'text',
         zIndex: 1
@@ -97,8 +97,8 @@ const SidebarContainer = props => {
 
 const ContentWrapper = props => (
   <Box
-    flex='1'
-    css={{
+    sx={{
+      flex: '1',
       overflow: 'auto'
     }}
     {...props}
@@ -110,11 +110,13 @@ const CloseButton = props => {
   return (
     <Button
       onClick={handleClose}
-      m={1}
-      height={'2rem'}
-      bg='darkcyan'
-      flex='0 1 auto'
-      css={{ zIndex: 1 }}
+      sx={{
+        margin: 1,
+        height: '32px',
+        backgroundColor: 'darkcyan',
+        flex: '0 1 auto',
+        zIndex: 1
+      }}
     >
       Close
     </Button>
@@ -124,7 +126,10 @@ const CloseButton = props => {
 const OpenerButton = props => {
   const { label, handleOpen } = props
   return (
-    <Button onClick={handleOpen} bg='darkcyan' m={1}>
+    <Button
+      onClick={handleOpen}
+      sx={{ backgroundColor: 'darkcyan', margin: 1 }}
+    >
       {label}
     </Button>
   )
@@ -132,8 +137,13 @@ const OpenerButton = props => {
 
 const OpenersContainer = props => (
   <Flex
-    flexDirection='column'
-    css={{ position: 'absolute', right: 0, bottom: 0, zIndex: 1 }}
+    sx={{
+      flexDirection: 'column',
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
+      zIndex: 1
+    }}
     {...props}
   />
 )

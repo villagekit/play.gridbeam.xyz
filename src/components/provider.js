@@ -1,20 +1,14 @@
 import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
-import { ThemeProvider } from 'styled-components'
 
 import createStore from '../store'
-import theme from '../theme'
 
 const store = createStore()
 
 export const DomProvider = ({ children }) => (
-  <ReduxProvider store={store}>
-    <ThemeProvider theme={theme}>{children}</ThemeProvider>
-  </ReduxProvider>
+  <ReduxProvider store={store}>{children}</ReduxProvider>
 )
 
 export default DomProvider
 
-export const GlProvider = ({ children }) => (
-  <ReduxProvider store={store}>{children}</ReduxProvider>
-)
+export const GlProvider = DomProvider

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Box, Text } from 'rebass/styled-components'
+import { Box, Text } from 'theme-ui'
 import { groupBy, map, sum } from 'lodash'
 
 import { getPartsByType } from '../../store'
@@ -32,9 +32,9 @@ function BeamSummary (props) {
   const numBeamsByLength = calculateNumBeamsByLength(beams)
 
   return (
-    <Box as='section' p={3}>
+    <Box as='section' sx={{ padding: 3 }}>
       <Box as='header'>
-        <Text as='h3' fontSize={3}>
+        <Text as='h3' sx={{ fontSize: 3 }}>
           Beams
         </Text>
       </Box>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import styled from 'styled-components'
+import { Box } from 'theme-ui'
 
 import {
   doAsyncLoadModel,
@@ -62,13 +62,19 @@ function GridBeamPlayground ({ defaultModel }) {
   )
 }
 
-const Container = styled.div({
-  margin: '0',
-  padding: '0',
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'row',
-  flexWrap: 'nowrap',
-  userSelect: 'none'
-})
+const Container = props => (
+  <Box
+    sx={{
+      background: 'white',
+      margin: '0',
+      padding: '0',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'row',
+      flexWrap: 'nowrap',
+      userSelect: 'none'
+    }}
+    {...props}
+  />
+)
