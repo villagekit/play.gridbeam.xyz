@@ -1,29 +1,29 @@
+import { mapValues } from 'lodash'
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Canvas, useThree } from 'react-three-fiber'
 import {
-  TextureLoader,
   PlaneBufferGeometry,
   ShadowMaterial,
   SpotLight,
+  TextureLoader,
 } from 'three'
-import { Canvas, useThree } from 'react-three-fiber'
-import { mapValues } from 'lodash'
 
+import Codec from '../codec'
 import {
   doHoverPart,
-  doUnhoverPart,
   doSelectParts,
+  doUnhoverPart,
   doUpdateSelectedParts,
-  getParts,
   getCurrentSpecSize,
+  getParts,
 } from '../store'
-import { GlProvider } from './provider'
-import Codec from '../codec'
 import Beam from './beam'
 import Camera from './camera'
+import Clipboard from './clipboard'
+import { GlProvider } from './provider'
 import Scale from './scale'
 import Selector from './selection-gl'
-import Clipboard from './clipboard'
 
 const texturePathsByMaterialType = {
   [Codec.MaterialId.Wood]: require('../textures/pine.jpg'),

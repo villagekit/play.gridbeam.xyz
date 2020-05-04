@@ -1,13 +1,13 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Global as GlobalStyle, css } from '@emotion/core'
-import { Box, Link } from 'theme-ui'
-import reset from 'emotion-reset'
-import { shade } from '@theme-ui/color'
-
 import 'typeface-bungee'
 import 'typeface-ibm-plex-sans'
 import 'typeface-ibm-plex-serif'
+
+import { css, Global as GlobalStyle } from '@emotion/core'
+import { shade } from '@theme-ui/color'
+import reset from 'emotion-reset'
+import PropTypes from 'prop-types'
+import React from 'react'
+import { Box, Link } from 'theme-ui'
 
 const Layout = ({ children }) => (
   <Main>

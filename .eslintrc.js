@@ -17,6 +17,10 @@ module.exports = {
     'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
   ],
+  rules: {
+    'simple-import-sort/sort': 'error',
+  },
+  plugins: ['simple-import-sort'],
   settings: {
     react: {
       version: 'detect',

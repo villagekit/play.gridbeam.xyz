@@ -1,8 +1,8 @@
+import { values } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { values } from 'lodash'
 
-import { doRemoveSelectedParts, doAddParts, getSelectedParts } from '../store'
+import { doAddParts, doRemoveSelectedParts, getSelectedParts } from '../store'
 
 export default Clipboard
 

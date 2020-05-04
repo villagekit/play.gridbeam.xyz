@@ -1,4 +1,4 @@
-import { createSlice, createSelector } from '@reduxjs/toolkit'
+import { createSelector, createSlice } from '@reduxjs/toolkit'
 
 export const cameraSlice = createSlice({
   name: 'camera',

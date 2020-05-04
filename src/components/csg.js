@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
 import csgToSimplicialComplex from 'csg-to-mesh'
+import React, { useMemo } from 'react'
 
 import SimplicialComplexGeometry from './complex'
 

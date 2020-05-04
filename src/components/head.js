@@ -1,7 +1,7 @@
-import React from 'react'
+import { graphql, StaticQuery } from 'gatsby'
 import PropTypes from 'prop-types'
+import React from 'react'
 import { Helmet } from 'react-helmet'
-import { StaticQuery, graphql } from 'gatsby'
 
 function Head({ description, lang, meta, keywords, title }) {
   return (

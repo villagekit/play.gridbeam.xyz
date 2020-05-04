@@ -1,15 +1,15 @@
-import React from 'react'
-import { Box3, Vector3 } from 'three'
-import { extend, useThree, useFrame } from 'react-three-fiber'
-import { useSelector } from 'react-redux'
 import { map } from 'lodash'
+import React from 'react'
+import { useSelector } from 'react-redux'
+import { extend, useFrame, useThree } from 'react-three-fiber'
+import { Box3, Vector3 } from 'three'
 
 import {
+  getAnyPartIsMoving,
   getIsCameraControlEnabled,
+  getIsSelecting,
   getParts,
   getSelectedParts,
-  getAnyPartIsMoving,
-  getIsSelecting,
 } from '../store'
 import OrbitControls from '../vendor/OrbitControls'
 

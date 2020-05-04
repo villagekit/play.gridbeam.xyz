@@ -1,6 +1,6 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
-import { property, groupBy, keyBy } from 'lodash'
 import produce from 'immer'
+import { groupBy, keyBy, property } from 'lodash'
 
 import Codec from '../codec'
 

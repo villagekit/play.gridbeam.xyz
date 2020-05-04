@@ -1,5 +1,4 @@
 import { createAction, createSelector, createSlice } from '@reduxjs/toolkit'
-import { MathUtils } from 'three'
 import {
   capitalize,
   groupBy,
@@ -9,6 +8,7 @@ import {
   property,
   zipObject,
 } from 'lodash'
+import { MathUtils } from 'three'
 
 import createUpdater from '../helpers/updater'
 

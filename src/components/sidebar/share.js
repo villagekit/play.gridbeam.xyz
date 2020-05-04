@@ -1,5 +1,5 @@
 import React from 'react'
-import { Flex, Text, Button } from 'theme-ui'
+import { Button, Flex, Text } from 'theme-ui'
 import { useClipboard } from 'use-clipboard-copy'
 
 export default Share

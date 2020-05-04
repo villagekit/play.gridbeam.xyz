@@ -1,6 +1,6 @@
 import React from 'react'
-import { Vector3, Face3 } from 'three'
 import { useUpdate } from 'react-three-fiber'
+import { Face3, Vector3 } from 'three'
 
 export default SimplicialComplexGeometry
 

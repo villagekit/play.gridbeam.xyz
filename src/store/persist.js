@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import produce from 'immer'
 import { values } from 'lodash'
-import { inflateRaw, deflateRaw, Z_BEST_COMPRESSION } from 'pako'
+import { deflateRaw, inflateRaw, Z_BEST_COMPRESSION } from 'pako'
 
-import { doSetParts, doSetCurrentSpecId } from './'
-import { axisToDirection, directionToAxis } from '../helpers/direction'
 import Codec from '../codec'
+import { axisToDirection, directionToAxis } from '../helpers/direction'
+import { doSetCurrentSpecId, doSetParts } from './'
 
 export const doAsyncLoadModel = createAsyncThunk(
   'persist/loadModel',

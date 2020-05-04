@@ -1,19 +1,19 @@
-import { useMemo } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 import { mapValues } from 'lodash'
+import { useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
+import Codec from './codec'
+import { X_AXIS, Y_AXIS, Z_AXIS } from './helpers/axis'
+import { rotateDirection, ROTATION } from './helpers/rotation'
 import {
   doAddPart,
-  doUpdateSelectedParts,
   doRemoveSelectedParts,
-  getCurrentSpecId,
-  getCurrentSizeId,
+  doUpdateSelectedParts,
   getCurrentMaterialId,
+  getCurrentSizeId,
+  getCurrentSpecId,
   getHasSelectedAnyParts,
 } from './store'
-import { X_AXIS, Y_AXIS, Z_AXIS } from './helpers/axis'
-import { ROTATION, rotateDirection } from './helpers/rotation'
-import Codec from './codec'
 
 function useCommands() {
   const dispatch = useDispatch()

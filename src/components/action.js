@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Flex, Button } from 'theme-ui'
+import { Button, Flex } from 'theme-ui'
 
 import useCommands from '../commands'
 import { getHasSelectedAnyParts } from '../store'

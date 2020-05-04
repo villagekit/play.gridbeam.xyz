@@ -1,12 +1,12 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { Box, Flex, Button } from 'theme-ui'
+import { Box, Button, Flex } from 'theme-ui'
 
 import { doDisableCameraControl, doEnableCameraControl } from '../../store'
-import SelectionWidget from './selection'
-import PartsWidget from './parts'
-import ShareWidget from './share'
 import HelpWidget from './help'
+import PartsWidget from './parts'
+import SelectionWidget from './selection'
+import ShareWidget from './share'
 
 const WIDGETS = [
   {

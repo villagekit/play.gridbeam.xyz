@@ -1,11 +1,11 @@
-import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { Box, Flex, Label, Select, Slider, Text } from 'theme-ui'
 import { map } from 'lodash'
+import React from 'react'
 import { useDebounce } from 'react-debounce-hook'
+import { useDispatch, useSelector } from 'react-redux'
+import { Box, Flex, Label, Select, Slider, Text } from 'theme-ui'
 
-import { getSelectedParts, doUpdatePart } from '../../store'
 import Codec from '../../codec'
+import { doUpdatePart, getSelectedParts } from '../../store'
 
 export default Selection
 

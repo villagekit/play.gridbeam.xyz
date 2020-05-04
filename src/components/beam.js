@@ -1,19 +1,19 @@
+import { range } from 'lodash'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { BoxGeometry, Vector3, Plane, Color } from 'three'
-import { range } from 'lodash'
 import { useResource } from 'react-three-fiber'
+import { BoxGeometry, Color, Plane, Vector3 } from 'three'
 
+import { directionToRotation } from '../helpers/rotation'
 import {
   doDisableCameraControl,
   doDisableSelection,
   doEnableCameraControl,
   doEnableSelection,
   doSetAnyPartIsMoving,
-  getCurrentSpecSizes,
   getCurrentSpecMaterials,
+  getCurrentSpecSizes,
 } from '../store'
-import { directionToRotation } from '../helpers/rotation'
 
 export default Beam
 

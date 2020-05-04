@@ -1,12 +1,12 @@
 /* three-orbitcontrols addendum */
 
 import {
-  Vector2,
-  Vector3,
+  EventDispatcher,
   MOUSE,
   Quaternion,
   Spherical,
-  EventDispatcher,
+  Vector2,
+  Vector3,
 } from 'three'
 
 /**

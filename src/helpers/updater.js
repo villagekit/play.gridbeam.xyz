@@ -1,6 +1,6 @@
 // declarative updates
 
-import { clamp, isArray, flow, update } from 'lodash'
+import { clamp, flow, isArray, update } from 'lodash'
 
 import { rotateDirection } from './rotation'
 

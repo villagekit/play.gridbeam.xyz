@@ -1,10 +1,10 @@
+import { groupBy, map, sum } from 'lodash'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { Box, Text } from 'theme-ui'
-import { groupBy, map, sum } from 'lodash'
 
-import { getPartsByType } from '../../store'
 import Codec from '../../codec'
+import { getPartsByType } from '../../store'
 
 export default Parts
 

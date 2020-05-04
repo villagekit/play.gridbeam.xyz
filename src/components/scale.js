@@ -1,11 +1,10 @@
+// import { union, intersection, sphere, cube } from '@jscad/csg'
+// import * as jscad from '@jscad/csg'
+import { intersection, union } from '@jscad/csg/src/api/ops-booleans'
+import { cube, sphere } from '@jscad/csg/src/api/primitives3d-api'
 import React, { useMemo } from 'react'
 
 import CsgGeometry from './csg'
-// import { union, intersection, sphere, cube } from '@jscad/csg'
-// import * as jscad from '@jscad/csg'
-
-import { union, intersection } from '@jscad/csg/src/api/ops-booleans'
-import { sphere, cube } from '@jscad/csg/src/api/primitives3d-api'
 
 const GOLDEN_RATIO = 1.61803
 

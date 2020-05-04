@@ -4,13 +4,13 @@ import { Box } from 'theme-ui'
 
 import {
   doEndSelection,
-  doStartSelection,
-  doSetSelectionStartPoint,
   doSetSelectionEndPoint,
-  getIsSelectionEnabled,
+  doSetSelectionStartPoint,
+  doStartSelection,
   getIsSelecting,
-  getSelectionStartPoint,
+  getIsSelectionEnabled,
   getSelectionEndPoint,
+  getSelectionStartPoint,
 } from '../store'
 
 export default SelectionBox

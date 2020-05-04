@@ -1,10 +1,10 @@
 import React from 'react'
 import { Object3D, Vector3 } from 'three'
 
-import { withLayout } from '../components/layout'
-import Head from '../components/head'
-import Playground from '../components/playground'
 import Codec from '../codec'
+import Head from '../components/head'
+import { withLayout } from '../components/layout'
+import Playground from '../components/playground'
 import { directionByAxis } from '../helpers/direction'
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)

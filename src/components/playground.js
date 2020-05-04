@@ -1,21 +1,21 @@
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Box } from 'theme-ui'
 
 import {
   doAsyncLoadModel,
   doAsyncSaveModel,
-  getPartsEntities,
   getCurrentSpecId,
-  getIsLoading,
   getIsLoaded,
+  getIsLoading,
+  getPartsEntities,
   getSavedHash,
 } from '../store'
-import Sidebar from './sidebar'
 import Actions from './action'
-import SelectionBox from './selection-box'
-import Vis from './vis'
 import Keyboard from './keyboard'
+import SelectionBox from './selection-box'
+import Sidebar from './sidebar'
+import Vis from './vis'
 
 export default GridBeamPlayground
 
