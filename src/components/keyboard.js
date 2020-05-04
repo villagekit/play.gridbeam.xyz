@@ -11,20 +11,20 @@ import useCommands from '../commands'
 
 export default Keyboard
 
-function Keyboard (props) {
+function Keyboard(props) {
   const commands = useCommands()
 
   React.useEffect(() => {
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
 
-    function handleKey (ev) {
+    function handleKey(ev) {
       if (ev.defaultPrevented) {
         return
       }
 
       const mode = 'rightHanded'
-      var keyCode = ev.code
+      let keyCode = ev.code
       if (ev.shiftKey) keyCode = `Shift_${keyCode}`
       const commandName = keyCodes[mode][keyCode]
       if (commandName == null) return
@@ -60,7 +60,7 @@ const keyCodes = {
     KeyG: 'lengthenSelected',
     KeyT: 'unlengthenSelected',
     Backspace: 'removeSelected',
-    Delete: 'removeSelected'
+    Delete: 'removeSelected',
   },
   leftHanded: {
     KeyI: 'moveForward',
@@ -82,6 +82,6 @@ const keyCodes = {
     KeyH: 'lengthenSelected',
     KeyY: 'unlengthenSelected',
     Backspace: 'removeSelected',
-    Delete: 'removeSelected'
-  }
+    Delete: 'removeSelected',
+  },
 }

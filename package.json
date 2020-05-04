@@ -18,6 +18,7 @@
     "gatsby-plugin-react-helmet": "^3.2.5",
     "gatsby-plugin-sharp": "^2.5.7",
     "gatsby-plugin-theme-ui": "^0.3.0",
+    "gatsby-plugin-typescript": "^2.4.0",
     "gatsby-plugin-webpack-bundle-analyzer": "^1.0.5",
     "gatsby-source-filesystem": "^2.2.5",
     "gatsby-transformer-sharp": "^2.4.7",
@@ -39,25 +40,42 @@
     "typeface-bungee": "0.0.72",
     "typeface-ibm-plex-sans": "0.0.75",
     "typeface-ibm-plex-serif": "0.0.75",
+    "typescript": "^3.8.3",
     "use-clipboard-copy": "^0.1.2"
   },
   "license": "AGPL-3.0",
   "scripts": {
     "build-codec": "protocol-buffers src/codec.proto -o src/codec.js",
-    "prebuild": "npm run build-codec",
     "build": "gatsby build",
-    "predevelop": "npm run build-codec",
+    "clean": "gatsby clean",
     "develop": "gatsby develop",
+    "lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --fix",
+    "prebuild": "npm run build-codec",
+    "predevelop": "npm run build-codec",
     "start": "npm run develop",
-    "format": "prettier-standard '*.js' 'src/**/*.js'",
-    "test": "standard"
+    "test": "npm run lint",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.150",
+    "@types/pako": "^1.0.1",
+    "@types/prop-types": "^15.7.3",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
+    "@types/react-helmet": "^5.0.15",
+    "@types/react-redux": "^7.1.7",
+    "@types/theme-ui": "^0.3.1",
+    "@typescript-eslint/parser": "^2.30.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-react-app": "^5.2.1",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-prettier": "^3.1.3",
+    "gatsby-plugin-eslint": "^2.0.8",
     "husky": "^4.2.5",
-    "lint-staged": "^10.1.7",
-    "prettier-standard": "^16.3.0",
-    "protocol-buffers": "^4.1.2",
-    "standard": "^14.3.3"
+    "lint-staged": "^10.2.2",
+    "prettier": "^2.0.5",
+    "protocol-buffers": "^4.1.2"
   },
   "repository": {
     "type": "git",
@@ -69,8 +87,8 @@
     }
   },
   "lint-staged": {
-    "src/**/*.js": [
-      "prettier-standard"
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
     ]
   }
 }

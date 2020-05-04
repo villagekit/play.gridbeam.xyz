@@ -4,7 +4,7 @@ import { useClipboard } from 'use-clipboard-copy'
 
 export default Share
 
-function Share (props) {
+function Share(props) {
   const clipboard = useClipboard()
   return (
     <Flex sx={{ margin: 2, padding: 3, flexDirection: 'column' }}>
@@ -13,10 +13,10 @@ function Share (props) {
       </Text>
       <Text
         ref={clipboard.target}
-        as='input'
+        as="input"
         sx={{
           margin: 2,
-          fontFamily: 'body'
+          fontFamily: 'body',
         }}
         value={window.location.href}
         readOnly

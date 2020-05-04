@@ -5,7 +5,7 @@ import SimplicialComplexGeometry from './complex'
 
 export default CsgGeometry
 
-function CsgGeometry (props) {
+function CsgGeometry(props) {
   const { csg, ...forwardProps } = props
 
   const simplicialComplex = useMemo(() => {

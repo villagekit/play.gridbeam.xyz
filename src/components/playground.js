@@ -9,7 +9,7 @@ import {
   getCurrentSpecId,
   getIsLoading,
   getIsLoaded,
-  getSavedHash
+  getSavedHash,
 } from '../store'
 import Sidebar from './sidebar'
 import Actions from './action'
@@ -19,7 +19,7 @@ import Keyboard from './keyboard'
 
 export default GridBeamPlayground
 
-function GridBeamPlayground ({ defaultModel }) {
+function GridBeamPlayground({ defaultModel }) {
   const dispatch = useDispatch()
 
   const parts = useSelector(getPartsEntities)
@@ -38,16 +38,25 @@ function GridBeamPlayground ({ defaultModel }) {
 
     return () => window.removeEventListener('hashchange', onHashChange)
 
-    function onHashChange () {
+    function onHashChange() {
       if (isSaving) {
-        setNumSaving(value => value - 1)
+        setNumSaving((value) => value - 1)
         return
       }
       if (window.location.hash !== savedHash) {
         dispatch(doAsyncLoadModel())
       }
     }
-  }, [isSaving, isLoading, isLoaded, parts, defaultModel, savedHash])
+  }, [
+    isSaving,
+    isLoading,
+    isLoaded,
+    parts,
+    defaultModel,
+    savedHash,
+    dispatch,
+    specId,
+  ])
 
   if (parts == null || specId == null) return null
 
@@ -62,7 +71,7 @@ function GridBeamPlayground ({ defaultModel }) {
   )
 }
 
-const Container = props => (
+const Container = (props) => (
   <Box
     sx={{
       background: 'white',
@@ -73,7 +82,7 @@ const Container = props => (
       display: 'flex',
       flexDirection: 'row',
       flexWrap: 'nowrap',
-      userSelect: 'none'
+      userSelect: 'none',
     }}
     {...props}
   />

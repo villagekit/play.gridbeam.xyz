@@ -1,4 +1,4 @@
-var colors = {
+const colors = {
   primary: '#462E74',
   secondary: ['#6E9B34', '#AA7439'],
   // prev:
@@ -18,18 +18,18 @@ var colors = {
   white: '#fff',
   light: '#f8f9fa',
   muted: '#6c757d',
-  dark: '#343a40'
+  dark: '#343a40',
 }
 
-var fonts = {
+const fonts = {
   headline: 'Bungee',
   sans: 'IBM Plex Sans',
-  serif: 'IBM Plex Serif'
+  serif: 'IBM Plex Serif',
 }
 fonts.heading = fonts.sans
 fonts.body = fonts.serif
 
 export default {
   colors,
-  fonts
+  fonts,
 }

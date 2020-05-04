@@ -11,13 +11,13 @@ import {
   doEnableSelection,
   doSetAnyPartIsMoving,
   getCurrentSpecSizes,
-  getCurrentSpecMaterials
+  getCurrentSpecMaterials,
 } from '../store'
 import { directionToRotation } from '../helpers/rotation'
 
 export default Beam
 
-function Beam (props) {
+function Beam(props) {
   const {
     uuid,
     origin,
@@ -31,7 +31,7 @@ function Beam (props) {
     move,
     sizeId,
     materialId,
-    texturesByMaterialType
+    texturesByMaterialType,
   } = props
 
   const dispatch = useDispatch()
@@ -48,11 +48,11 @@ function Beam (props) {
 
   const beamTexture = React.useMemo(() => {
     return texturesByMaterialType[beamSpecMaterial.id]
-  }, [beamSpecMaterial])
+  }, [beamSpecMaterial.id, texturesByMaterialType])
 
   const geometry = React.useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
-    var boxGeometry = new BoxGeometry(...boxSize, length)
+    const boxGeometry = new BoxGeometry(...boxSize, length)
 
     // translate beam so first hole is at (0, 0).
     // this way, the first hole is preserved across rotations.
@@ -65,37 +65,37 @@ function Beam (props) {
     return [
       (1 / 2 + origin.x) * beamWidth,
       (1 / 2 + origin.y) * beamWidth,
-      (1 / 2 + origin.z) * beamWidth
+      (1 / 2 + origin.z) * beamWidth,
     ]
   }, [beamWidth, origin])
 
   const [atMoveStart, setAtMoveStart] = React.useState(null)
   const handleMove = React.useCallback(
-    ev => {
+    (ev) => {
       ev.stopPropagation()
       if (ev.buttons <= 0) return
       if (atMoveStart == null) return
 
       const [pointAtMoveStart, originAtMoveStart] = atMoveStart
-      var intersectionPoint = new Vector3()
-      var movementVector
+      const intersectionPoint = new Vector3()
+      let movementVector
 
       if (ev.shiftKey) {
         // TODO is this correct?
         const verticalPlane = new Plane(
           new Vector3(1, 0, 0),
-          -pointAtMoveStart.x
+          -pointAtMoveStart.x,
         )
         ev.ray.intersectPlane(verticalPlane, intersectionPoint)
         movementVector = new Vector3(
           0,
           0,
-          intersectionPoint.z - pointAtMoveStart.z
+          intersectionPoint.z - pointAtMoveStart.z,
         )
       } else {
         const horizontalPlane = new Plane(
           new Vector3(0, 0, 1),
-          -pointAtMoveStart.z
+          -pointAtMoveStart.z,
         )
         ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
         movementVector = new Vector3()
@@ -111,7 +111,7 @@ function Beam (props) {
       const nextOrigin = new Vector3(
         originAtMoveStart.x,
         originAtMoveStart.y,
-        originAtMoveStart.z
+        originAtMoveStart.z,
       ).add(beamMovementVector)
 
       const delta = new Vector3()
@@ -120,35 +120,32 @@ function Beam (props) {
 
       move(delta.toArray())
     },
-    [uuid, isSelected, origin, atMoveStart, beamWidth]
+    [atMoveStart, beamWidth, origin.x, origin.y, origin.z, move],
   )
 
   const handleHover = React.useCallback(
-    ev => {
+    (ev) => {
       ev.stopPropagation()
       // console.log('hover', uuid)
       hover()
     },
-    [uuid, hover]
+    [hover],
   )
 
   const handleUnhover = React.useCallback(
-    ev => {
+    (ev) => {
       ev.stopPropagation()
       // console.log('unhover', uuid)
       unhover()
     },
-    [uuid, unhover]
+    [unhover],
   )
 
-  const handleClick = React.useCallback(
-    ev => {
-      ev.stopPropagation()
-      // console.log('click x', ev.detail)
-      // if (ev.detail > 1) select()
-    },
-    [uuid, select]
-  )
+  const handleClick = React.useCallback((ev) => {
+    ev.stopPropagation()
+    // console.log('click x', ev.detail)
+    // if (ev.detail > 1) select()
+  }, [])
 
   const color = React.useMemo(() => {
     return new Color(isSelected ? 'cyan' : isHovered ? 'magenta' : 'white')
@@ -164,7 +161,7 @@ function Beam (props) {
       position={position}
       rotation={rotation}
       onClick={handleClick}
-      onPointerDown={ev => {
+      onPointerDown={(ev) => {
         ev.stopPropagation()
         ev.target.setPointerCapture(ev.pointerId)
         dispatch(doDisableCameraControl())
@@ -173,7 +170,7 @@ function Beam (props) {
         if (!isSelected) select()
         setAtMoveStart([ev.point, origin])
       }}
-      onPointerUp={ev => {
+      onPointerUp={(ev) => {
         ev.stopPropagation()
         ev.target.releasePointerCapture(ev.pointerId)
         dispatch(doEnableCameraControl())
@@ -186,8 +183,8 @@ function Beam (props) {
       onPointerOut={handleUnhover}
     >
       <mesh uuid={uuid} geometry={geometry} castShadow receiveShadow>
-        <meshLambertMaterial attach='material' color={color}>
-          <primitive object={beamTexture} attach='map' />
+        <meshLambertMaterial attach="material" color={color}>
+          <primitive object={beamTexture} attach="map" />
         </meshLambertMaterial>
       </mesh>
       <Holes
@@ -204,7 +201,7 @@ function Beam (props) {
 
 const HOLE_SEGMENTS = 8
 
-function Holes (props) {
+function Holes(props) {
   const { numHoles, beamWidth, holeDiameter } = props
   const holeRadius = holeDiameter / 2
 
@@ -213,9 +210,9 @@ function Holes (props) {
 
   return (
     <group>
-      <meshBasicMaterial ref={materialRef} color='black' />
+      <meshBasicMaterial ref={materialRef} color="black" />
       <circleGeometry ref={geometryRef} args={[holeRadius, HOLE_SEGMENTS]} />
-      {range(0, numHoles).map(index => (
+      {range(0, numHoles).map((index) => (
         <React.Fragment key={index}>
           {/* top */}
           <mesh
@@ -257,7 +254,7 @@ const HOLE_MARKER_DIVISIONS = 8
 const HOLE_MARKER_COLOR1 = 'white'
 const HOLE_MARKER_COLOR2 = 'magenta'
 
-function FirstHoleMarker (props) {
+function FirstHoleMarker(props) {
   const { beamWidth, holeDiameter } = props
   return (
     <group>
@@ -289,7 +286,7 @@ function FirstHoleMarker (props) {
   )
 }
 
-function HoleMarker (props) {
+function HoleMarker(props) {
   const { holeDiameter, ...forwardedProps } = props
   const holeRadius = holeDiameter / 2
   const holeMarkerRadius = holeRadius * 2
@@ -302,7 +299,7 @@ function HoleMarker (props) {
         HOLE_MARKER_CIRCLES,
         HOLE_MARKER_DIVISIONS,
         HOLE_MARKER_COLOR1,
-        HOLE_MARKER_COLOR2
+        HOLE_MARKER_COLOR2,
       ]}
       {...forwardedProps}
     />

@@ -8,12 +8,12 @@ import Codec from '../../codec'
 
 export default Parts
 
-function Parts (props) {
+function Parts(props) {
   const partsByType = useSelector(getPartsByType)
 
   return (
     <PartsContainer>
-      <Text as='h2' fontSize={4}>
+      <Text as="h2" fontSize={4}>
         Parts
       </Text>
       <BeamSummary beams={partsByType[Codec.PartType.Beam]} />
@@ -21,25 +21,25 @@ function Parts (props) {
   )
 }
 
-function PartsContainer (props) {
+function PartsContainer(props) {
   return <Box p={3} {...props} />
 }
 
-function BeamSummary (props) {
+function BeamSummary(props) {
   const { beams } = props
   const numBeams = beams.length
   const totalLength = calculateTotalLength(beams)
   const numBeamsByLength = calculateNumBeamsByLength(beams)
 
   return (
-    <Box as='section' sx={{ padding: 3 }}>
-      <Box as='header'>
-        <Text as='h3' sx={{ fontSize: 3 }}>
+    <Box as="section" sx={{ padding: 3 }}>
+      <Box as="header">
+        <Text as="h3" sx={{ fontSize: 3 }}>
           Beams
         </Text>
       </Box>
       <Box
-        as='dl'
+        as="dl"
         sx={{
           display: 'grid',
           gridTemplateColumns: 'max-content auto',
@@ -47,12 +47,12 @@ function BeamSummary (props) {
 
           dt: {
             padding: 2,
-            gridColumnStart: 1
+            gridColumnStart: 1,
           },
           dd: {
             padding: 2,
-            gridColumnStart: 2
-          }
+            gridColumnStart: 2,
+          },
         }}
       >
         <dt>Total quantity</dt>
@@ -62,21 +62,21 @@ function BeamSummary (props) {
         <dt>Quantity by length</dt>
         <dd>
           <Box
-            as='table'
+            as="table"
             sx={{
               tr: {
-                py: 2
+                py: 2,
               },
               th: {
                 textAlign: 'center',
                 paddingRight: 3,
-                fontWeight: 'bold'
+                fontWeight: 'bold',
               },
               td: {
                 textAlign: 'center',
                 paddingRight: 3,
-                py: 2
-              }
+                py: 2,
+              },
             }}
           >
             <thead>
@@ -92,7 +92,7 @@ function BeamSummary (props) {
                     <td>{length} holes</td>
                     <td>{numBeamsOfLength}</td>
                   </tr>
-                )
+                ),
               )}
             </tbody>
           </Box>
@@ -102,10 +102,10 @@ function BeamSummary (props) {
   )
 }
 
-function calculateTotalLength (beams) {
+function calculateTotalLength(beams) {
   return sum(map(beams, 'length'))
 }
 
-function calculateNumBeamsByLength (beams) {
+function calculateNumBeamsByLength(beams) {
   return map(groupBy(beams, 'length'), 'length')
 }

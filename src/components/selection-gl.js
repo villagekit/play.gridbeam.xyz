@@ -10,12 +10,12 @@ import {
   getIsSelecting,
   getSelectionStartPoint,
   getSelectionEndPoint,
-  getSelectableScreenBounds
+  getSelectableScreenBounds,
 } from '../store'
 
 export default SelectionGl
 
-function SelectionGl (props) {
+function SelectionGl(props) {
   const dispatch = useDispatch()
 
   const isEnabled = useSelector(getIsSelectionEnabled)
@@ -30,10 +30,10 @@ function SelectionGl (props) {
     if (!isEnabled) return
     if (!isSelecting) return
     dispatch(doUpdateSelectableScreenBounds({ scene, camera }))
-  }, [isEnabled, isSelecting])
+  }, [camera, dispatch, isEnabled, isSelecting, scene])
 
   const selectionScreenBounds = React.useMemo(() => {
-    var box = new Box2()
+    const box = new Box2()
     box.makeEmpty()
     box.expandByPoint(new Vector2(startPoint.x, startPoint.y))
     box.expandByPoint(new Vector2(endPoint.x, endPoint.y))
@@ -44,14 +44,20 @@ function SelectionGl (props) {
     if (!isEnabled) return
     if (!isSelecting) return
 
-    var selections = []
+    const selections = []
     Object.entries(selectableScreenBounds).forEach(([uuid, selectableBox]) => {
       if (selectionScreenBounds.containsBox(selectableBox)) {
         selections.push(uuid)
       }
     })
     dispatch(doSelectParts(selections))
-  }, [isEnabled, isSelecting, selectionScreenBounds, selectableScreenBounds])
+  }, [
+    isEnabled,
+    isSelecting,
+    selectionScreenBounds,
+    selectableScreenBounds,
+    dispatch,
+  ])
 
   return null
 }

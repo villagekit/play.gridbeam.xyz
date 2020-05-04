@@ -31,7 +31,7 @@ export const doAsyncLoadModel = createAsyncThunk(
       } catch (err) {
         console.error(err)
         throw new Error(
-          'gridbeam-editor/stores/model: could not decompress model with gzip'
+          'gridbeam-editor/stores/model: could not decompress model with gzip',
         )
       }
 
@@ -40,11 +40,11 @@ export const doAsyncLoadModel = createAsyncThunk(
       } catch (err) {
         console.error(err)
         throw new Error(
-          'gridbeam-editor/stores/model: could not parse model from protocol buffer'
+          'gridbeam-editor/stores/model: could not parse model from protocol buffer',
         )
       }
 
-      var { parts, specId } = model
+      let { parts, specId } = model
 
       parts = parts.map(inflatePart)
 
@@ -55,7 +55,7 @@ export const doAsyncLoadModel = createAsyncThunk(
     }
 
     dispatch(doSetLoadStatus('loaded'))
-  }
+  },
 )
 
 export const doAsyncSaveModel = createAsyncThunk(
@@ -67,7 +67,7 @@ export const doAsyncSaveModel = createAsyncThunk(
 
     const model = {
       specId,
-      parts
+      parts,
     }
 
     try {
@@ -75,17 +75,17 @@ export const doAsyncSaveModel = createAsyncThunk(
     } catch (err) {
       console.error(err)
       throw new Error(
-        'gridbeam-editor/stores/model: could not encode model as protocol buffer'
+        'gridbeam-editor/stores/model: could not encode model as protocol buffer',
       )
     }
     try {
       var modelCompressed = deflateRaw(Buffer.from(modelBuffer), {
-        level: Z_BEST_COMPRESSION
+        level: Z_BEST_COMPRESSION,
       })
     } catch (err) {
       console.error(err)
       throw new Error(
-        'gridbeam-editor/stores/model: could not compress model with gzip'
+        'gridbeam-editor/stores/model: could not compress model with gzip',
       )
     }
 
@@ -96,14 +96,14 @@ export const doAsyncSaveModel = createAsyncThunk(
     dispatch(doSetSavedHash(hash))
 
     window.location.href = window.location.href.split('#')[0] + hash
-  }
+  },
 )
 
 export const persistSlice = createSlice({
   name: 'persist',
   initialState: {
     status: 'dirty',
-    savedHash: ''
+    savedHash: '',
   },
   reducers: {
     doSetLoadStatus: (state, action) => {
@@ -111,60 +111,57 @@ export const persistSlice = createSlice({
     },
     doSetSavedHash: (state, action) => {
       state.savedHash = action.payload
-    }
-  }
+    },
+  },
 })
 
 export const { doSetLoadStatus, doSetSavedHash } = persistSlice.actions
 export default persistSlice.reducer
 
-export const getPersistState = state => state.persist
+export const getPersistState = (state) => state.persist
 
 export const getIsLoading = createSelector(
   getPersistState,
-  persist => persist.status === 'loading'
+  (persist) => persist.status === 'loading',
 )
 
 export const getIsLoaded = createSelector(
   getPersistState,
-  persist => persist.status === 'loaded'
+  (persist) => persist.status === 'loaded',
 )
 
 export const getSavedHash = createSelector(
   getPersistState,
-  persist => persist.savedHash
+  (persist) => persist.savedHash,
 )
 
 // based on https://github.com/joaquimserafim/base64-url/blob/master/index.js
 const Base64 = {
-  unescape (str) {
+  unescape(str) {
     return (str + '==='.slice((str.length + 3) % 4))
       .replace(/-/g, '+')
       .replace(/_/g, '/')
   },
-  escape (str) {
-    return str
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '')
+  escape(str) {
+    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
   },
-  encode (str, encoding = 'utf8') {
+  encode(str, encoding = 'utf8') {
     return this.escape(Buffer.from(str, encoding).toString('base64'))
   },
 
-  decode (str, encoding = 'utf8') {
+  decode(str, encoding = 'utf8') {
     return Buffer.from(this.unescape(str), 'base64')
-  }
+  },
 }
 
-const inflatePart = produce(part => {
+const inflatePart = produce((part) => {
   if (part.axisDirection != null) {
     part.direction = axisToDirection(part.axisDirection)
     delete part.axisDirection
   }
 })
 
-const deflatePart = produce(part => {
+const deflatePart = produce((part) => {
   if (part.direction != null) {
     const axisDirection = directionToAxis(part.direction)
     if (axisDirection != null) {

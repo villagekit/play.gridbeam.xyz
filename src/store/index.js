@@ -17,11 +17,11 @@ const reducer = combineReducers({
   parts: partsReducer,
   persist: persistReducer,
   selection: selectionReducer,
-  spec: specReducer
+  spec: specReducer,
 })
 
-export default function createStore () {
+export default function createStore() {
   return configureStore({
-    reducer
+    reducer,
   })
 }

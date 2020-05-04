@@ -3,7 +3,7 @@ import { Box, Flex, Text } from 'theme-ui'
 
 export default Help
 
-function Help (props) {
+function Help(props) {
   return (
     <Flex sx={{ margin: 2, padding: 3, flexDirection: 'column' }}>
       <HelpHeading>Welcome to the GridBeam Playground!</HelpHeading>
@@ -28,7 +28,7 @@ function Help (props) {
         or ~5' 7''.
       </HelpText>
       <Box
-        as='dl'
+        as="dl"
         sx={{
           margin: 3,
           fontSize: 1,
@@ -38,14 +38,14 @@ function Help (props) {
             display: 'inline-block',
             width: '50%',
             paddingRight: 1,
-            textAlign: 'right'
+            textAlign: 'right',
           },
           dd: {
             display: 'inline-block',
             width: '50%',
             paddingLeft: 1,
-            textAlign: 'left'
-          }
+            textAlign: 'left',
+          },
         }}
       >
         <dt>E or Up</dt>
@@ -81,7 +81,7 @@ function Help (props) {
       </Box>
       <HelpText>
         If you enjoyed this, please send &nbsp;
-        <a href='https://dinosaur.is' target='_window'>
+        <a href="https://dinosaur.is" target="_window">
           Mikey
         </a>
         &nbsp; a message!
@@ -90,10 +90,10 @@ function Help (props) {
   )
 }
 
-const HelpHeading = props => (
+const HelpHeading = (props) => (
   <Text sx={{ margin: 2, fontSize: 3, fontFamily: 'heading' }} {...props} />
 )
 
-const HelpText = props => (
+const HelpText = (props) => (
   <Text sx={{ margin: 2, fontSize: 2, fontFamily: 'body' }} {...props} />
 )

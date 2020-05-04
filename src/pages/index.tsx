@@ -9,7 +9,7 @@ import { directionByAxis } from '../helpers/direction'
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)
 
-var defaultModel = {
+const defaultModel = {
   specId: Codec.SpecId.og,
   parts: [
     {
@@ -19,10 +19,10 @@ var defaultModel = {
       origin: {
         x: 0,
         y: 1,
-        z: 1
+        z: 1,
       },
       direction: directionByAxis[Codec.AxisDirection.X],
-      length: 4
+      length: 4,
     },
     {
       type: Codec.PartType.Beam,
@@ -31,10 +31,10 @@ var defaultModel = {
       origin: {
         x: 1,
         y: 0,
-        z: 2
+        z: 2,
       },
       direction: directionByAxis[Codec.AxisDirection.Y],
-      length: 6
+      length: 6,
     },
     {
       type: Codec.PartType.Beam,
@@ -43,15 +43,15 @@ var defaultModel = {
       origin: {
         x: 0,
         y: 0,
-        z: 0
+        z: 0,
       },
       direction: directionByAxis[Codec.AxisDirection.Z],
-      length: 10
-    }
-  ]
+      length: 10,
+    },
+  ],
 }
 
-function Page () {
+function Page() {
   return (
     <>
       <Head
@@ -62,7 +62,7 @@ function Page () {
           'open',
           'hardware',
           'construction',
-          'furniture'
+          'furniture',
         ]}
       />
       <Playground defaultModel={defaultModel} />

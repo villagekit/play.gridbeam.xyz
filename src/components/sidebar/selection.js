@@ -9,14 +9,14 @@ import Codec from '../../codec'
 
 export default Selection
 
-function Selection (props) {
+function Selection(props) {
   const dispatch = useDispatch()
 
   const selectedParts = useSelector(getSelectedParts)
 
   const renderSelectedParts = React.useMemo(() => {
     const renderBeam = (uuid, selected) => (
-      <ControlSection key={uuid} title='beam'>
+      <ControlSection key={uuid} title="beam">
         {/*
         <SelectControl
           name='direction'
@@ -28,48 +28,48 @@ function Selection (props) {
         />
         */}
         <SliderControl
-          name='length'
-          label='length'
+          name="length"
+          label="length"
           path={['length']}
           value={selected.length}
           min={1}
-          update={updater => dispatch(doUpdatePart({ uuid, updater }))}
+          update={(updater) => dispatch(doUpdatePart({ uuid, updater }))}
         />
         <SliderControl
-          name='origin.x'
-          label='origin.x'
+          name="origin.x"
+          label="origin.x"
           path={['origin', 'x']}
           value={selected.origin.x}
-          update={updater => dispatch(doUpdatePart({ uuid, updater }))}
+          update={(updater) => dispatch(doUpdatePart({ uuid, updater }))}
         />
         <SliderControl
-          name='origin.y'
-          label='origin.y'
+          name="origin.y"
+          label="origin.y"
           path={['origin', 'y']}
           value={selected.origin.y}
-          update={updater => dispatch(doUpdatePart({ uuid, updater }))}
+          update={(updater) => dispatch(doUpdatePart({ uuid, updater }))}
         />
         <SliderControl
-          name='origin.z'
-          label='origin.z'
+          name="origin.z"
+          label="origin.z"
           path={['origin', 'z']}
           value={selected.origin.z}
-          update={updater => dispatch(doUpdatePart({ uuid, updater }))}
+          update={(updater) => dispatch(doUpdatePart({ uuid, updater }))}
         />
       </ControlSection>
     )
 
     const renderers = {
-      [Codec.PartType.Beam]: renderBeam
+      [Codec.PartType.Beam]: renderBeam,
     }
 
-    return selectedParts =>
-      map(selectedParts, selectedPart => {
+    return (selectedParts) =>
+      map(selectedParts, (selectedPart) => {
         const renderer = renderers[selectedPart.type]
         const { uuid } = selectedPart
         return renderer(uuid, selectedPart)
       })
-  }, [])
+  }, [dispatch])
 
   return (
     <SelectionContainer>
@@ -78,11 +78,11 @@ function Selection (props) {
   )
 }
 
-const SelectionContainer = props => (
+const SelectionContainer = (props) => (
   <Flex sx={{ flexDirection: 'column' }} {...props} />
 )
 
-const ControlSection = props => {
+const ControlSection = (props) => {
   const { title, children } = props
 
   return (
@@ -93,7 +93,7 @@ const ControlSection = props => {
   )
 }
 
-const SliderControl = props => {
+const SliderControl = (props) => {
   const { name, label, path, value, update, ...inputProps } = props
 
   const [nextValue, setValue] = React.useState(value)
@@ -102,14 +102,17 @@ const SliderControl = props => {
     setValue(value)
   }, [value])
 
-  const handleUpdate = React.useCallback(value => {
-    update({
-      update: 'set',
-      path,
-      value: Number(value)
-    })
-  }, [])
-  const handleChange = React.useCallback(ev => {
+  const handleUpdate = React.useCallback(
+    (value) => {
+      update({
+        update: 'set',
+        path,
+        value: Number(value),
+      })
+    },
+    [path, update],
+  )
+  const handleChange = React.useCallback((ev) => {
     setValue(ev.target.value)
   }, [])
 
@@ -128,7 +131,7 @@ const SliderControl = props => {
   )
 }
 
-const SelectControl = props => {
+const SelectControl = (props) => {
   const { name, label, path, value, options, update, ...selectProps } = props
 
   const [nextValue, setValue] = React.useState(value)
@@ -137,14 +140,17 @@ const SelectControl = props => {
     setValue(value)
   }, [value])
 
-  const handleUpdate = React.useCallback(value => {
-    update({
-      update: 'set',
-      path,
-      value
-    })
-  }, [])
-  const handleChange = React.useCallback(ev => {
+  const handleUpdate = React.useCallback(
+    (value) => {
+      update({
+        update: 'set',
+        path,
+        value,
+      })
+    },
+    [path, update],
+  )
+  const handleChange = React.useCallback((ev) => {
     setValue(ev.target.value)
   }, [])
 
@@ -159,7 +165,7 @@ const SelectControl = props => {
         onChange={handleChange}
         {...selectProps}
       >
-        {options.map(option => (
+        {options.map((option) => (
           <option key={option} value={option}>
             {option}
           </option>
@@ -169,4 +175,4 @@ const SelectControl = props => {
   )
 }
 
-const ControlContainer = props => <Box {...props} />
+const ControlContainer = (props) => <Box {...props} />

@@ -2,15 +2,14 @@ import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { flow, mapValues, property } from 'lodash'
 import { Box2, Vector2, Vector3 } from 'three'
 
-export const doUpdateSelectableScreenBounds = ({
-  scene,
-  camera
-}) => dispatch => {
+export const doUpdateSelectableScreenBounds = ({ scene, camera }) => (
+  dispatch,
+) => {
   const selectableScreenBounds = {}
-  forEachMesh(scene, mesh => {
+  forEachMesh(scene, (mesh) => {
     selectableScreenBounds[mesh.uuid] = computeScreenBounds({
       mesh,
-      camera
+      camera,
     })
   })
   dispatch(doSetSelectableScreenBounds(selectableScreenBounds))
@@ -23,19 +22,19 @@ export const selectionSlice = createSlice({
     isSelecting: false,
     startPoint: { x: 0, y: 0 },
     endPoint: { x: 0, y: 0 },
-    selectableScreenBounds: {}
+    selectableScreenBounds: {},
   },
   reducers: {
-    doEnableSelection: state => {
+    doEnableSelection: (state) => {
       state.isEnabled = true
     },
-    doDisableSelection: state => {
+    doDisableSelection: (state) => {
       state.isEnabled = false
     },
-    doStartSelection: state => {
+    doStartSelection: (state) => {
       state.isSelecting = true
     },
-    doEndSelection: state => {
+    doEndSelection: (state) => {
       state.isSelecting = false
     },
     doSetSelectionStartPoint: (state, action) => {
@@ -50,8 +49,8 @@ export const selectionSlice = createSlice({
     },
     doSetSelectableScreenBounds: (state, action) => {
       state.selectableScreenBounds = action.payload
-    }
-  }
+    },
+  },
 })
 
 export const {
@@ -61,7 +60,7 @@ export const {
   doEndSelection,
   doSetSelectionStartPoint,
   doSetSelectionEndPoint,
-  doSetSelectableScreenBounds
+  doSetSelectableScreenBounds,
 } = selectionSlice.actions
 
 export default selectionSlice.reducer
@@ -69,35 +68,35 @@ export default selectionSlice.reducer
 export const getSelectionState = property('selection')
 export const getIsSelectionEnabled = createSelector(
   getSelectionState,
-  property('isEnabled')
+  property('isEnabled'),
 )
 export const getIsSelecting = createSelector(
   getSelectionState,
-  property('isSelecting')
+  property('isSelecting'),
 )
 export const getSelectionStartPoint = createSelector(
   getSelectionState,
-  property('startPoint')
+  property('startPoint'),
 )
 export const getSelectionEndPoint = createSelector(
   getSelectionState,
-  property('endPoint')
+  property('endPoint'),
 )
 
 export const getSelectableScreenBounds = createSelector(
   getSelectionState,
-  flow(property('selectableScreenBounds'), selectableScreenBounds => {
-    return mapValues(selectableScreenBounds, bounds => {
+  flow(property('selectableScreenBounds'), (selectableScreenBounds) => {
+    return mapValues(selectableScreenBounds, (bounds) => {
       const { min, max } = bounds
       return new Box2(
         new Vector2().fromArray(min),
-        new Vector2().fromArray(max)
+        new Vector2().fromArray(max),
       )
     })
-  })
+  }),
 )
 
-function forEachMesh (object, fn) {
+function forEachMesh(object, fn) {
   if (object.isMesh) {
     if (object.geometry !== undefined) {
       // TODO better check for whether selectable.
@@ -109,29 +108,29 @@ function forEachMesh (object, fn) {
   }
 
   if (object.children.length > 0) {
-    for (var i = 0; i < object.children.length; i++) {
+    for (let i = 0; i < object.children.length; i++) {
       forEachMesh(object.children[i], fn)
     }
   }
 }
 
-function computeScreenBounds ({ mesh, camera }) {
-  var vertices = mesh.geometry.vertices
-  var vertex = new Vector3()
-  var min = new Vector2(1, 1)
-  var max = new Vector2(-1, -1)
+function computeScreenBounds({ mesh, camera }) {
+  const vertices = mesh.geometry.vertices
+  const vertex = new Vector3()
+  const min = new Vector2(1, 1)
+  const max = new Vector2(-1, -1)
 
-  for (var i = 0; i < vertices.length; i++) {
-    var vertexWorldCoord = vertex
+  for (let i = 0; i < vertices.length; i++) {
+    const vertexWorldCoord = vertex
       .copy(vertices[i])
       .applyMatrix4(mesh.matrixWorld)
-    var vertexScreenSpace = vertexWorldCoord.project(camera)
+    const vertexScreenSpace = vertexWorldCoord.project(camera)
     min.min(vertexScreenSpace)
     max.max(vertexScreenSpace)
   }
 
   return {
     min: min.toArray(),
-    max: max.toArray()
+    max: max.toArray(),
   }
 }

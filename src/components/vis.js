@@ -4,7 +4,7 @@ import {
   TextureLoader,
   PlaneBufferGeometry,
   ShadowMaterial,
-  SpotLight
+  SpotLight,
 } from 'three'
 import { Canvas, useThree } from 'react-three-fiber'
 import { mapValues } from 'lodash'
@@ -15,7 +15,7 @@ import {
   doSelectParts,
   doUpdateSelectedParts,
   getParts,
-  getCurrentSpecSize
+  getCurrentSpecSize,
 } from '../store'
 import { GlProvider } from './provider'
 import Codec from '../codec'
@@ -26,12 +26,12 @@ import Selector from './selection-gl'
 import Clipboard from './clipboard'
 
 const texturePathsByMaterialType = {
-  [Codec.MaterialId.Wood]: require('../textures/pine.jpg')
+  [Codec.MaterialId.Wood]: require('../textures/pine.jpg'),
 }
 
 export default Vis
 
-function Vis (props) {
+function Vis(props) {
   const dispatch = useDispatch()
 
   const parts = useSelector(getParts)
@@ -40,28 +40,28 @@ function Vis (props) {
   const currentBeamWidth = currentSize.normalizedBeamWidth
 
   const texturesByMaterialType = React.useMemo(() => {
-    return mapValues(texturePathsByMaterialType, texturePath => {
+    return mapValues(texturePathsByMaterialType, (texturePath) => {
       return new TextureLoader().load(texturePath)
     })
-  }, [texturePathsByMaterialType])
+  }, [])
 
   const renderParts = useCallback(
-    parts =>
-      parts.map(part => {
+    (parts) =>
+      parts.map((part) => {
         const { uuid } = part
         const partProps = {
           ...part,
           hover: () => dispatch(doHoverPart(uuid)),
           unhover: () => dispatch(doUnhoverPart(uuid)),
           select: () => dispatch(doSelectParts([uuid])),
-          move: delta =>
+          move: (delta) =>
             dispatch(
               doUpdateSelectedParts([
                 { update: 'add', path: 'origin.x', value: delta[0] },
                 { update: 'add', path: 'origin.y', value: delta[1] },
-                { update: 'add', path: 'origin.z', value: delta[2] }
-              ])
-            )
+                { update: 'add', path: 'origin.z', value: delta[2] },
+              ]),
+            ),
         }
         if (part.type === Codec.PartType.Beam) {
           return (
@@ -74,7 +74,7 @@ function Vis (props) {
         }
         return null
       }),
-    [parts, texturesByMaterialType]
+    [dispatch, texturesByMaterialType],
   )
 
   return (
@@ -96,7 +96,7 @@ function Vis (props) {
   )
 }
 
-function Background (props) {
+function Background(props) {
   const { currentBeamWidth } = props
   const numSmallFloorTiles = 256
   const largeFloorTileScale = 8
@@ -104,9 +104,9 @@ function Background (props) {
   const floorLength = numSmallFloorTiles * currentBeamWidth
 
   const planeGeometry = React.useMemo(() => {
-    var planeGeometry = new PlaneBufferGeometry(floorLength, floorLength)
+    const planeGeometry = new PlaneBufferGeometry(floorLength, floorLength)
     return planeGeometry
-  }, [])
+  }, [floorLength])
 
   const planeMaterial = React.useMemo(() => {
     return new ShadowMaterial({ opacity: 0.2 })
@@ -115,10 +115,10 @@ function Background (props) {
   const { scene, gl } = useThree()
   React.useEffect(() => {
     gl.shadowMap.enabled = true
-  }, [])
+  }, [gl.shadowMap.enabled])
 
   const spotLight = React.useMemo(() => {
-    var light = new SpotLight(0xffffff, 0)
+    const light = new SpotLight(0xffffff, 0)
     light.position.set(0, 300, 3000)
     light.castShadow = true
     light.shadow.camera.far = 100000
@@ -128,7 +128,7 @@ function Background (props) {
 
   React.useEffect(() => {
     scene.add(spotLight)
-  }, [])
+  }, [scene, spotLight])
 
   return (
     <>

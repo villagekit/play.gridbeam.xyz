@@ -9,13 +9,13 @@ import {
   getCurrentSpecId,
   getCurrentSizeId,
   getCurrentMaterialId,
-  getHasSelectedAnyParts
+  getHasSelectedAnyParts,
 } from './store'
 import { X_AXIS, Y_AXIS, Z_AXIS } from './helpers/axis'
 import { ROTATION, rotateDirection } from './helpers/rotation'
 import Codec from './codec'
 
-function useCommands () {
+function useCommands() {
   const dispatch = useDispatch()
 
   const hasSelected = useSelector(getHasSelectedAnyParts)
@@ -26,15 +26,15 @@ function useCommands () {
   const methods = {
     doAddPart,
     doUpdateSelectedParts,
-    doRemoveSelectedParts
+    doRemoveSelectedParts,
   }
 
   const readyCommands = useMemo(() => {
-    return mapValues(commands, methodGen => {
+    return mapValues(commands, (methodGen) => {
       const [methodName, ...methodArgs] = methodGen({
         specId,
         sizeId,
-        materialId
+        materialId,
       })
       const method = methods[methodName]
       if (method == null) return
@@ -43,7 +43,7 @@ function useCommands () {
       }
       return () => dispatch(method(...methodArgs))
     })
-  }, [hasSelected])
+  }, [dispatch, hasSelected, materialId, methods, sizeId, specId])
 
   return readyCommands
 }
@@ -53,51 +53,51 @@ export default useCommands
 const commands = {
   moveForward: () => [
     'doUpdateSelectedParts',
-    { update: 'add', path: 'origin.x', value: 1 }
+    { update: 'add', path: 'origin.x', value: 1 },
   ],
   moveBackward: () => [
     'doUpdateSelectedParts',
-    { update: 'sub', path: 'origin.x', value: 1 }
+    { update: 'sub', path: 'origin.x', value: 1 },
   ],
   moveRight: () => [
     'doUpdateSelectedParts',
-    { update: 'add', path: 'origin.y', value: 1 }
+    { update: 'add', path: 'origin.y', value: 1 },
   ],
   moveLeft: () => [
     'doUpdateSelectedParts',
-    { update: 'sub', path: 'origin.y', value: 1 }
+    { update: 'sub', path: 'origin.y', value: 1 },
   ],
   moveUp: () => [
     'doUpdateSelectedParts',
-    { update: 'add', path: 'origin.z', value: 1 }
+    { update: 'add', path: 'origin.z', value: 1 },
   ],
   moveDown: () => [
     'doUpdateSelectedParts',
-    { update: 'sub', path: 'origin.z', value: 1 }
+    { update: 'sub', path: 'origin.z', value: 1 },
   ],
   rotatePlusX: () => [
     'doUpdateSelectedParts',
-    { update: 'rotate', path: 'direction', axis: X_AXIS, angle: ROTATION / 4 }
+    { update: 'rotate', path: 'direction', axis: X_AXIS, angle: ROTATION / 4 },
   ],
   rotateMinusX: () => [
     'doUpdateSelectedParts',
-    { update: 'rotate', path: 'direction', axis: X_AXIS, angle: -ROTATION / 4 }
+    { update: 'rotate', path: 'direction', axis: X_AXIS, angle: -ROTATION / 4 },
   ],
   rotatePlusY: () => [
     'doUpdateSelectedParts',
-    { update: 'rotate', path: 'direction', axis: Y_AXIS, angle: ROTATION / 4 }
+    { update: 'rotate', path: 'direction', axis: Y_AXIS, angle: ROTATION / 4 },
   ],
   rotateMinusY: () => [
     'doUpdateSelectedParts',
-    { update: 'rotate', path: 'direction', axis: Y_AXIS, angle: -ROTATION / 4 }
+    { update: 'rotate', path: 'direction', axis: Y_AXIS, angle: -ROTATION / 4 },
   ],
   rotatePlusZ: () => [
     'doUpdateSelectedParts',
-    { update: 'rotate', path: 'direction', axis: Z_AXIS, angle: ROTATION / 4 }
+    { update: 'rotate', path: 'direction', axis: Z_AXIS, angle: ROTATION / 4 },
   ],
   rotateMinusZ: () => [
     'doUpdateSelectedParts',
-    { update: 'rotate', path: 'direction', axis: Z_AXIS, angle: -ROTATION / 4 }
+    { update: 'rotate', path: 'direction', axis: Z_AXIS, angle: -ROTATION / 4 },
   ],
   createBeam: ({ specId, sizeId, materialId }) => [
     'doAddPart',
@@ -107,16 +107,16 @@ const commands = {
       origin: { x: 0, y: 0, z: 0 },
       length: 5,
       sizeId,
-      materialId
-    }
+      materialId,
+    },
   ],
   removeSelected: () => ['doRemoveSelectedParts'],
   lengthenSelected: () => [
     'doUpdateSelectedParts',
-    { update: 'add', path: 'length', value: 1 }
+    { update: 'add', path: 'length', value: 1 },
   ],
   unlengthenSelected: () => [
     'doUpdateSelectedParts',
-    { update: 'sub', path: 'length', value: 1 }
-  ]
+    { update: 'sub', path: 'length', value: 1 },
+  ],
 }

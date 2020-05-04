@@ -6,7 +6,7 @@ import { doRemoveSelectedParts, doAddParts, getSelectedParts } from '../store'
 
 export default Clipboard
 
-function Clipboard (props) {
+function Clipboard(props) {
   const dispatch = useDispatch()
 
   const selectedParts = useSelector(getSelectedParts)
@@ -16,19 +16,19 @@ function Clipboard (props) {
   const cut = useCallback(() => {
     setClipboard(values(selectedParts))
     dispatch(doRemoveSelectedParts())
-  }, [selectedParts])
+  }, [dispatch, selectedParts])
   const copy = useCallback(() => {
     setClipboard(values(selectedParts))
   }, [selectedParts])
   const paste = useCallback(() => {
     dispatch(doAddParts(clipboard))
-  }, [clipboard])
+  }, [clipboard, dispatch])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
 
-    function handleKey (ev) {
+    function handleKey(ev) {
       if (ev.defaultPrevented) {
         return
       }

@@ -9,7 +9,7 @@ import {
   getParts,
   getSelectedParts,
   getAnyPartIsMoving,
-  getIsSelecting
+  getIsSelecting,
 } from '../store'
 import OrbitControls from '../vendor/OrbitControls'
 
@@ -17,7 +17,7 @@ extend({ OrbitControls })
 
 export default Camera
 
-function Camera (props) {
+function Camera(props) {
   const controlsRef = React.useRef()
   const { camera, scene } = useThree()
 
@@ -36,7 +36,7 @@ function Camera (props) {
     camera.zoom = 0.5
     camera.updateProjectionMatrix()
     controls.update()
-  }, [])
+  }, [camera])
 
   useFrame(() => {
     if (controlsRef.current) controlsRef.current.update()
@@ -60,7 +60,7 @@ function Camera (props) {
     const uuids = map(centeredParts, 'uuid')
     const box = compute3dBounds(scene, uuids)
     box.getCenter(controlsRef.current.target)
-  }, [isMoving, scene, parts, selectedParts])
+  }, [isMoving, scene, parts, selectedParts, isSelecting])
 
   return (
     <orbitControls
@@ -74,10 +74,10 @@ function Camera (props) {
   )
 }
 
-function compute3dBounds (scene, uuids) {
-  var box = new Box3()
+function compute3dBounds(scene, uuids) {
+  const box = new Box3()
 
-  uuids.forEach(uuid => {
+  uuids.forEach((uuid) => {
     const mesh = scene.getObjectByName(uuid)
     if (mesh != null) box.expandByObject(mesh)
   })

@@ -19,12 +19,12 @@ exports.PartType = {
 }
 
 exports.AxisDirection = {
-  X: 0,
-  '-X': 1,
-  Y: 2,
-  '-Y': 3,
-  Z: 4,
-  '-Z': 5
+  "X": 0,
+  "-X": 1,
+  "Y": 2,
+  "-Y": 3,
+  "Z": 4,
+  "-Z": 5
 }
 
 exports.SpecId = {
@@ -32,12 +32,12 @@ exports.SpecId = {
 }
 
 exports.SizeId = {
-  '1.5in': 0,
-  '1in': 1,
-  '2in': 2,
-  '25mm': 3,
-  '40mm': 4,
-  '50mm': 5
+  "1.5in": 0,
+  "1in": 1,
+  "2in": 2,
+  "25mm": 3,
+  "40mm": 4,
+  "50mm": 5
 }
 
 exports.MaterialId = {
@@ -46,33 +46,33 @@ exports.MaterialId = {
   Steel: 2
 }
 
-var Direction = (exports.Direction = {
+var Direction = exports.Direction = {
   buffer: true,
   encodingLength: null,
   encode: null,
   decode: null
-})
+}
 
-var GridPosition = (exports.GridPosition = {
+var GridPosition = exports.GridPosition = {
   buffer: true,
   encodingLength: null,
   encode: null,
   decode: null
-})
+}
 
-var Part = (exports.Part = {
+var Part = exports.Part = {
   buffer: true,
   encodingLength: null,
   encode: null,
   decode: null
-})
+}
 
-var Model = (exports.Model = {
+var Model = exports.Model = {
   buffer: true,
   encodingLength: null,
   encode: null,
   decode: null
-})
+}
 
 defineDirection()
 defineGridPosition()
@@ -127,8 +127,7 @@ function defineDirection () {
   function decode (buf, offset, end) {
     if (!offset) offset = 0
     if (!end) end = buf.length
-    if (!(end <= buf.length && offset <= buf.length))
-      throw new Error('Decoded message is not valid')
+    if (!(end <= buf.length && offset <= buf.length)) throw new Error("Decoded message is not valid")
     var oldOffset = offset
     var obj = {
       x: 0,
@@ -145,19 +144,19 @@ function defineDirection () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-          obj.x = encodings.float.decode(buf, offset)
-          offset += encodings.float.decode.bytes
-          break
+        obj.x = encodings.float.decode(buf, offset)
+        offset += encodings.float.decode.bytes
+        break
         case 2:
-          obj.y = encodings.float.decode(buf, offset)
-          offset += encodings.float.decode.bytes
-          break
+        obj.y = encodings.float.decode(buf, offset)
+        offset += encodings.float.decode.bytes
+        break
         case 3:
-          obj.z = encodings.float.decode(buf, offset)
-          offset += encodings.float.decode.bytes
-          break
+        obj.z = encodings.float.decode(buf, offset)
+        offset += encodings.float.decode.bytes
+        break
         default:
-          offset = skip(prefix & 7, buf, offset)
+        offset = skip(prefix & 7, buf, offset)
       }
     }
   }
@@ -211,8 +210,7 @@ function defineGridPosition () {
   function decode (buf, offset, end) {
     if (!offset) offset = 0
     if (!end) end = buf.length
-    if (!(end <= buf.length && offset <= buf.length))
-      throw new Error('Decoded message is not valid')
+    if (!(end <= buf.length && offset <= buf.length)) throw new Error("Decoded message is not valid")
     var oldOffset = offset
     var obj = {
       x: 0,
@@ -229,19 +227,19 @@ function defineGridPosition () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-          obj.x = encodings.sint64.decode(buf, offset)
-          offset += encodings.sint64.decode.bytes
-          break
+        obj.x = encodings.sint64.decode(buf, offset)
+        offset += encodings.sint64.decode.bytes
+        break
         case 2:
-          obj.y = encodings.sint64.decode(buf, offset)
-          offset += encodings.sint64.decode.bytes
-          break
+        obj.y = encodings.sint64.decode(buf, offset)
+        offset += encodings.sint64.decode.bytes
+        break
         case 3:
-          obj.z = encodings.sint64.decode(buf, offset)
-          offset += encodings.sint64.decode.bytes
-          break
+        obj.z = encodings.sint64.decode(buf, offset)
+        offset += encodings.sint64.decode.bytes
+        break
         default:
-          offset = skip(prefix & 7, buf, offset)
+        offset = skip(prefix & 7, buf, offset)
       }
     }
   }
@@ -254,11 +252,8 @@ function definePart () {
 
   function encodingLength (obj) {
     var length = 0
-    if (+defined(obj.direction) + +defined(obj.axisDirection) > 1)
-      throw new Error(
-        'only one of the properties defined in oneof direction_oneof can be set'
-      )
-    if (!defined(obj.type)) throw new Error('type is required')
+    if ((+defined(obj.direction) + +defined(obj.axisDirection)) > 1) throw new Error("only one of the properties defined in oneof direction_oneof can be set")
+    if (!defined(obj.type)) throw new Error("type is required")
     var len = encodings.enum.encodingLength(obj.type)
     length += 1 + len
     if (defined(obj.origin)) {
@@ -294,11 +289,8 @@ function definePart () {
     if (!offset) offset = 0
     if (!buf) buf = Buffer.allocUnsafe(encodingLength(obj))
     var oldOffset = offset
-    if (+defined(obj.direction) + +defined(obj.axisDirection) > 1)
-      throw new Error(
-        'only one of the properties defined in oneof direction_oneof can be set'
-      )
-    if (!defined(obj.type)) throw new Error('type is required')
+    if ((+defined(obj.direction) + +defined(obj.axisDirection)) > 1) throw new Error("only one of the properties defined in oneof direction_oneof can be set")
+    if (!defined(obj.type)) throw new Error("type is required")
     buf[offset++] = 8
     encodings.enum.encode(obj.type, buf, offset)
     offset += encodings.enum.encode.bytes
@@ -343,8 +335,7 @@ function definePart () {
   function decode (buf, offset, end) {
     if (!offset) offset = 0
     if (!end) end = buf.length
-    if (!(end <= buf.length && offset <= buf.length))
-      throw new Error('Decoded message is not valid')
+    if (!(end <= buf.length && offset <= buf.length)) throw new Error("Decoded message is not valid")
     var oldOffset = offset
     var obj = {
       type: 0,
@@ -358,7 +349,7 @@ function definePart () {
     var found0 = false
     while (true) {
       if (end <= offset) {
-        if (!found0) throw new Error('Decoded message is not valid')
+        if (!found0) throw new Error("Decoded message is not valid")
         decode.bytes = offset - oldOffset
         return obj
       }
@@ -367,42 +358,42 @@ function definePart () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-          obj.type = encodings.enum.decode(buf, offset)
-          offset += encodings.enum.decode.bytes
-          found0 = true
-          break
+        obj.type = encodings.enum.decode(buf, offset)
+        offset += encodings.enum.decode.bytes
+        found0 = true
+        break
         case 2:
-          var len = varint.decode(buf, offset)
-          offset += varint.decode.bytes
-          obj.origin = GridPosition.decode(buf, offset, offset + len)
-          offset += GridPosition.decode.bytes
-          break
+        var len = varint.decode(buf, offset)
+        offset += varint.decode.bytes
+        obj.origin = GridPosition.decode(buf, offset, offset + len)
+        offset += GridPosition.decode.bytes
+        break
         case 3:
-          obj.sizeId = encodings.enum.decode(buf, offset)
-          offset += encodings.enum.decode.bytes
-          break
+        obj.sizeId = encodings.enum.decode(buf, offset)
+        offset += encodings.enum.decode.bytes
+        break
         case 4:
-          obj.materialId = encodings.enum.decode(buf, offset)
-          offset += encodings.enum.decode.bytes
-          break
+        obj.materialId = encodings.enum.decode(buf, offset)
+        offset += encodings.enum.decode.bytes
+        break
         case 5:
-          delete obj.axisDirection
-          var len = varint.decode(buf, offset)
-          offset += varint.decode.bytes
-          obj.direction = Direction.decode(buf, offset, offset + len)
-          offset += Direction.decode.bytes
-          break
+        delete obj.axisDirection
+        var len = varint.decode(buf, offset)
+        offset += varint.decode.bytes
+        obj.direction = Direction.decode(buf, offset, offset + len)
+        offset += Direction.decode.bytes
+        break
         case 6:
-          delete obj.direction
-          obj.axisDirection = encodings.enum.decode(buf, offset)
-          offset += encodings.enum.decode.bytes
-          break
+        delete obj.direction
+        obj.axisDirection = encodings.enum.decode(buf, offset)
+        offset += encodings.enum.decode.bytes
+        break
         case 7:
-          obj.length = encodings.varint.decode(buf, offset)
-          offset += encodings.varint.decode.bytes
-          break
+        obj.length = encodings.varint.decode(buf, offset)
+        offset += encodings.varint.decode.bytes
+        break
         default:
-          offset = skip(prefix & 7, buf, offset)
+        offset = skip(prefix & 7, buf, offset)
       }
     }
   }
@@ -456,8 +447,7 @@ function defineModel () {
   function decode (buf, offset, end) {
     if (!offset) offset = 0
     if (!end) end = buf.length
-    if (!(end <= buf.length && offset <= buf.length))
-      throw new Error('Decoded message is not valid')
+    if (!(end <= buf.length && offset <= buf.length)) throw new Error("Decoded message is not valid")
     var oldOffset = offset
     var obj = {
       parts: [],
@@ -473,26 +463,22 @@ function defineModel () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-          var len = varint.decode(buf, offset)
-          offset += varint.decode.bytes
-          obj.parts.push(Part.decode(buf, offset, offset + len))
-          offset += Part.decode.bytes
-          break
+        var len = varint.decode(buf, offset)
+        offset += varint.decode.bytes
+        obj.parts.push(Part.decode(buf, offset, offset + len))
+        offset += Part.decode.bytes
+        break
         case 2:
-          obj.specId = encodings.enum.decode(buf, offset)
-          offset += encodings.enum.decode.bytes
-          break
+        obj.specId = encodings.enum.decode(buf, offset)
+        offset += encodings.enum.decode.bytes
+        break
         default:
-          offset = skip(prefix & 7, buf, offset)
+        offset = skip(prefix & 7, buf, offset)
       }
     }
   }
 }
 
 function defined (val) {
-  return (
-    val !== null &&
-    val !== undefined &&
-    (typeof val !== 'number' || !isNaN(val))
-  )
+  return val !== null && val !== undefined && (typeof val !== 'number' || !isNaN(val))
 }

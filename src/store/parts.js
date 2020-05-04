@@ -7,7 +7,7 @@ import {
   keys,
   map,
   property,
-  zipObject
+  zipObject,
 } from 'lodash'
 
 import createUpdater from '../helpers/updater'
@@ -21,7 +21,7 @@ export const partsSlice = createSlice({
     entities: null,
     isMoving: false,
     ...hoverHappening.initialState,
-    ...selectHappening.initialState
+    ...selectHappening.initialState,
   },
   reducers: {
     doSetAnyPartIsMoving: (state, action) => {
@@ -29,7 +29,7 @@ export const partsSlice = createSlice({
     },
     doSetParts: (state, action) => {
       const parts = action.payload
-      const uuids = parts.map(part => MathUtils.generateUUID())
+      const uuids = parts.map((part) => MathUtils.generateUUID())
       state.entities = zipObject(uuids, parts)
     },
     doAddPart: (state, action) => {
@@ -38,7 +38,7 @@ export const partsSlice = createSlice({
     },
     doAddParts: (state, action) => {
       const newParts = action.payload
-      newParts.forEach(newPart => {
+      newParts.forEach((newPart) => {
         const uuid = MathUtils.generateUUID()
         state.entities[uuid] = newPart
       })
@@ -52,33 +52,33 @@ export const partsSlice = createSlice({
       const updater = action.payload
       const safeUpdater = SafeUpdater(createUpdater(updater))
       const { selectedUuids } = state
-      keys(selectedUuids).forEach(uuid => {
+      keys(selectedUuids).forEach((uuid) => {
         safeUpdater(state.entities[uuid])
       })
     },
-    doRemoveSelectedParts: state => {
+    doRemoveSelectedParts: (state) => {
       const { selectedUuids } = state
-      keys(selectedUuids).forEach(uuid => {
+      keys(selectedUuids).forEach((uuid) => {
         delete state.entities[uuid]
       })
-    }
+    },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     hoverHappening.buildReducers(builder)
     selectHappening.buildReducers(builder)
-  }
+  },
 })
 
 export const {
   doHoverPart,
   doUnhoverPart,
-  doHoverParts
+  doHoverParts,
 } = hoverHappening.actions
 
 export const {
   doSelectPart,
   doUnselectPart,
-  doSelectParts
+  doSelectParts,
 } = selectHappening.actions
 
 export const {
@@ -88,7 +88,7 @@ export const {
   doAddParts,
   doUpdatePart,
   doUpdateSelectedParts,
-  doRemoveSelectedParts
+  doRemoveSelectedParts,
 } = partsSlice.actions
 
 export default partsSlice.reducer
@@ -96,19 +96,19 @@ export default partsSlice.reducer
 export const getPartsState = property('parts')
 export const getAnyPartIsMoving = createSelector(
   getPartsState,
-  property('isMoving')
+  property('isMoving'),
 )
 export const getHoveredUuids = createSelector(
   getPartsState,
-  property('hoveredUuids')
+  property('hoveredUuids'),
 )
 export const getSelectedUuids = createSelector(
   getPartsState,
-  property('selectedUuids')
+  property('selectedUuids'),
 )
 export const getPartsEntities = createSelector(
   getPartsState,
-  property('entities')
+  property('entities'),
 )
 export const getParts = createSelector(
   getPartsEntities,
@@ -120,23 +120,23 @@ export const getParts = createSelector(
       Object.assign({}, part, {
         uuid,
         isHovered: Boolean(uuid in hoveredUuids),
-        isSelected: Boolean(uuid in selectedUuids)
-      })
+        isSelected: Boolean(uuid in selectedUuids),
+      }),
     )
-  }
+  },
 )
-export const getSelectedParts = createSelector(getParts, parts =>
-  parts.filter(part => part.isSelected === true)
+export const getSelectedParts = createSelector(getParts, (parts) =>
+  parts.filter((part) => part.isSelected === true),
 )
 export const getHasSelectedAnyParts = createSelector(
   getSelectedUuids,
-  selectedUuids => !isEmpty(selectedUuids)
+  (selectedUuids) => !isEmpty(selectedUuids),
 )
-export const getPartsByType = createSelector(getParts, parts => {
+export const getPartsByType = createSelector(getParts, (parts) => {
   return groupBy(parts, 'type')
 })
 
-function buildPartHappening (happen) {
+function buildPartHappening(happen) {
   const happenAction = createAction(`parts/do${capitalize(happen)}Part`)
   const happensAction = createAction(`parts/do${capitalize(happen)}Parts`)
   const unhappenAction = createAction(`parts/doUn${happen}Part`)
@@ -146,10 +146,10 @@ function buildPartHappening (happen) {
   const actions = {
     [`do${capitalize(happen)}Part`]: happenAction,
     [`doUn${happen}Part`]: unhappenAction,
-    [`do${capitalize(happen)}Parts`]: happensAction
+    [`do${capitalize(happen)}Parts`]: happensAction,
   }
 
-  const buildReducers = builder => {
+  const buildReducers = (builder) => {
     builder.addCase(happenAction, (state, action) => {
       const uuid = action.payload
       state[`${happen}edUuids`][uuid] = true
@@ -165,13 +165,13 @@ function buildPartHappening (happen) {
       const happenedUuidsObject = state[`${happen}edUuids`]
       const happenedUuids = keys(happenedUuidsObject)
       // remove any uuids no longer happening
-      happenedUuids.forEach(uuid => {
+      happenedUuids.forEach((uuid) => {
         if (!uuids.includes(uuid)) {
           delete happenedUuidsObject[uuid]
         }
       })
       // add any uuids that started happening
-      uuids.forEach(uuid => {
+      uuids.forEach((uuid) => {
         if (!happenedUuids.includes(uuid)) {
           happenedUuidsObject[uuid] = true
         }
@@ -182,12 +182,12 @@ function buildPartHappening (happen) {
   return {
     initialState,
     actions,
-    buildReducers
+    buildReducers,
   }
 }
 
-function SafeUpdater (updater) {
-  return value => {
+function SafeUpdater(updater) {
+  return (value) => {
     updater(value)
     if (value.length < 1) value.length = 1
     if (value.origin.z < 0) value.origin.z = 0

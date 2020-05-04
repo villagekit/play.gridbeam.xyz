@@ -10,12 +10,12 @@ import {
   getIsSelectionEnabled,
   getIsSelecting,
   getSelectionStartPoint,
-  getSelectionEndPoint
+  getSelectionEndPoint,
 } from '../store'
 
 export default SelectionBox
 
-function SelectionBox (props) {
+function SelectionBox(props) {
   const dispatch = useDispatch()
 
   const isEnabled = useSelector(getIsSelectionEnabled)
@@ -25,7 +25,7 @@ function SelectionBox (props) {
 
   React.useEffect(() => {
     if (!isEnabled) dispatch(doEndSelection())
-  }, [isEnabled])
+  }, [dispatch, isEnabled])
 
   React.useEffect(() => {
     document.addEventListener('keyup', handleKeyUp)
@@ -40,27 +40,27 @@ function SelectionBox (props) {
       document.removeEventListener('mouseup', handleMouseUp)
     }
 
-    function handleMouseDown (ev) {
+    function handleMouseDown(ev) {
       if (!isEnabled) return
       if (!ev.shiftKey) return
       dispatch(doStartSelection())
       handleStart(ev)
     }
 
-    function handleMouseMove (ev) {
+    function handleMouseMove(ev) {
       if (!isEnabled) return
       if (!isSelecting) return
       handleEnd(ev)
     }
 
-    function handleMouseUp (ev) {
+    function handleMouseUp(ev) {
       if (!isEnabled) return
       if (!isSelecting) return
       dispatch(doEndSelection())
       handleEnd(ev)
     }
 
-    function handleKeyUp (ev) {
+    function handleKeyUp(ev) {
       if (!isEnabled) return
       if (!isSelecting) return
       if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') {
@@ -68,46 +68,46 @@ function SelectionBox (props) {
       }
     }
 
-    function handleStart (ev) {
+    function handleStart(ev) {
       dispatch(
         doSetSelectionStartPoint({
           x: (ev.clientX / window.innerWidth) * 2 - 1,
-          y: -(ev.clientY / window.innerHeight) * 2 + 1
-        })
+          y: -(ev.clientY / window.innerHeight) * 2 + 1,
+        }),
       )
     }
-    function handleEnd (ev) {
+    function handleEnd(ev) {
       dispatch(
         doSetSelectionEndPoint({
           x: (ev.clientX / window.innerWidth) * 2 - 1,
-          y: -(ev.clientY / window.innerHeight) * 2 + 1
-        })
+          y: -(ev.clientY / window.innerHeight) * 2 + 1,
+        }),
       )
     }
-  }, [isEnabled, isSelecting])
+  }, [dispatch, isEnabled, isSelecting])
 
   return (
     isSelecting && <SelectBox startPoint={startPoint} endPoint={endPoint} />
   )
 }
 
-function SelectBox (props) {
+function SelectBox(props) {
   const { startPoint, endPoint } = props
 
   const bottomRightPoint = React.useMemo(
     () => ({
       x: ((Math.max(startPoint.x, endPoint.x) + 1) / 2) * window.innerWidth,
-      y: (-(Math.min(startPoint.y, endPoint.y) - 1) / 2) * window.innerHeight
+      y: (-(Math.min(startPoint.y, endPoint.y) - 1) / 2) * window.innerHeight,
     }),
-    [startPoint, endPoint]
+    [startPoint, endPoint],
   )
 
   const topLeftPoint = React.useMemo(
     () => ({
       x: ((Math.min(startPoint.x, endPoint.x) + 1) / 2) * window.innerWidth,
-      y: (-(Math.max(startPoint.y, endPoint.y) - 1) / 2) * window.innerHeight
+      y: (-(Math.max(startPoint.y, endPoint.y) - 1) / 2) * window.innerHeight,
     }),
-    [startPoint, endPoint]
+    [startPoint, endPoint],
   )
 
   return (
@@ -116,13 +116,13 @@ function SelectBox (props) {
         pointerEvents: 'none',
         border: '1px solid #55aaff',
         backgroundColor: 'rgba(75, 160, 255, 0.3)',
-        position: 'fixed'
+        position: 'fixed',
       }}
       style={{
         left: topLeftPoint.x,
         top: topLeftPoint.y,
         width: bottomRightPoint.x - topLeftPoint.x,
-        height: bottomRightPoint.y - topLeftPoint.y
+        height: bottomRightPoint.y - topLeftPoint.y,
       }}
     />
   )

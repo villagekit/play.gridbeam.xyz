@@ -17,24 +17,24 @@ const bodyWidth = (1 / 8) * totalHeight
 
 export default ScaleReference
 
-function ScaleReference (props) {
+function ScaleReference(props) {
   const csg = useMemo(() => {
     return union(
       intersection(
         sphere({ r: headWidth / GOLDEN_RATIO, center: true }),
-        cube({ size: [headWidth, headWidth, headHeight], center: true })
+        cube({ size: [headWidth, headWidth, headHeight], center: true }),
       ).translate([0, 0, (1 / 2) * headHeight + bodyHeight]),
       cube({
         size: [bodyWidth, bodyWidth, bodyHeight],
-        center: true
-      }).translate([0, 0, (1 / 2) * bodyHeight])
+        center: true,
+      }).translate([0, 0, (1 / 2) * bodyHeight]),
     ).translate([(-1 / 2) * bodyWidth, (-1 / 2) * bodyWidth])
   }, [])
 
   return (
     <mesh position={[-0.5, -0.5, 0]}>
-      <CsgGeometry csg={csg} attach='geometry' castShadow receiveShadow />
-      <meshNormalMaterial attach='material' />
+      <CsgGeometry csg={csg} attach="geometry" castShadow receiveShadow />
+      <meshNormalMaterial attach="material" />
     </mesh>
   )
 }

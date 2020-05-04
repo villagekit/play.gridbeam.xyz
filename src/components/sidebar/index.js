@@ -12,40 +12,40 @@ const WIDGETS = [
   {
     id: 'selection',
     label: 'Selection',
-    Content: SelectionWidget
+    Content: SelectionWidget,
   },
   {
     id: 'parts',
     label: 'Parts',
-    Content: PartsWidget
+    Content: PartsWidget,
   },
   {
     id: 'share',
     label: 'Share',
-    Content: ShareWidget
+    Content: ShareWidget,
   },
   {
     id: 'help',
     label: 'Help',
-    Content: HelpWidget
-  }
+    Content: HelpWidget,
+  },
 ]
 
 export default Sidebar
 
-function Sidebar (props) {
+function Sidebar(props) {
   const [currentWidgetId, setCurrentWidgetId] = React.useState(null)
   const handleClose = React.useCallback(() => setCurrentWidgetId(null), [])
   const currentWidget = React.useMemo(
-    () => WIDGETS.find(widget => widget.id === currentWidgetId),
-    [WIDGETS, currentWidgetId]
+    () => WIDGETS.find((widget) => widget.id === currentWidgetId),
+    [currentWidgetId],
   )
   const isOpen = React.useMemo(() => currentWidget != null, [currentWidget])
 
   if (!isOpen) {
     return (
       <OpenersContainer>
-        {WIDGETS.map(widget => {
+        {WIDGETS.map((widget) => {
           const { id, label } = widget
           return (
             <OpenerButton
@@ -71,14 +71,20 @@ function Sidebar (props) {
   )
 }
 
-const SidebarContainer = props => {
+const SidebarContainer = (props) => {
   const dispatch = useDispatch()
-  const handleMouseOver = React.useCallback(ev => {
-    dispatch(doDisableCameraControl())
-  }, [])
-  const handleMouseOut = React.useCallback(ev => {
-    dispatch(doEnableCameraControl())
-  }, [])
+  const handleMouseOver = React.useCallback(
+    (ev) => {
+      dispatch(doDisableCameraControl())
+    },
+    [dispatch],
+  )
+  const handleMouseOut = React.useCallback(
+    (ev) => {
+      dispatch(doEnableCameraControl())
+    },
+    [dispatch],
+  )
 
   return (
     <Flex
@@ -86,7 +92,7 @@ const SidebarContainer = props => {
         flexDirection: 'column',
         width: '40em',
         userSelect: 'text',
-        zIndex: 1
+        zIndex: 1,
       }}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
@@ -95,17 +101,17 @@ const SidebarContainer = props => {
   )
 }
 
-const ContentWrapper = props => (
+const ContentWrapper = (props) => (
   <Box
     sx={{
       flex: '1',
-      overflow: 'auto'
+      overflow: 'auto',
     }}
     {...props}
   />
 )
 
-const CloseButton = props => {
+const CloseButton = (props) => {
   const { handleClose } = props
   return (
     <Button
@@ -115,7 +121,7 @@ const CloseButton = props => {
         height: '32px',
         backgroundColor: 'darkcyan',
         flex: '0 1 auto',
-        zIndex: 1
+        zIndex: 1,
       }}
     >
       Close
@@ -123,7 +129,7 @@ const CloseButton = props => {
   )
 }
 
-const OpenerButton = props => {
+const OpenerButton = (props) => {
   const { label, handleOpen } = props
   return (
     <Button
@@ -135,14 +141,14 @@ const OpenerButton = props => {
   )
 }
 
-const OpenersContainer = props => (
+const OpenersContainer = (props) => (
   <Flex
     sx={{
       flexDirection: 'column',
       position: 'absolute',
       right: 0,
       bottom: 0,
-      zIndex: 1
+      zIndex: 1,
     }}
     {...props}
   />
