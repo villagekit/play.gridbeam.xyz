@@ -11,7 +11,7 @@ import {
   getSelectableScreenBounds,
   getSelectionEndPoint,
   getSelectionStartPoint,
-} from '../store'
+} from '../../store'
 
 export default SelectionGl
 

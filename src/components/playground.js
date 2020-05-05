@@ -12,10 +12,10 @@ import {
   getSavedHash,
 } from '../store'
 import Actions from './action'
+import Gl from './gl'
 import Keyboard from './keyboard'
 import SelectionBox from './selection-box'
 import Sidebar from './sidebar'
-import Vis from './vis'
 
 export default GridBeamPlayground
 
@@ -62,7 +62,7 @@ function GridBeamPlayground({ defaultModel }) {
 
   return (
     <Container>
-      <Vis />
+      <Gl />
       <Sidebar />
       <Actions />
       <SelectionBox />

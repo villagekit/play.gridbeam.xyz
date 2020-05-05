@@ -9,7 +9,7 @@ import {
   TextureLoader,
 } from 'three'
 
-import Codec from '../codec'
+import Codec from '../../codec'
 import {
   doHoverPart,
   doSelectParts,
@@ -17,16 +17,16 @@ import {
   doUpdateSelectedParts,
   getCurrentSpecSize,
   getParts,
-} from '../store'
+} from '../../store'
+import Clipboard from '../clipboard'
+import { GlProvider } from '../provider'
 import Beam from './beam'
 import Camera from './camera'
-import Clipboard from './clipboard'
-import { GlProvider } from './provider'
 import Scale from './scale'
-import Selector from './selection-gl'
+import Selector from './selection'
 
 const texturePathsByMaterialType = {
-  [Codec.MaterialId.Wood]: require('../textures/pine.jpg'),
+  [Codec.MaterialId.Wood]: require('../../textures/pine.jpg'),
 }
 
 export default Vis

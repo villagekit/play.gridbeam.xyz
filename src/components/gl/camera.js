@@ -10,8 +10,8 @@ import {
   getIsSelecting,
   getParts,
   getSelectedParts,
-} from '../store'
-import OrbitControls from '../vendor/OrbitControls'
+} from '../../store'
+import OrbitControls from '../../vendor/OrbitControls'
 
 extend({ OrbitControls })
 

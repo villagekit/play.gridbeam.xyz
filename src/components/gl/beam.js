@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useResource } from 'react-three-fiber'
 import { BoxGeometry, Color, Plane, Vector3 } from 'three'
 
-import { directionToRotation } from '../helpers/rotation'
+import { directionToRotation } from '../../helpers/rotation'
 import {
   doDisableCameraControl,
   doDisableSelection,
@@ -13,7 +13,7 @@ import {
   doSetAnyPartIsMoving,
   getCurrentSpecMaterials,
   getCurrentSpecSizes,
-} from '../store'
+} from '../../store'
 
 export default Beam
 
