@@ -61,6 +61,30 @@ export interface SpecEntity {
   materials: Array<SpecMaterialEntity>
 }
 
+export interface SpecSizeValue extends SpecSizeEntity {
+  normalizedBeamWidth: number
+}
+
+export type SpecSizeValues = Record<SizeId, SpecSizeValue>
+
+export interface SpecMaterialSizeValue extends SpecMaterialSizeEntity {
+  normalizedHoleDiameter: number
+  normalizedBoltDiameter: number
+}
+
+export type SpecMaterialSizeValues = Record<SizeId, SpecMaterialSizeValue>
+
+export interface SpecMaterialValue extends Omit<SpecMaterialEntity, 'sizes'> {
+  sizes: SpecMaterialSizeValues
+}
+
+export type SpecMaterialValues = Record<MaterialId, SpecMaterialValue>
+
+export interface SpecValue extends Omit<SpecEntity, 'sizes' | 'materials'> {
+  sizes: Array<SpecSizeValue>
+  materials: Array<SpecMaterialValue>
+}
+
 const SPECS: Array<SpecEntity> = [
   {
     id: SpecId.og,
@@ -170,38 +194,46 @@ export const getSpecsBySystemOfMeasurement = createSelector(
     return groupBy(specs, 'systemOfMeasurement')
   },
 )
-export const getCurrentSpecSizes = createSelector(getCurrentSpec, (spec) => {
-  const sizes = spec.sizes.map(
-    produce((size) => {
-      size.normalizedBeamWidth = normalizeValueToMetric(
-        size.beamWidth,
-        spec.systemOfMeasurement,
-      )
-    }),
-  )
-  return keyBy(sizes, 'id')
-})
+export const getCurrentSpecSizes = createSelector(
+  getCurrentSpec,
+  (spec: SpecEntity): SpecSizeValues => {
+    const sizes = spec.sizes.map(
+      produce((size) => {
+        size.normalizedBeamWidth = normalizeValueToMetric(
+          size.beamWidth,
+          spec.systemOfMeasurement,
+        )
+      }),
+    )
+    return keyBy(sizes, 'id') as SpecSizeValues
+  },
+)
 export const getCurrentSpecMaterials = createSelector(
   getCurrentSpec,
-  (spec) => {
-    const materials = spec.materials.map(
-      produce((material) => {
-        const sizes = material.sizes.map(
-          produce((materialSize) => {
-            materialSize.normalizedHoleDiameter = normalizeValueToMetric(
+  (spec): SpecMaterialValues => {
+    const materials: Array<SpecMaterialValue> = spec.materials.map(
+      (material: SpecMaterialEntity): SpecMaterialValue => {
+        const sizes: Array<SpecMaterialSizeValue> = material.sizes.map(
+          (materialSize: SpecMaterialSizeEntity): SpecMaterialSizeValue => {
+            const normalizedHoleDiameter = normalizeValueToMetric(
               materialSize.holeDiameter,
               spec.systemOfMeasurement,
             )
-            materialSize.normalizedBoltDiameter = normalizeValueToMetric(
+            const normalizedBoltDiameter = normalizeValueToMetric(
               materialSize.boltDiameter,
               spec.systemOfMeasurement,
             )
-          }),
+            return Object.assign({}, materialSize, {
+              normalizedHoleDiameter,
+              normalizedBoltDiameter,
+            })
+          },
         )
-        material.sizes = keyBy(sizes, 'id')
-      }),
+        const sizesById = keyBy(sizes, 'id') as SpecMaterialSizeValues
+        return Object.assign({}, material, { sizes: sizesById })
+      },
     )
-    return keyBy(materials, 'id')
+    return keyBy(materials, 'id') as SpecMaterialValues
   },
 )
 export const getCurrentSpecSize = createSelector(

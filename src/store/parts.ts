@@ -51,6 +51,12 @@ export interface PartEntity {
 
 export type Uuid = string
 
+export interface PartValue extends PartEntity {
+  uuid: Uuid
+  isHovered: boolean
+  isSelected: boolean
+}
+
 type HoverStateKey = 'hoveredUuids'
 type SelectStateKey = 'selectedUuids'
 type HappenStateKey = HoverStateKey | SelectStateKey
@@ -74,8 +80,8 @@ const selectHappening = buildPartHappening<SelectStateKey>(
 const initialState: PartsState = {
   entities: null,
   isMoving: false,
-  hoveredUuids: hoverHappening.initialState.hoveredUuids,
-  selectedUuids: selectHappening.initialState.selectedUuids,
+  hoveredUuids: hoverHappening.initialState,
+  selectedUuids: selectHappening.initialState,
 }
 
 export const partsSlice = createSlice({
@@ -151,15 +157,15 @@ export const partsSlice = createSlice({
 })
 
 export const {
-  doHoverPart,
-  doUnhoverPart,
-  doHoverParts,
+  doHappenAction: doHoverPart,
+  doUnhappenAction: doUnhoverPart,
+  doHappensAction: doHoverParts,
 } = hoverHappening.actions
 
 export const {
-  doSelectPart,
-  doUnselectPart,
-  doSelectParts,
+  doHappenAction: doSelectPart,
+  doUnhappenAction: doUnselectPart,
+  doHappensAction: doSelectParts,
 } = selectHappening.actions
 
 export const {
@@ -221,25 +227,19 @@ function buildPartHappening<StateKey extends HappenStateKey>(
   happen: string,
   stateKey: StateKey,
 ) {
-  const happenAction = createAction<Uuid>(`parts/do${capitalize(happen)}Part`)
-  const unhappenAction = createAction<Uuid>(`parts/doUn${happen}Part`)
-  const happensAction = createAction<Array<Uuid>>(
+  const doHappenAction = createAction<Uuid>(`parts/do${capitalize(happen)}Part`)
+  const doUnhappenAction = createAction<Uuid>(`parts/doUn${happen}Part`)
+  const doHappensAction = createAction<Array<Uuid>>(
     `parts/do${capitalize(happen)}Parts`,
   )
 
-  const initialHappenedUuids: HappenStateValue = {}
-  let initialState = {} as HappenState
-  initialState[stateKey] = initialHappenedUuids
+  const initialState: HappenStateValue = {}
 
-  const actions = {
-    [`do${capitalize(happen)}Part`]: happenAction,
-    [`doUn${happen}Part`]: unhappenAction,
-    [`do${capitalize(happen)}Parts`]: happensAction,
-  }
+  const actions = { doHappenAction, doUnhappenAction, doHappensAction }
 
   const buildReducers = (builder: ActionReducerMapBuilder<PartsState>) => {
     builder.addCase(
-      happenAction,
+      doHappenAction,
       (state: PartsState, action: PayloadAction<Uuid>) => {
         const uuid: Uuid = action.payload
         const happenState: HappenStateValue = state[stateKey]
@@ -248,7 +248,7 @@ function buildPartHappening<StateKey extends HappenStateKey>(
     )
 
     builder.addCase(
-      unhappenAction,
+      doUnhappenAction,
       (state: PartsState, action: PayloadAction<Uuid>) => {
         const uuid = action.payload
         delete state[stateKey][uuid]
@@ -256,7 +256,7 @@ function buildPartHappening<StateKey extends HappenStateKey>(
     )
 
     builder.addCase(
-      happensAction,
+      doHappensAction,
       (state: PartsState, action: PayloadAction<Array<Uuid>>) => {
         const uuids = action.payload
         const happenedUuidsObject: HappenStateValue = state[stateKey]

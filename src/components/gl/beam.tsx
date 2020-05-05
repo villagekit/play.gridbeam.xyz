@@ -2,7 +2,15 @@ import { range } from 'lodash'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useResource } from 'react-three-fiber'
-import { BoxGeometry, Color, Plane, Vector3 } from 'three'
+import { PolarGridHelper } from 'react-three-fiber/components'
+import {
+  BoxGeometry,
+  CircleGeometry,
+  Color,
+  MeshBasicMaterial,
+  Plane,
+  Vector3,
+} from 'three'
 
 import { directionToRotation } from '../../helpers/rotation'
 import {
@@ -13,11 +21,31 @@ import {
   doSetAnyPartIsMoving,
   getCurrentSpecMaterials,
   getCurrentSpecSizes,
+  GridPosition,
+  PartValue,
+  Uuid,
 } from '../../store'
+import { TexturesByMaterialType } from './'
 
 export default Beam
 
-function Beam(props) {
+interface BeamProps {
+  uuid: Uuid
+  origin: PartValue['origin']
+  direction: PartValue['direction']
+  length: PartValue['length']
+  isHovered: PartValue['isHovered']
+  hover: () => void
+  unhover: () => void
+  isSelected: PartValue['isSelected']
+  select: () => void
+  move: (movement: [number, number, number]) => void
+  sizeId: PartValue['sizeId']
+  materialId: PartValue['materialId']
+  texturesByMaterialType: TexturesByMaterialType
+}
+
+function Beam(props: BeamProps) {
   const {
     uuid,
     origin,
@@ -61,7 +89,7 @@ function Beam(props) {
     return boxGeometry
   }, [beamWidth, length])
 
-  const position = React.useMemo(() => {
+  const position: [number, number, number] = React.useMemo(() => {
     return [
       (1 / 2 + origin.x) * beamWidth,
       (1 / 2 + origin.y) * beamWidth,
@@ -69,7 +97,9 @@ function Beam(props) {
     ]
   }, [beamWidth, origin])
 
-  const [atMoveStart, setAtMoveStart] = React.useState(null)
+  const [atMoveStart, setAtMoveStart] = React.useState<
+    [Vector3, GridPosition] | null
+  >(null)
   const handleMove = React.useCallback(
     (ev) => {
       ev.stopPropagation()
@@ -118,7 +148,7 @@ function Beam(props) {
         .copy(nextOrigin)
         .sub(new Vector3(origin.x, origin.y, origin.z))
 
-      move(delta.toArray())
+      move([delta.x, delta.y, delta.z])
     },
     [atMoveStart, beamWidth, origin.x, origin.y, origin.z, move],
   )
@@ -163,6 +193,7 @@ function Beam(props) {
       onClick={handleClick}
       onPointerDown={(ev) => {
         ev.stopPropagation()
+        // @ts-ignore
         ev.target.setPointerCapture(ev.pointerId)
         dispatch(doDisableCameraControl())
         dispatch(doDisableSelection())
@@ -172,6 +203,7 @@ function Beam(props) {
       }}
       onPointerUp={(ev) => {
         ev.stopPropagation()
+        // @ts-ignore
         ev.target.releasePointerCapture(ev.pointerId)
         dispatch(doEnableCameraControl())
         dispatch(doEnableSelection())
@@ -201,12 +233,18 @@ function Beam(props) {
 
 const HOLE_SEGMENTS = 8
 
-function Holes(props) {
+interface HolesProps {
+  numHoles: number
+  beamWidth: number
+  holeDiameter: number
+}
+
+function Holes(props: HolesProps) {
   const { numHoles, beamWidth, holeDiameter } = props
   const holeRadius = holeDiameter / 2
 
-  const [materialRef, material] = useResource()
-  const [geometryRef, geometry] = useResource()
+  const [materialRef, material] = useResource<MeshBasicMaterial>()
+  const [geometryRef, geometry] = useResource<CircleGeometry>()
 
   return (
     <group>
@@ -254,7 +292,12 @@ const HOLE_MARKER_DIVISIONS = 8
 const HOLE_MARKER_COLOR1 = 'white'
 const HOLE_MARKER_COLOR2 = 'magenta'
 
-function FirstHoleMarker(props) {
+interface FirstHoleMarkerProps {
+  beamWidth: number
+  holeDiameter: number
+}
+
+function FirstHoleMarker(props: FirstHoleMarkerProps) {
   const { beamWidth, holeDiameter } = props
   return (
     <group>
@@ -286,7 +329,11 @@ function FirstHoleMarker(props) {
   )
 }
 
-function HoleMarker(props) {
+interface HoleMarkerProps extends React.ComponentProps<typeof PolarGridHelper> {
+  holeDiameter: number
+}
+
+function HoleMarker(props: HoleMarkerProps) {
   const { holeDiameter, ...forwardedProps } = props
   const holeRadius = holeDiameter / 2
   const holeMarkerRadius = holeRadius * 2

@@ -1,10 +1,14 @@
 import { Euler, Vector3 } from 'three'
 
+import { Direction } from '../store'
+
+type Axis = Vector3
+
 export const ROTATION = 2 * Math.PI
 
 // TODO: figure out the proper solution to this.
 // i just did a radical guess, and it checked.
-export function directionToRotation(direction) {
+export function directionToRotation(direction: Direction) {
   const { x, y, z } = direction
   const radius = Math.sqrt(x * x + y * y + z * z)
   const theta = -Math.atan2(z, y)
@@ -12,7 +16,11 @@ export function directionToRotation(direction) {
   return new Euler(0, theta, phi, 'ZYX')
 }
 
-export function rotateDirection(direction, axis, angle) {
+export function rotateDirection(
+  direction: Direction,
+  axis: Axis,
+  angle: number,
+) {
   const { x, y, z } = direction
   const nextVector = new Vector3(x, y, z).applyAxisAngle(axis, angle)
   // normalize values
@@ -40,13 +48,13 @@ export function rotateX (vector, angle) {
 }
 */
 
-function normalizeRotationValue(value) {
+function normalizeRotationValue(value: number) {
   value = roundToPrecision(value)
   if (Object.is(value, -0)) return 0
   return value
 }
 
-function roundToPrecision(value, precision = 10) {
+function roundToPrecision(value: number, precision = 10) {
   const multiplier = Math.pow(10, precision)
   return Math.round(value * multiplier) / multiplier
 }

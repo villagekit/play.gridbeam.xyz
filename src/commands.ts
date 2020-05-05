@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Codec from './codec'
 import { X_AXIS, Y_AXIS, Z_AXIS } from './helpers/axis'
 import { ROTATION } from './helpers/rotation'
+import { UpdateDescriptor } from './helpers/updater'
 import {
   doAddPart,
   doRemoveSelectedParts,
@@ -13,44 +14,20 @@ import {
   getCurrentSizeId,
   getCurrentSpecId,
   getHasSelectedAnyParts,
+  MaterialId,
+  SizeId,
+  SpecId,
 } from './store'
 
-function useCommands() {
-  const dispatch = useDispatch()
-
-  const hasSelected = useSelector(getHasSelectedAnyParts)
-  const specId = useSelector(getCurrentSpecId)
-  const sizeId = useSelector(getCurrentSizeId)
-  const materialId = useSelector(getCurrentMaterialId)
-
-  const methods = {
-    doAddPart,
-    doUpdateSelectedParts,
-    doRemoveSelectedParts,
-  }
-
-  const readyCommands = useMemo(() => {
-    return mapValues(commands, (methodGen) => {
-      const [methodName, ...methodArgs] = methodGen({
-        specId,
-        sizeId,
-        materialId,
-      })
-      const method = methods[methodName]
-      if (method == null) return
-      if (methodName.endsWith('Selected') && !hasSelected) {
-        return () => {}
-      }
-      return () => dispatch(method(...methodArgs))
-    })
-  }, [dispatch, hasSelected, materialId, methods, sizeId, specId])
-
-  return readyCommands
+interface CommandOptions {
+  specId: SpecId | null
+  sizeId: SizeId | null
+  materialId: MaterialId | null
 }
 
-export default useCommands
+type Commands = Record<string, (options: CommandOptions) => [string, any]>
 
-const commands = {
+const commands: Commands = {
   moveForward: () => [
     'doUpdateSelectedParts',
     { update: 'add', path: 'origin.x', value: 1 },
@@ -110,7 +87,7 @@ const commands = {
       materialId,
     },
   ],
-  removeSelected: () => ['doRemoveSelectedParts'],
+  removeSelected: () => ['doRemoveSelectedParts', undefined],
   lengthenSelected: () => [
     'doUpdateSelectedParts',
     { update: 'add', path: 'length', value: 1 },
@@ -120,3 +97,42 @@ const commands = {
     { update: 'sub', path: 'length', value: 1 },
   ],
 }
+
+type CommandName = keyof typeof commands
+
+function useCommands() {
+  const dispatch = useDispatch()
+
+  const hasSelected = useSelector(getHasSelectedAnyParts)
+  const specId = useSelector(getCurrentSpecId)
+  const sizeId = useSelector(getCurrentSizeId)
+  const materialId = useSelector(getCurrentMaterialId)
+
+  const methods = {
+    doAddPart,
+    doUpdateSelectedParts,
+    doRemoveSelectedParts,
+  }
+
+  type MethodName = keyof typeof methods
+
+  const readyCommands = useMemo(() => {
+    return mapValues(commands, (methodGen) => {
+      const [methodName, ...methodArgs] = methodGen({
+        specId,
+        sizeId,
+        materialId,
+      })
+      const method = methods[methodName as MethodName]
+      if (method == null) return
+      if (methodName.endsWith('Selected') && !hasSelected) {
+        return () => {}
+      }
+      return () => dispatch(method(...methodArgs))
+    })
+  }, [dispatch, hasSelected, materialId, methods, sizeId, specId])
+
+  return readyCommands
+}
+
+export default useCommands

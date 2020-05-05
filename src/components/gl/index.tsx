@@ -6,6 +6,7 @@ import {
   PlaneBufferGeometry,
   ShadowMaterial,
   SpotLight,
+  Texture,
   TextureLoader,
 } from 'three'
 
@@ -17,6 +18,8 @@ import {
   doUpdateSelectedParts,
   getCurrentSpecSize,
   getParts,
+  MaterialId,
+  PartValue,
 } from '../../store'
 import Clipboard from '../clipboard'
 import { GlProvider } from '../provider'
@@ -25,28 +28,36 @@ import Camera from './camera'
 import Scale from './scale'
 import Selector from './selection'
 
-const texturePathsByMaterialType = {
-  [Codec.MaterialId.Wood]: require('../../textures/pine.jpg'),
+export type TexturePathsByMaterialType = Record<MaterialId, string>
+export type TexturesByMaterialType = Record<MaterialId, Texture>
+
+const texturePathsByMaterialType: TexturePathsByMaterialType = {
+  [MaterialId.Wood]: require('../../textures/pine.jpg'),
+  [MaterialId.Steel]: require('../../textures/pine.jpg'),
+  [MaterialId.Aluminum]: require('../../textures/pine.jpg'),
 }
 
-export default Vis
+export default Gl
 
-function Vis(props) {
+interface GlProps {}
+
+function Gl(props: GlProps) {
   const dispatch = useDispatch()
 
   const parts = useSelector(getParts)
 
   const currentSize = useSelector(getCurrentSpecSize)
+  if (currentSize == null) throw new Error('currentSize is null')
   const currentBeamWidth = currentSize.normalizedBeamWidth
 
-  const texturesByMaterialType = React.useMemo(() => {
+  const texturesByMaterialType: TexturesByMaterialType = React.useMemo(() => {
     return mapValues(texturePathsByMaterialType, (texturePath) => {
       return new TextureLoader().load(texturePath)
     })
   }, [])
 
   const renderParts = useCallback(
-    (parts) =>
+    (parts: Array<PartValue>) =>
       parts.map((part) => {
         const { uuid } = part
         const partProps = {
@@ -54,7 +65,7 @@ function Vis(props) {
           hover: () => dispatch(doHoverPart(uuid)),
           unhover: () => dispatch(doUnhoverPart(uuid)),
           select: () => dispatch(doSelectParts([uuid])),
-          move: (delta) =>
+          move: (delta: [number, number, number]) =>
             dispatch(
               doUpdateSelectedParts([
                 { update: 'add', path: 'origin.x', value: delta[0] },
@@ -96,7 +107,11 @@ function Vis(props) {
   )
 }
 
-function Background(props) {
+interface BackgroundProps {
+  currentBeamWidth: number
+}
+
+function Background(props: BackgroundProps) {
   const { currentBeamWidth } = props
   const numSmallFloorTiles = 256
   const largeFloorTileScale = 8
