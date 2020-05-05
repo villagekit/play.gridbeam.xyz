@@ -1,10 +1,18 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 
+import { RootState } from './'
+
+export interface CameraState {
+  controlEnabled: boolean
+}
+
+const initialState: CameraState = {
+  controlEnabled: true,
+}
+
 export const cameraSlice = createSlice({
   name: 'camera',
-  initialState: {
-    controlEnabled: true,
-  },
+  initialState,
   reducers: {
     doEnableCameraControl: (state) => {
       state.controlEnabled = true
@@ -22,9 +30,9 @@ export const {
 
 export default cameraSlice.reducer
 
-export const getCameraState = (state) => state.camera
+export const getCameraState = (state: RootState): CameraState => state.camera
 
 export const getIsCameraControlEnabled = createSelector(
   getCameraState,
-  (cameraState) => cameraState.controlEnabled,
+  (cameraState: CameraState): boolean => cameraState.controlEnabled,
 )

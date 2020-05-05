@@ -1,5 +1,5 @@
 {
-  "include": ["./src/**/*"],
+  "include": ["src", "types"],
   "compilerOptions": {
     "baseUrl": "./src",
     "target": "esnext",
@@ -13,6 +13,7 @@
     "emitDecoratorMetadata": true,
     "noEmit": true,
     "skipLibCheck": true,
+    "moduleResolution": "node",
     "paths": {
       "three": ["vendor/three-exports"]
     }

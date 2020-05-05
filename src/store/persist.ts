@@ -1,13 +1,31 @@
-import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 import produce from 'immer'
 import { values } from 'lodash'
+// NOTE: pako exports are overriden in ./src/index.d.ts
 import { deflateRaw, inflateRaw, Z_BEST_COMPRESSION } from 'pako'
 
 import Codec from '../codec'
 import { axisToDirection, directionToAxis } from '../helpers/direction'
-import { doSetCurrentSpecId, doSetParts } from './'
+import {
+  doSetCurrentSpecId,
+  doSetParts,
+  PartEntity,
+  RootState,
+  SpecId,
+  ThunkArg,
+} from './'
 
-export const doAsyncLoadModel = createAsyncThunk(
+export interface ModelEntity {
+  specId: SpecId
+  parts: Array<PartEntity>
+}
+
+export const doAsyncLoadModel = createAsyncThunk<void, ModelEntity, ThunkArg>(
   'persist/loadModel',
   async (defaultModel, { dispatch }) => {
     dispatch(doSetLoadStatus('loading'))
@@ -36,7 +54,8 @@ export const doAsyncLoadModel = createAsyncThunk(
       }
 
       try {
-        var model = Codec.Model.decode(Buffer.from(modelBuffer))
+        // @ts-ignore
+        var model = Codec.Model.decode(Buffer.from(modelBuffer)) as ModelEntity
       } catch (err) {
         console.error(err)
         throw new Error(
@@ -58,7 +77,7 @@ export const doAsyncLoadModel = createAsyncThunk(
   },
 )
 
-export const doAsyncSaveModel = createAsyncThunk(
+export const doAsyncSaveModel = createAsyncThunk<void, ModelEntity, ThunkArg>(
   'persist/saveModel',
   async ({ parts, specId }, { dispatch }) => {
     const version = 1
@@ -71,7 +90,8 @@ export const doAsyncSaveModel = createAsyncThunk(
     }
 
     try {
-      var modelBuffer = Codec.Model.encode(model)
+      // @ts-ignore
+      var modelBuffer = Codec.Model.encode(model) as Buffer
     } catch (err) {
       console.error(err)
       throw new Error(
@@ -99,17 +119,30 @@ export const doAsyncSaveModel = createAsyncThunk(
   },
 )
 
+export interface PersistState {
+  loadStatus: 'unloaded' | 'loading' | 'loaded'
+  savedHash: string
+}
+
+const initialState: PersistState = {
+  loadStatus: 'unloaded',
+  savedHash: '',
+}
+
 export const persistSlice = createSlice({
   name: 'persist',
-  initialState: {
-    status: 'dirty',
-    savedHash: '',
-  },
+  initialState,
   reducers: {
-    doSetLoadStatus: (state, action) => {
-      state.status = action.payload
+    doSetLoadStatus: (
+      state: PersistState,
+      action: PayloadAction<PersistState['loadStatus']>,
+    ) => {
+      state.loadStatus = action.payload
     },
-    doSetSavedHash: (state, action) => {
+    doSetSavedHash: (
+      state: PersistState,
+      action: PayloadAction<PersistState['savedHash']>,
+    ) => {
       state.savedHash = action.payload
     },
   },
@@ -118,16 +151,16 @@ export const persistSlice = createSlice({
 export const { doSetLoadStatus, doSetSavedHash } = persistSlice.actions
 export default persistSlice.reducer
 
-export const getPersistState = (state) => state.persist
+export const getPersistState = (state: RootState): PersistState => state.persist
 
 export const getIsLoading = createSelector(
   getPersistState,
-  (persist) => persist.status === 'loading',
+  (persist) => persist.loadStatus === 'loading',
 )
 
 export const getIsLoaded = createSelector(
   getPersistState,
-  (persist) => persist.status === 'loaded',
+  (persist) => persist.loadStatus === 'loaded',
 )
 
 export const getSavedHash = createSelector(
@@ -137,19 +170,19 @@ export const getSavedHash = createSelector(
 
 // based on https://github.com/joaquimserafim/base64-url/blob/master/index.js
 const Base64 = {
-  unescape(str) {
+  unescape(str: string): string {
     return (str + '==='.slice((str.length + 3) % 4))
       .replace(/-/g, '+')
       .replace(/_/g, '/')
   },
-  escape(str) {
+  escape(str: string): string {
     return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
   },
-  encode(str, encoding = 'utf8') {
-    return this.escape(Buffer.from(str, encoding).toString('base64'))
+  encode(str: Uint8Array): string {
+    return this.escape(Buffer.from(str).toString('base64'))
   },
 
-  decode(str, encoding = 'utf8') {
+  decode(str: string) {
     return Buffer.from(this.unescape(str), 'base64')
   },
 }

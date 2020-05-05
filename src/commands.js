@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import Codec from './codec'
 import { X_AXIS, Y_AXIS, Z_AXIS } from './helpers/axis'
-import { rotateDirection, ROTATION } from './helpers/rotation'
+import { ROTATION } from './helpers/rotation'
 import {
   doAddPart,
   doRemoveSelectedParts,

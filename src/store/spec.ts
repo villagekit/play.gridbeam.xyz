@@ -1,33 +1,88 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import produce from 'immer'
-import { groupBy, keyBy, property } from 'lodash'
+import { groupBy, keyBy } from 'lodash'
 
-import Codec from '../codec'
+import { RootState } from './'
 
 const INCH_TO_MM = 25.4
 
-const SPECS = [
+export enum SpecId {
+  og = 0,
+}
+
+export enum SizeId {
+  // imperial
+  '1.5in' = 0,
+  '1in' = 1,
+  '2in' = 2,
+
+  // metric
+  '25mm' = 3,
+  '40mm' = 4,
+  '50mm' = 5,
+}
+
+export enum MaterialId {
+  Wood = 0,
+  Aluminum = 1,
+  Steel = 2,
+}
+
+export enum SystemOfMeasurement {
+  imperial = 'imperial',
+  metric = 'metric',
+}
+
+export interface SpecSizeEntity {
+  id: SizeId
+  label: string
+  beamWidth: number
+}
+
+export interface SpecMaterialSizeEntity {
+  id: SizeId
+  holeDiameter: number
+  boltDiameter: number
+}
+
+export interface SpecMaterialEntity {
+  id: MaterialId
+  label: string
+  sizes: Array<SpecMaterialSizeEntity>
+}
+
+export interface SpecEntity {
+  id: SpecId
+  label: string
+  systemOfMeasurement: SystemOfMeasurement
+  defaultSizeId: SizeId
+  sizes: Array<SpecSizeEntity>
+  defaultMaterialId: MaterialId
+  materials: Array<SpecMaterialEntity>
+}
+
+const SPECS: Array<SpecEntity> = [
   {
-    id: Codec.SpecId.og,
+    id: SpecId.og,
     label: 'og',
-    systemOfMeasurement: 'imperial',
-    defaultSizeId: Codec.SizeId['1.5in'],
+    systemOfMeasurement: SystemOfMeasurement.imperial,
+    defaultSizeId: SizeId['1.5in'],
     sizes: [
       {
-        id: Codec.SizeId['1.5in'],
+        id: SizeId['1.5in'],
         label: '1.5 inch',
         beamWidth: 1.5,
         // commonBeamLengths: [2, 3, 4, 6, 8, i => i * 4]
       },
     ],
-    defaultMaterialId: Codec.MaterialId.Wood,
+    defaultMaterialId: MaterialId.Wood,
     materials: [
       {
-        id: Codec.MaterialId.Wood,
+        id: MaterialId.Wood,
         label: 'wood',
         sizes: [
           {
-            id: Codec.SizeId['1.5in'],
+            id: SizeId['1.5in'],
             holeDiameter: 5 / 16,
             boltDiameter: 1 / 4,
           },
@@ -37,19 +92,29 @@ const SPECS = [
   },
 ]
 
+export interface SpecState {
+  specs: Array<SpecEntity>
+  currentSpecId: SpecId | null
+  currentSizeId: SizeId | null
+  currentMaterialId: MaterialId | null
+}
+
+const initialState: SpecState = {
+  specs: SPECS,
+  currentSpecId: null,
+  currentSizeId: null,
+  currentMaterialId: null,
+}
+
 export const specSlice = createSlice({
   name: 'spec',
-  initialState: {
-    specs: SPECS,
-    currentSpecId: null,
-    currentSizeId: null,
-    currentMaterialId: null,
-  },
+  initialState,
   reducers: {
     doSetCurrentSpecId: (state, action) => {
       const specId = action.payload
       state.currentSpecId = specId
       const spec = state.specs.find((spec) => spec.id === specId)
+      if (spec == null) throw new Error(`unknown spec id: ${specId}`)
       state.currentSizeId = spec.defaultSizeId
       state.currentMaterialId = spec.defaultMaterialId
     },
@@ -72,30 +137,32 @@ export const {
 
 export default specSlice.reducer
 
-export const getSpecState = property('spec')
-export const getSpecs = createSelector(getSpecState, property('specs'))
+export const getSpecState = (state: RootState): SpecState => state.spec
+export const getSpecs = createSelector(getSpecState, (state) => state.specs)
 export const getCurrentSpecId = createSelector(
   getSpecState,
-  property('currentSpecId'),
+  (state) => state.currentSpecId,
 )
 export const getCurrentSizeId = createSelector(
   getSpecState,
-  property('currentSizeId'),
+  (state) => state.currentSizeId,
 )
 export const getCurrentMaterialId = createSelector(
   getSpecState,
-  property('currentMaterialId'),
+  (state) => state.currentMaterialId,
 )
 export const getCurrentSpec = createSelector(
   getSpecs,
   getCurrentSpecId,
-  (specs, currentSpecId) => {
-    return specs.find((spec) => spec.id === currentSpecId)
+  (specs, currentSpecId): SpecEntity => {
+    const spec = specs.find((spec) => spec.id === currentSpecId)
+    if (spec == null) throw new Error(`unknown spec id: ${currentSpecId}`)
+    return spec
   },
 )
 export const getCurrentSystemOfMeasurement = createSelector(
   getCurrentSpec,
-  property('systemOfMeasurement'),
+  (spec) => spec.systemOfMeasurement,
 )
 export const getSpecsBySystemOfMeasurement = createSelector(
   getSpecs,
@@ -140,15 +207,25 @@ export const getCurrentSpecMaterials = createSelector(
 export const getCurrentSpecSize = createSelector(
   getCurrentSizeId,
   getCurrentSpecSizes,
-  (currentSizeId, currentSpecSizes) => currentSpecSizes[currentSizeId],
+  (currentSizeId, currentSpecSizes) => {
+    if (currentSizeId == null) return null
+    return currentSpecSizes[currentSizeId]
+  },
 )
 export const getCurrentSpecMaterial = createSelector(
   getCurrentMaterialId,
   getCurrentSpecSizes,
-  (currentMaterialId, currentSpecMaterials) =>
-    currentSpecMaterials[currentMaterialId],
+  (currentMaterialId, currentSpecMaterials) => {
+    if (currentMaterialId == null) return null
+    return currentSpecMaterials[currentMaterialId]
+  },
 )
 
-function normalizeValueToMetric(value, systemOfMeasurement) {
-  return systemOfMeasurement === 'imperial' ? value * INCH_TO_MM : value
+function normalizeValueToMetric(
+  value: number,
+  systemOfMeasurement: SystemOfMeasurement,
+) {
+  return systemOfMeasurement === SystemOfMeasurement.imperial
+    ? value * INCH_TO_MM
+    : value
 }
