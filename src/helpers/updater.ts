@@ -2,6 +2,7 @@
 
 import { clamp, flow, isArray, update } from 'lodash'
 
+import { Direction } from '../store'
 import { rotateDirection } from './rotation'
 
 export interface BaseDescriptor {
@@ -79,5 +80,6 @@ const subUpdater = ({ value: valueToSub }: SubDescriptor) => (value: number) =>
 const clampUpdater = ({ max = -Infinity, min = Infinity }: ClampDescriptor) => (
   value: number,
 ) => clamp(value, min, max)
-const rotateUpdater = ({ axis, angle }: RotateDescriptor) => (value: number) =>
-  rotateDirection(value, axis, angle)
+const rotateUpdater = ({ axis, angle }: RotateDescriptor) => (
+  value: Direction,
+) => rotateDirection(value, axis, angle)

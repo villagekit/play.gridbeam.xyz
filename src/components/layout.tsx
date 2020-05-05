@@ -9,7 +9,11 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { Box, Link } from 'theme-ui'
 
-const Layout = ({ children }) => (
+interface LayoutProps {
+  children: React.ReactNode
+}
+
+const Layout = ({ children }: LayoutProps) => (
   <Main>
     <GlobalStyle
       styles={css`
@@ -41,7 +45,9 @@ Layout.propTypes = {
   children: PropTypes.node.isRequired,
 }
 
-function Main(props) {
+interface MainProps extends React.ComponentProps<typeof Box> {}
+
+function Main(props: MainProps) {
   return (
     <Box
       as="main"
@@ -55,7 +61,9 @@ function Main(props) {
   )
 }
 
-function Footer() {
+interface FooterProps {}
+
+function Footer(props: FooterProps) {
   return (
     <Box
       as="footer"
@@ -108,8 +116,10 @@ function Footer() {
 
 export default Layout
 
-export function withLayout(PageComponent) {
-  return function PageWithLayout(props) {
+export function withLayout(PageComponent: React.ComponentType) {
+  return function PageWithLayout(
+    props: React.ComponentProps<typeof PageComponent>,
+  ) {
     return (
       <Layout>
         <PageComponent {...props} />

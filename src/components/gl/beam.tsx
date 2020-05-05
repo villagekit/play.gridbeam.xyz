@@ -14,6 +14,7 @@ import {
 
 import { directionToRotation } from '../../helpers/rotation'
 import {
+  Direction,
   doDisableCameraControl,
   doDisableSelection,
   doEnableCameraControl,
@@ -32,7 +33,7 @@ export default Beam
 interface BeamProps {
   uuid: Uuid
   origin: PartValue['origin']
-  direction: PartValue['direction']
+  direction: Direction
   length: PartValue['length']
   isHovered: PartValue['isHovered']
   hover: () => void

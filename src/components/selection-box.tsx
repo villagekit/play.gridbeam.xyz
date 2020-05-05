@@ -11,11 +11,14 @@ import {
   getIsSelectionEnabled,
   getSelectionEndPoint,
   getSelectionStartPoint,
+  Point,
 } from '../store'
 
 export default SelectionBox
 
-function SelectionBox(props) {
+interface SelectionBoxProps {}
+
+function SelectionBox(props: SelectionBoxProps) {
   const dispatch = useDispatch()
 
   const isEnabled = useSelector(getIsSelectionEnabled)
@@ -40,27 +43,27 @@ function SelectionBox(props) {
       document.removeEventListener('mouseup', handleMouseUp)
     }
 
-    function handleMouseDown(ev) {
+    function handleMouseDown(ev: MouseEvent) {
       if (!isEnabled) return
       if (!ev.shiftKey) return
       dispatch(doStartSelection())
       handleStart(ev)
     }
 
-    function handleMouseMove(ev) {
+    function handleMouseMove(ev: MouseEvent) {
       if (!isEnabled) return
       if (!isSelecting) return
       handleEnd(ev)
     }
 
-    function handleMouseUp(ev) {
+    function handleMouseUp(ev: MouseEvent) {
       if (!isEnabled) return
       if (!isSelecting) return
       dispatch(doEndSelection())
       handleEnd(ev)
     }
 
-    function handleKeyUp(ev) {
+    function handleKeyUp(ev: KeyboardEvent) {
       if (!isEnabled) return
       if (!isSelecting) return
       if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') {
@@ -68,7 +71,7 @@ function SelectionBox(props) {
       }
     }
 
-    function handleStart(ev) {
+    function handleStart(ev: MouseEvent) {
       dispatch(
         doSetSelectionStartPoint({
           x: (ev.clientX / window.innerWidth) * 2 - 1,
@@ -76,7 +79,7 @@ function SelectionBox(props) {
         }),
       )
     }
-    function handleEnd(ev) {
+    function handleEnd(ev: MouseEvent) {
       dispatch(
         doSetSelectionEndPoint({
           x: (ev.clientX / window.innerWidth) * 2 - 1,
@@ -86,12 +89,17 @@ function SelectionBox(props) {
     }
   }, [dispatch, isEnabled, isSelecting])
 
-  return (
-    isSelecting && <SelectBox startPoint={startPoint} endPoint={endPoint} />
-  )
+  if (!isSelecting) return null
+
+  return <SelectBox startPoint={startPoint} endPoint={endPoint} />
 }
 
-function SelectBox(props) {
+interface SelectBoxProps {
+  startPoint: Point
+  endPoint: Point
+}
+
+function SelectBox(props: SelectBoxProps) {
   const { startPoint, endPoint } = props
 
   const bottomRightPoint = React.useMemo(

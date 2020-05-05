@@ -5,7 +5,11 @@ import createStore from '../store'
 
 const store = createStore()
 
-export const DomProvider = ({ children }) => (
+interface ProviderProps {
+  children: React.ReactNode
+}
+
+export const DomProvider = ({ children }: ProviderProps) => (
   <ReduxProvider store={store}>{children}</ReduxProvider>
 )
 

@@ -12,22 +12,27 @@ import useCommands from '../commands'
 
 export default Keyboard
 
-function Keyboard(props) {
+interface KeyboardProps {}
+
+function Keyboard(props: KeyboardProps) {
   const commands = useCommands()
 
   React.useEffect(() => {
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
 
-    function handleKey(ev) {
+    function handleKey(ev: KeyboardEvent) {
       if (ev.defaultPrevented) {
         return
       }
 
-      const mode = 'rightHanded'
+      const mode = 'rightHanded' as keyof typeof keyCodesByMode
+      const keyCodes = keyCodesByMode[mode]
       let keyCode = ev.code
       if (ev.shiftKey) keyCode = `Shift_${keyCode}`
-      const commandName = keyCodes[mode][keyCode]
+      // TODO fix TypeScript here
+      // @ts-ignore
+      const commandName = keyCodes[keyCode]
       if (commandName == null) return
       const command = commands[commandName]
       if (command == null) return
@@ -38,7 +43,7 @@ function Keyboard(props) {
   return null
 }
 
-const keyCodes = {
+const keyCodesByMode = {
   rightHanded: {
     KeyE: 'moveForward',
     ArrowUp: 'moveForward',

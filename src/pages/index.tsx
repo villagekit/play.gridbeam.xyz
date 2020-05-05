@@ -1,51 +1,51 @@
 import React from 'react'
 import { Object3D, Vector3 } from 'three'
 
-import Codec from '../codec'
 import Head from '../components/head'
 import { withLayout } from '../components/layout'
 import Playground from '../components/playground'
 import { directionByAxis } from '../helpers/direction'
+import { AxisDirection, MaterialId, PartType, SizeId, SpecId } from '../store'
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)
 
 const defaultModel = {
-  specId: Codec.SpecId.og,
+  specId: SpecId.og,
   parts: [
     {
-      type: Codec.PartType.Beam,
-      sizeId: Codec.SizeId['1.5in'],
-      materialId: Codec.MaterialId.Wood,
+      type: PartType.Beam,
+      sizeId: SizeId['1.5in'],
+      materialId: MaterialId.Wood,
       origin: {
         x: 0,
         y: 1,
         z: 1,
       },
-      direction: directionByAxis[Codec.AxisDirection.X],
+      direction: directionByAxis[AxisDirection.X],
       length: 4,
     },
     {
-      type: Codec.PartType.Beam,
-      sizeId: Codec.SizeId['1.5in'],
-      materialId: Codec.MaterialId.Wood,
+      type: PartType.Beam,
+      sizeId: SizeId['1.5in'],
+      materialId: MaterialId.Wood,
       origin: {
         x: 1,
         y: 0,
         z: 2,
       },
-      direction: directionByAxis[Codec.AxisDirection.Y],
+      direction: directionByAxis[AxisDirection.Y],
       length: 6,
     },
     {
-      type: Codec.PartType.Beam,
-      sizeId: Codec.SizeId['1.5in'],
-      materialId: Codec.MaterialId.Wood,
+      type: PartType.Beam,
+      sizeId: SizeId['1.5in'],
+      materialId: MaterialId.Wood,
       origin: {
         x: 0,
         y: 0,
         z: 0,
       },
-      direction: directionByAxis[Codec.AxisDirection.Z],
+      direction: directionByAxis[AxisDirection.Z],
       length: 10,
     },
   ],

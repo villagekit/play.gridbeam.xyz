@@ -3,7 +3,30 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import { Helmet } from 'react-helmet'
 
-function Head({ description, lang, meta, keywords, title }) {
+interface HeadProps {
+  description?: string
+  lang: string
+  meta: Array<{
+    name: string
+    content: string
+  }>
+  keywords: Array<string>
+  title?: string
+}
+
+const defaultProps: HeadProps = {
+  lang: 'en',
+  meta: [],
+  keywords: [],
+}
+
+function Head({
+  description,
+  lang,
+  meta,
+  keywords,
+  title,
+}: HeadProps & typeof defaultProps) {
   return (
     <StaticQuery
       query={detailsQuery}
@@ -73,11 +96,7 @@ function Head({ description, lang, meta, keywords, title }) {
   )
 }
 
-Head.defaultProps = {
-  lang: 'en',
-  meta: [],
-  keywords: [],
-}
+Head.defaultProps = defaultProps
 
 Head.propTypes = {
   description: PropTypes.string,

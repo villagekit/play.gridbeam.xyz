@@ -1,3 +1,4 @@
+import { values } from 'lodash'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Box } from 'theme-ui'
@@ -10,6 +11,7 @@ import {
   getIsLoading,
   getPartsEntities,
   getSavedHash,
+  ModelEntity,
 } from '../store'
 import Actions from './action'
 import Gl from './gl'
@@ -19,7 +21,11 @@ import Sidebar from './sidebar'
 
 export default GridBeamPlayground
 
-function GridBeamPlayground({ defaultModel }) {
+interface GridBeamPlaygroundProps {
+  defaultModel: ModelEntity
+}
+
+function GridBeamPlayground({ defaultModel }: GridBeamPlaygroundProps) {
   const dispatch = useDispatch()
 
   const parts = useSelector(getPartsEntities)
@@ -33,8 +39,9 @@ function GridBeamPlayground({ defaultModel }) {
 
   React.useEffect(() => {
     if (isLoading || isSaving) return
+    if (parts == null || specId == null) return
     if (!isLoaded) dispatch(doAsyncLoadModel(defaultModel))
-    else dispatch(doAsyncSaveModel({ parts, specId }))
+    else dispatch(doAsyncSaveModel({ parts: values(parts), specId }))
 
     return () => window.removeEventListener('hashchange', onHashChange)
 
@@ -44,7 +51,7 @@ function GridBeamPlayground({ defaultModel }) {
         return
       }
       if (window.location.hash !== savedHash) {
-        dispatch(doAsyncLoadModel())
+        dispatch(doAsyncLoadModel(null))
       }
     }
   }, [
@@ -71,7 +78,9 @@ function GridBeamPlayground({ defaultModel }) {
   )
 }
 
-const Container = (props) => (
+interface ContainerProps extends React.ComponentProps<typeof Box> {}
+
+const Container = (props: ContainerProps) => (
   <Box
     sx={{
       background: 'white',

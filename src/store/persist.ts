@@ -25,64 +25,65 @@ export interface ModelEntity {
   parts: Array<PartEntity>
 }
 
-export const doAsyncLoadModel = createAsyncThunk<void, ModelEntity, ThunkArg>(
-  'persist/loadModel',
-  async (defaultModel, { dispatch }) => {
-    dispatch(doSetLoadStatus('loading'))
+export const doAsyncLoadModel = createAsyncThunk<
+  void,
+  ModelEntity | null,
+  ThunkArg
+>('persist/loadModel', async (defaultModel, { dispatch }) => {
+  dispatch(doSetLoadStatus('loading'))
 
-    const modelUriComponent = window.location.href.split('#')[1]
-    if (modelUriComponent == null) {
-      dispatch(doSetParts(defaultModel.parts))
-      dispatch(doSetCurrentSpecId(defaultModel.specId))
-      dispatch(doSetLoadStatus('loaded'))
-      return
-    }
-
-    const version = Number(modelUriComponent[0])
-    const modelString = modelUriComponent.substring(1)
-
-    if (version === 1) {
-      const modelBase64 = modelString
-      const modelCompressed = Base64.decode(modelBase64)
-      try {
-        var modelBuffer = inflateRaw(Buffer.from(modelCompressed))
-      } catch (err) {
-        console.error(err)
-        throw new Error(
-          'gridbeam-editor/stores/model: could not decompress model with gzip',
-        )
-      }
-
-      try {
-        // @ts-ignore
-        var model = Codec.Model.decode(Buffer.from(modelBuffer)) as ModelEntity
-      } catch (err) {
-        console.error(err)
-        throw new Error(
-          'gridbeam-editor/stores/model: could not parse model from protocol buffer',
-        )
-      }
-
-      let { parts, specId } = model
-
-      parts = parts.map(inflatePart)
-
-      dispatch(doSetParts(parts))
-      dispatch(doSetCurrentSpecId(specId))
-    } else {
-      throw new Error(`Unexpected version: ${version}`)
-    }
-
+  const modelUriComponent = window.location.href.split('#')[1]
+  if (modelUriComponent == null && defaultModel != null) {
+    dispatch(doSetParts(defaultModel.parts))
+    dispatch(doSetCurrentSpecId(defaultModel.specId))
     dispatch(doSetLoadStatus('loaded'))
-  },
-)
+    return
+  }
+
+  const version = Number(modelUriComponent[0])
+  const modelString = modelUriComponent.substring(1)
+
+  if (version === 1) {
+    const modelBase64 = modelString
+    const modelCompressed = Base64.decode(modelBase64)
+    try {
+      var modelBuffer = inflateRaw(Buffer.from(modelCompressed))
+    } catch (err) {
+      console.error(err)
+      throw new Error(
+        'gridbeam-editor/stores/model: could not decompress model with gzip',
+      )
+    }
+
+    try {
+      // @ts-ignore
+      var model = Codec.Model.decode(Buffer.from(modelBuffer)) as ModelEntity
+    } catch (err) {
+      console.error(err)
+      throw new Error(
+        'gridbeam-editor/stores/model: could not parse model from protocol buffer',
+      )
+    }
+
+    let { parts, specId } = model
+
+    parts = parts.map(inflatePart)
+
+    dispatch(doSetParts(parts))
+    dispatch(doSetCurrentSpecId(specId))
+  } else {
+    throw new Error(`Unexpected version: ${version}`)
+  }
+
+  dispatch(doSetLoadStatus('loaded'))
+})
 
 export const doAsyncSaveModel = createAsyncThunk<void, ModelEntity, ThunkArg>(
   'persist/saveModel',
   async ({ parts, specId }, { dispatch }) => {
     const version = 1
 
-    parts = values(parts).map(deflatePart)
+    parts = parts.map(deflatePart)
 
     const model = {
       specId,

@@ -45,7 +45,8 @@ export interface PartEntity {
   origin: GridPosition
   sizeId: SizeId
   materialId: MaterialId
-  direction: Direction | AxisDirection
+  direction: Direction
+  // axisDirection?: AxisDirection
   length: Length
 }
 
@@ -201,7 +202,7 @@ export const getParts = createSelector(
   getPartsEntities,
   getHoveredUuids,
   getSelectedUuids,
-  (parts, hoveredUuids, selectedUuids) => {
+  (parts, hoveredUuids, selectedUuids): Array<PartValue> => {
     parts = parts == null ? {} : parts
     return map(parts, (part, uuid) =>
       Object.assign({}, part, {
