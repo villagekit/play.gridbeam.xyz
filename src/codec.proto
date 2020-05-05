@@ -4,6 +4,7 @@ enum PartType {
   Fastener = 2;
   Accessory = 3;
   Adapter = 4;
+  Group = 5;
 }
 
 enum AxisDirection {
@@ -63,7 +64,9 @@ message Part {
     AxisDirection axisDirection = 6;
   }
 
-  uint32 length = 7;
+  optional uint32 length = 7;
+
+  repeated Part children = 8;
 }
 
 message Model {

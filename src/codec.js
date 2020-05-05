@@ -15,7 +15,8 @@ exports.PartType = {
   Skin: 1,
   Fastener: 2,
   Accessory: 3,
-  Adapter: 4
+  Adapter: 4,
+  Group: 5
 }
 
 exports.AxisDirection = {
@@ -282,6 +283,14 @@ function definePart () {
       var len = encodings.varint.encodingLength(obj.length)
       length += 1 + len
     }
+    if (defined(obj.children)) {
+      for (var i = 0; i < obj.children.length; i++) {
+        if (!defined(obj.children[i])) continue
+        var len = Part.encodingLength(obj.children[i])
+        length += varint.encodingLength(len)
+        length += 1 + len
+      }
+    }
     return length
   }
 
@@ -328,6 +337,16 @@ function definePart () {
       encodings.varint.encode(obj.length, buf, offset)
       offset += encodings.varint.encode.bytes
     }
+    if (defined(obj.children)) {
+      for (var i = 0; i < obj.children.length; i++) {
+        if (!defined(obj.children[i])) continue
+        buf[offset++] = 66
+        varint.encode(Part.encodingLength(obj.children[i]), buf, offset)
+        offset += varint.encode.bytes
+        Part.encode(obj.children[i], buf, offset)
+        offset += Part.encode.bytes
+      }
+    }
     encode.bytes = offset - oldOffset
     return buf
   }
@@ -344,7 +363,8 @@ function definePart () {
       materialId: 0,
       direction: null,
       axisDirection: 0,
-      length: 0
+      length: 0,
+      children: []
     }
     var found0 = false
     while (true) {
@@ -391,6 +411,12 @@ function definePart () {
         case 7:
         obj.length = encodings.varint.decode(buf, offset)
         offset += encodings.varint.decode.bytes
+        break
+        case 8:
+        var len = varint.decode(buf, offset)
+        offset += varint.decode.bytes
+        obj.children.push(Part.decode(buf, offset, offset + len))
+        offset += Part.decode.bytes
         break
         default:
         offset = skip(prefix & 7, buf, offset)
