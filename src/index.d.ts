@@ -72,3 +72,7 @@ declare module '@theme-ui/color' {
    */
   export const grayscale: (c: string) => (t: Theme) => string
 }
+
+declare module 'csg-to-mesh'
+declare module '@jscad/csg/src/api/ops-booleans'
+declare module '@jscad/csg/src/api/primitives3d-api'

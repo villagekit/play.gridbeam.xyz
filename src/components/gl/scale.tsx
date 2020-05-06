@@ -16,7 +16,9 @@ const bodyWidth = (1 / 8) * totalHeight
 
 export default ScaleReference
 
-function ScaleReference(props) {
+interface ScaleReferenceProps {}
+
+function ScaleReference(props: ScaleReferenceProps) {
   const csg = useMemo(() => {
     return union(
       intersection(
@@ -31,8 +33,8 @@ function ScaleReference(props) {
   }, [])
 
   return (
-    <mesh position={[-0.5, -0.5, 0]}>
-      <CsgGeometry csg={csg} attach="geometry" castShadow receiveShadow />
+    <mesh position={[-0.5, -0.5, 0]} castShadow receiveShadow>
+      <CsgGeometry csg={csg} attach="geometry" />
       <meshNormalMaterial attach="material" />
     </mesh>
   )

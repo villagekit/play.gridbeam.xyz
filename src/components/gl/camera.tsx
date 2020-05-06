@@ -2,7 +2,7 @@ import { map } from 'lodash'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { extend, useFrame, useThree } from 'react-three-fiber'
-import { Box3, Vector3 } from 'three'
+import { Box3, Scene, Vector3 } from 'three'
 
 import {
   getAnyPartIsMoving,
@@ -10,6 +10,7 @@ import {
   getIsSelecting,
   getParts,
   getSelectedParts,
+  Uuid,
 } from '../../store'
 import OrbitControls from '../../vendor/OrbitControls'
 
@@ -17,8 +18,10 @@ extend({ OrbitControls })
 
 export default Camera
 
-function Camera(props) {
-  const controlsRef = React.useRef()
+interface CameraProps {}
+
+function Camera(props: CameraProps) {
+  const controlsRef = React.useRef<any>()
   const { camera, scene } = useThree()
 
   const isControlEnabled = useSelector(getIsCameraControlEnabled)
@@ -29,6 +32,7 @@ function Camera(props) {
 
   React.useEffect(() => {
     const controls = controlsRef.current
+    if (controls == null) return
     camera.far = 100000
     camera.position.set(10000, 0, 0)
     controls.rotateLeft(-Math.PI / 32)
@@ -63,6 +67,7 @@ function Camera(props) {
   }, [isMoving, scene, parts, selectedParts, isSelecting])
 
   return (
+    // @ts-ignore
     <orbitControls
       ref={controlsRef}
       args={[camera]}
@@ -74,7 +79,7 @@ function Camera(props) {
   )
 }
 
-function compute3dBounds(scene, uuids) {
+function compute3dBounds(scene: Scene, uuids: Array<Uuid>) {
   const box = new Box3()
 
   uuids.forEach((uuid) => {

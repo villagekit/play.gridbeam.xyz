@@ -11,11 +11,14 @@ import {
   getSelectableScreenBounds,
   getSelectionEndPoint,
   getSelectionStartPoint,
+  Uuid,
 } from '../../store'
 
 export default SelectionGl
 
-function SelectionGl(props) {
+interface SelectionGlProps {}
+
+function SelectionGl(props: SelectionGlProps) {
   const dispatch = useDispatch()
 
   const isEnabled = useSelector(getIsSelectionEnabled)
@@ -44,7 +47,7 @@ function SelectionGl(props) {
     if (!isEnabled) return
     if (!isSelecting) return
 
-    const selections = []
+    const selections: Array<Uuid> = []
     Object.entries(selectableScreenBounds).forEach(([uuid, selectableBox]) => {
       if (selectionScreenBounds.containsBox(selectableBox)) {
         selections.push(uuid)
