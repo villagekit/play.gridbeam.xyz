@@ -3,29 +3,36 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { Box, Text } from 'theme-ui'
 
-import Codec from '../../codec'
-import { getPartsByType } from '../../store'
+import { getPartsByType, PartType, PartValue } from '../../store'
 
 export default Parts
 
-function Parts(props) {
+interface PartsProps {}
+
+function Parts(props: PartsProps) {
   const partsByType = useSelector(getPartsByType)
 
   return (
     <PartsContainer>
-      <Text as="h2" fontSize={4}>
+      <Text as="h2" sx={{ fontSize: 4 }}>
         Parts
       </Text>
-      <BeamSummary beams={partsByType[Codec.PartType.Beam]} />
+      <BeamSummary beams={partsByType[PartType.Beam]} />
     </PartsContainer>
   )
 }
 
-function PartsContainer(props) {
+interface PartsContainerProps extends React.ComponentProps<typeof Box> {}
+
+function PartsContainer(props: PartsContainerProps) {
   return <Box p={3} {...props} />
 }
 
-function BeamSummary(props) {
+interface BeamSummaryProps {
+  beams: Array<PartValue>
+}
+
+function BeamSummary(props: BeamSummaryProps) {
   const { beams } = props
   const numBeams = beams.length
   const totalLength = calculateTotalLength(beams)
@@ -102,10 +109,10 @@ function BeamSummary(props) {
   )
 }
 
-function calculateTotalLength(beams) {
+function calculateTotalLength(beams: Array<PartValue>) {
   return sum(map(beams, 'length'))
 }
 
-function calculateNumBeamsByLength(beams) {
+function calculateNumBeamsByLength(beams: Array<PartValue>) {
   return map(groupBy(beams, 'length'), 'length')
 }

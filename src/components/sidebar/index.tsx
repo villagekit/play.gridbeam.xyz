@@ -8,7 +8,13 @@ import PartsWidget from './parts'
 import SelectionWidget from './selection'
 import ShareWidget from './share'
 
-const WIDGETS = [
+interface Widget {
+  id: string
+  label: string
+  Content: React.ReactType
+}
+
+const WIDGETS: Array<Widget> = [
   {
     id: 'selection',
     label: 'Selection',
@@ -33,16 +39,20 @@ const WIDGETS = [
 
 export default Sidebar
 
-function Sidebar(props) {
-  const [currentWidgetId, setCurrentWidgetId] = React.useState(null)
+interface SidebarProps {}
+
+function Sidebar(props: SidebarProps) {
+  const [currentWidgetId, setCurrentWidgetId] = React.useState<
+    Widget['id'] | null
+  >(null)
   const handleClose = React.useCallback(() => setCurrentWidgetId(null), [])
   const currentWidget = React.useMemo(
     () => WIDGETS.find((widget) => widget.id === currentWidgetId),
     [currentWidgetId],
   )
-  const isOpen = React.useMemo(() => currentWidget != null, [currentWidget])
 
-  if (!isOpen) {
+  // if is open
+  if (currentWidget == null) {
     return (
       <OpenersContainer>
         {WIDGETS.map((widget) => {
@@ -71,7 +81,9 @@ function Sidebar(props) {
   )
 }
 
-const SidebarContainer = (props) => {
+interface SidebarContainerProps extends React.ComponentProps<typeof Flex> {}
+
+const SidebarContainer = (props: SidebarContainerProps) => {
   const dispatch = useDispatch()
   const handleMouseOver = React.useCallback(
     (ev) => {
@@ -101,7 +113,9 @@ const SidebarContainer = (props) => {
   )
 }
 
-const ContentWrapper = (props) => (
+interface ContentWrapperProps extends React.ComponentProps<typeof Box> {}
+
+const ContentWrapper = (props: ContentWrapperProps) => (
   <Box
     sx={{
       flex: '1',
@@ -111,7 +125,11 @@ const ContentWrapper = (props) => (
   />
 )
 
-const CloseButton = (props) => {
+interface CloseButtonProps {
+  handleClose: (ev: React.MouseEvent<HTMLButtonElement>) => void
+}
+
+const CloseButton = (props: CloseButtonProps) => {
   const { handleClose } = props
   return (
     <Button
@@ -129,7 +147,12 @@ const CloseButton = (props) => {
   )
 }
 
-const OpenerButton = (props) => {
+interface OpenerButtonProps {
+  label: string
+  handleOpen: (ev: React.MouseEvent<HTMLButtonElement>) => void
+}
+
+const OpenerButton = (props: OpenerButtonProps) => {
   const { label, handleOpen } = props
   return (
     <Button
@@ -141,7 +164,9 @@ const OpenerButton = (props) => {
   )
 }
 
-const OpenersContainer = (props) => (
+interface OpenersContainerProps extends React.ComponentProps<typeof Flex> {}
+
+const OpenersContainer = (props: OpenersContainerProps) => (
   <Flex
     sx={{
       flexDirection: 'column',

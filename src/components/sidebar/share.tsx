@@ -1,19 +1,21 @@
 import React from 'react'
-import { Button, Flex, Text } from 'theme-ui'
+import { Button, Flex, Input, Text } from 'theme-ui'
 import { useClipboard } from 'use-clipboard-copy'
 
 export default Share
 
-function Share(props) {
+interface ShareProps {}
+
+function Share(props: ShareProps) {
   const clipboard = useClipboard()
+
   return (
     <Flex sx={{ margin: 2, padding: 3, flexDirection: 'column' }}>
       <Text sx={{ margin: 2, fontSize: 2, fontFamily: 'heading' }}>
         Share your creation!
       </Text>
-      <Text
+      <Input
         ref={clipboard.target}
-        as="input"
         sx={{
           margin: 2,
           fontFamily: 'body',

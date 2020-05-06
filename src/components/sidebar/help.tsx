@@ -3,7 +3,9 @@ import { Box, Flex, Text } from 'theme-ui'
 
 export default Help
 
-function Help(props) {
+interface HelpProps {}
+
+function Help(props: HelpProps) {
   return (
     <Flex sx={{ margin: 2, padding: 3, flexDirection: 'column' }}>
       <HelpHeading>Welcome to the GridBeam Playground!</HelpHeading>
@@ -90,10 +92,14 @@ function Help(props) {
   )
 }
 
-const HelpHeading = (props) => (
+interface HelpHeadingProps extends React.ComponentProps<typeof Text> {}
+
+const HelpHeading = (props: HelpHeadingProps) => (
   <Text sx={{ margin: 2, fontSize: 3, fontFamily: 'heading' }} {...props} />
 )
 
-const HelpText = (props) => (
+interface HelpTextProps extends React.ComponentProps<typeof Text> {}
+
+const HelpText = (props: HelpTextProps) => (
   <Text sx={{ margin: 2, fontSize: 2, fontFamily: 'body' }} {...props} />
 )
