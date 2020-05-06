@@ -1,6 +1,19 @@
 import { isEqual } from 'lodash'
 
-import { AxisDirection, Direction } from '../store'
+export interface Direction {
+  x: number
+  y: number
+  z: number
+}
+
+export enum AxisDirection {
+  X = 0,
+  '-X' = 1,
+  Y = 2,
+  '-Y' = 3,
+  Z = 4,
+  '-Z' = 5,
+}
 
 export const directionByAxis: Record<AxisDirection, Direction> = {
   [AxisDirection.X]: { x: 1, y: 0, z: 0 },

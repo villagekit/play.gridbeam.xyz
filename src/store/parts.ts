@@ -8,6 +8,7 @@ import {
 import { capitalize, groupBy, isEmpty, keys, map, zipObject } from 'lodash'
 import { MathUtils } from 'three'
 
+import { Direction } from '../helpers/direction'
 import createUpdater, { UpdateDescriptor } from '../helpers/updater'
 import { MaterialId, RootState, SizeId } from './'
 
@@ -25,19 +26,6 @@ export interface GridPosition {
   z: number
 }
 
-export interface Direction {
-  x: number
-  y: number
-  z: number
-}
-export enum AxisDirection {
-  X = 0,
-  '-X' = 1,
-  Y = 2,
-  '-Y' = 3,
-  Z = 4,
-  '-Z' = 5,
-}
 export type Length = number
 
 export interface PartEntity {

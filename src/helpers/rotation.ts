@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash'
 import { Euler, Vector3 } from 'three'
 
 import { Direction } from '../store'
@@ -50,7 +51,7 @@ export function rotateX (vector, angle) {
 
 function normalizeRotationValue(value: number) {
   value = roundToPrecision(value)
-  if (Object.is(value, -0)) return 0
+  if (isEqual(value, -0)) return 0
   return value
 }
 

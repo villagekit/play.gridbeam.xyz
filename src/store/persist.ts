@@ -5,7 +5,6 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit'
 import produce from 'immer'
-import { values } from 'lodash'
 // NOTE: pako exports are overriden in ./src/index.d.ts
 import { deflateRaw, inflateRaw, Z_BEST_COMPRESSION } from 'pako'
 

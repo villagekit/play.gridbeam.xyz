@@ -39,9 +39,10 @@ function GridBeamPlayground({ defaultModel }: GridBeamPlaygroundProps) {
 
   React.useEffect(() => {
     if (isLoading || isSaving) return
-    if (parts == null || specId == null) return
     if (!isLoaded) dispatch(doAsyncLoadModel(defaultModel))
-    else dispatch(doAsyncSaveModel({ parts: values(parts), specId }))
+    else if (parts != null && specId != null) {
+      dispatch(doAsyncSaveModel({ parts: values(parts), specId }))
+    }
 
     return () => window.removeEventListener('hashchange', onHashChange)
 
