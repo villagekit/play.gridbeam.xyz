@@ -2,14 +2,7 @@ import { mapValues } from 'lodash'
 import React, { forwardRef, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Canvas, extend, ReactThreeFiber } from 'react-three-fiber'
-import {
-  Object3D,
-  PlaneBufferGeometry,
-  ShadowMaterial,
-  Texture,
-  TextureLoader,
-  Vector3,
-} from 'three'
+import { Object3D, Texture, TextureLoader, Vector3 } from 'three'
 
 import {
   doHoverPart,
@@ -123,15 +116,6 @@ function Background(props: BackgroundProps) {
   const numLargeFloorTiles = numSmallFloorTiles / largeFloorTileScale
   const floorLength = numSmallFloorTiles * currentBeamWidth
 
-  const planeGeometry = React.useMemo(() => {
-    const planeGeometry = new PlaneBufferGeometry(floorLength, floorLength)
-    return planeGeometry
-  }, [floorLength])
-
-  const planeMaterial = React.useMemo(() => {
-    return new ShadowMaterial({ opacity: 0.8 })
-  }, [])
-
   return (
     <>
       <ambientLight args={[0xffffff, 0.2]} />
@@ -148,12 +132,13 @@ function Background(props: BackgroundProps) {
         args={[floorLength, numLargeFloorTiles, 0x444444, 0x888888]}
         rotation={[-Math.PI / 2, 0, 0]}
       />
-      <mesh
-        position={[0, 0, 0]}
-        geometry={planeGeometry}
-        material={planeMaterial}
-        receiveShadow
-      />
+      <mesh position={[0, 0, 0]} receiveShadow>
+        <shadowMaterial attach="material" args={[{ opacity: 0.8 }]} />
+        <planeBufferGeometry
+          attach="geometry"
+          args={[floorLength, floorLength]}
+        />
+      </mesh>
       <Scale />
     </>
   )

@@ -103,7 +103,7 @@ function Beam(props: BeamProps) {
   >(null)
   const handleMove = React.useCallback(
     (ev) => {
-      console.log('move', uuid, atMoveStart)
+      // console.log('move', uuid)
       if (ev.buttons <= 0) return
       if (atMoveStart == null) return
 
@@ -151,7 +151,7 @@ function Beam(props: BeamProps) {
 
       move([delta.x, delta.y, delta.z])
     },
-    [uuid, atMoveStart, beamWidth, origin.x, origin.y, origin.z, move],
+    [atMoveStart, beamWidth, origin.x, origin.y, origin.z, move],
   )
 
   const handleHover = React.useCallback(
@@ -222,11 +222,16 @@ function Beam(props: BeamProps) {
       onPointerOver={handleHover}
       onPointerOut={handleUnhover}
     >
-      <mesh uuid={uuid} geometry={geometry} castShadow receiveShadow>
-        <meshLambertMaterial attach="material" color={color}>
-          <primitive object={beamTexture} attach="map" />
-        </meshLambertMaterial>
-      </mesh>
+      <group>
+        <mesh uuid={uuid} geometry={geometry} castShadow>
+          <meshLambertMaterial attach="material" color={color}>
+            <primitive object={beamTexture} attach="map" />
+          </meshLambertMaterial>
+        </mesh>
+        <mesh geometry={geometry} receiveShadow>
+          <shadowMaterial attach="material" />
+        </mesh>
+      </group>
       <Holes
         numHoles={length}
         beamWidth={beamWidth}
