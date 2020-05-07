@@ -1,13 +1,10 @@
 import React from 'react'
-import { Object3D, Vector3 } from 'three'
 
 import Head from '../components/head'
 import { withLayout } from '../components/layout'
 import Playground from '../components/playground'
 import { directionByAxis } from '../helpers/direction'
 import { AxisDirection, MaterialId, PartType, SizeId, SpecId } from '../store'
-
-Object3D.DefaultUp = new Vector3(0, 0, 1)
 
 const defaultModel = {
   specId: SpecId.og,

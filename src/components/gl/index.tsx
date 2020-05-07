@@ -1,16 +1,16 @@
 import { mapValues } from 'lodash'
-import React, { useCallback } from 'react'
+import React, { forwardRef, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Canvas, useThree } from 'react-three-fiber'
+import { Canvas, extend, ReactThreeFiber } from 'react-three-fiber'
 import {
+  Object3D,
   PlaneBufferGeometry,
   ShadowMaterial,
-  SpotLight,
   Texture,
   TextureLoader,
+  Vector3,
 } from 'three'
 
-import Codec from '../../codec'
 import {
   doHoverPart,
   doSelectParts,
@@ -19,8 +19,10 @@ import {
   getCurrentSpecSize,
   getParts,
   MaterialId,
+  PartType,
   PartValue,
 } from '../../store'
+import { Sky as SkyImpl } from '../../vendor/Sky'
 import Clipboard from '../clipboard'
 import { GlProvider } from '../provider'
 import Beam from './beam'
@@ -74,7 +76,7 @@ function Gl(props: GlProps) {
               ]),
             ),
         }
-        if (part.type === Codec.PartType.Beam) {
+        if (part.type === PartType.Beam) {
           return (
             <Beam
               key={part.uuid}
@@ -91,7 +93,10 @@ function Gl(props: GlProps) {
   return (
     <Canvas
       orthographic
+      shadowMap
+      colorManagement
       onPointerMissed={() => {
+        console.log('deselect')
         dispatch(doSelectParts([]))
       }}
     >
@@ -124,32 +129,17 @@ function Background(props: BackgroundProps) {
   }, [floorLength])
 
   const planeMaterial = React.useMemo(() => {
-    return new ShadowMaterial({ opacity: 0.2 })
+    return new ShadowMaterial({ opacity: 0.8 })
   }, [])
-
-  const { scene, gl } = useThree()
-  React.useEffect(() => {
-    gl.shadowMap.enabled = true
-  }, [gl.shadowMap.enabled])
-
-  const spotLight = React.useMemo(() => {
-    const light = new SpotLight(0xffffff, 0)
-    light.position.set(0, 300, 3000)
-    light.castShadow = true
-    light.shadow.camera.far = 100000
-    light.shadow.camera.position.set(0, 0, 10000)
-    return light
-  }, [])
-
-  React.useEffect(() => {
-    scene.add(spotLight)
-  }, [scene, spotLight])
 
   return (
     <>
       <ambientLight args={[0xffffff, 0.2]} />
       <hemisphereLight args={[0xffffff, 0x404040]} />
-      <axesHelper args={[floorLength]} position={[0, 0, 0.01]} />
+      // @ts-ignore
+      <Sky sunPosition={[0, 1, 10]} />
+      <spotLight args={[0xffffff]} position={[0, 1, 10]} castShadow />
+      <axesHelper args={[floorLength]} position={[0, 0, 1e-3]} />
       <gridHelper
         args={[floorLength, numSmallFloorTiles, 0x444444, 0xdddddd]}
         rotation={[-Math.PI / 2, 0, 0]}
@@ -168,3 +158,42 @@ function Background(props: BackgroundProps) {
     </>
   )
 }
+
+// https://github.com/react-spring/drei/blob/master/src/Sky.tsx
+
+extend({ SkyImpl })
+
+// @ts-ignore
+type SkyImplProps = ReactThreeFiber.Object3DNode<SkyImpl, typeof SkyImpl>
+
+declare global {
+  namespace JSX {
+    // eslint-disable-next-line @typescript-eslint/interface-name-prefix
+    interface IntrinsicElements {
+      skyImpl: SkyImplProps
+    }
+  }
+}
+
+export interface SkyProps extends SkyImplProps {
+  distance?: number
+  sunPosition?: ReactThreeFiber.Vector3 | Array<number>
+}
+
+export const Sky = forwardRef<SkyProps>(
+  (
+    { distance = 45000, sunPosition = Object3D.DefaultUp, ...props }: SkyProps,
+    ref,
+  ) => {
+    const scale = useMemo(() => new Vector3().setScalar(distance), [distance])
+
+    return (
+      <skyImpl
+        ref={ref}
+        material-uniforms-sunPosition-value={sunPosition}
+        scale={scale}
+        {...props}
+      />
+    )
+  },
+)

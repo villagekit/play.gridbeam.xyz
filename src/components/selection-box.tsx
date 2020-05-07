@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Box } from 'theme-ui'
 
 import {
+  doDisableCameraControl,
+  doEnableCameraControl,
   doEndSelection,
   doSetSelectionEndPoint,
   doSetSelectionStartPoint,
@@ -26,9 +28,19 @@ function SelectionBox(props: SelectionBoxProps) {
   const startPoint = useSelector(getSelectionStartPoint)
   const endPoint = useSelector(getSelectionEndPoint)
 
+  const handleStartSelection = React.useCallback(() => {
+    dispatch(doStartSelection())
+    dispatch(doDisableCameraControl())
+  }, [dispatch])
+
+  const handleEndSelection = React.useCallback(() => {
+    dispatch(doEndSelection())
+    dispatch(doEnableCameraControl())
+  }, [dispatch])
+
   React.useEffect(() => {
-    if (!isEnabled) dispatch(doEndSelection())
-  }, [dispatch, isEnabled])
+    if (!isEnabled) handleEndSelection()
+  }, [handleEndSelection, isEnabled])
 
   React.useEffect(() => {
     document.addEventListener('keyup', handleKeyUp)
@@ -46,7 +58,7 @@ function SelectionBox(props: SelectionBoxProps) {
     function handleMouseDown(ev: MouseEvent) {
       if (!isEnabled) return
       if (!ev.shiftKey) return
-      dispatch(doStartSelection())
+      handleStartSelection()
       handleStart(ev)
     }
 
@@ -59,7 +71,7 @@ function SelectionBox(props: SelectionBoxProps) {
     function handleMouseUp(ev: MouseEvent) {
       if (!isEnabled) return
       if (!isSelecting) return
-      dispatch(doEndSelection())
+      handleEndSelection()
       handleEnd(ev)
     }
 
@@ -67,7 +79,7 @@ function SelectionBox(props: SelectionBoxProps) {
       if (!isEnabled) return
       if (!isSelecting) return
       if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') {
-        dispatch(doEndSelection())
+        handleEndSelection()
       }
     }
 
@@ -87,7 +99,13 @@ function SelectionBox(props: SelectionBoxProps) {
         }),
       )
     }
-  }, [dispatch, isEnabled, isSelecting])
+  }, [
+    dispatch,
+    isEnabled,
+    isSelecting,
+    handleStartSelection,
+    handleEndSelection,
+  ])
 
   if (!isSelecting) return null
 

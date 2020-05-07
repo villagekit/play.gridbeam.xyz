@@ -4,7 +4,8 @@ import { groupBy, keyBy } from 'lodash'
 
 import { RootState } from './'
 
-const INCH_TO_MM = 25.4
+const INCH_TO_MILLIMETERS = 25.4
+const MILLIMETERS_TO_METERS = 1e-3
 
 export enum SpecId {
   og = 0,
@@ -199,7 +200,7 @@ export const getCurrentSpecSizes = createSelector(
   (spec: SpecEntity): SpecSizeValues => {
     const sizes = spec.sizes.map(
       produce((size) => {
-        size.normalizedBeamWidth = normalizeValueToMetric(
+        size.normalizedBeamWidth = normalizeValueToMeters(
           size.beamWidth,
           spec.systemOfMeasurement,
         )
@@ -215,11 +216,11 @@ export const getCurrentSpecMaterials = createSelector(
       (material: SpecMaterialEntity): SpecMaterialValue => {
         const sizes: Array<SpecMaterialSizeValue> = material.sizes.map(
           (materialSize: SpecMaterialSizeEntity): SpecMaterialSizeValue => {
-            const normalizedHoleDiameter = normalizeValueToMetric(
+            const normalizedHoleDiameter = normalizeValueToMeters(
               materialSize.holeDiameter,
               spec.systemOfMeasurement,
             )
-            const normalizedBoltDiameter = normalizeValueToMetric(
+            const normalizedBoltDiameter = normalizeValueToMeters(
               materialSize.boltDiameter,
               spec.systemOfMeasurement,
             )
@@ -253,11 +254,13 @@ export const getCurrentSpecMaterial = createSelector(
   },
 )
 
-function normalizeValueToMetric(
+// normalize to meters because Three.js uses meters
+// https://github.com/mrdoob/three.js/issues/6259
+function normalizeValueToMeters(
   value: number,
   systemOfMeasurement: SystemOfMeasurement,
 ) {
   return systemOfMeasurement === SystemOfMeasurement.imperial
-    ? value * INCH_TO_MM
-    : value
+    ? value * INCH_TO_MILLIMETERS * MILLIMETERS_TO_METERS
+    : value * MILLIMETERS_TO_METERS
 }

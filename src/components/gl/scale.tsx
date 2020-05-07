@@ -8,7 +8,7 @@ import CsgGeometry from './csg'
 
 const GOLDEN_RATIO = 1.61803
 
-const totalHeight = 1700 // 170 cm or ~5' 7''
+const totalHeight = 1.7 // 170 cm or ~5' 7''
 const headHeight = (1 / 7) * totalHeight
 const headWidth = (1 / 8) * totalHeight
 const bodyHeight = totalHeight - headHeight
@@ -33,7 +33,7 @@ function ScaleReference(props: ScaleReferenceProps) {
   }, [])
 
   return (
-    <mesh position={[-0.5, -0.5, 0]} castShadow receiveShadow>
+    <mesh position={[-5e-4, -5e-4, 0]} castShadow receiveShadow>
       <CsgGeometry csg={csg} attach="geometry" />
       <meshNormalMaterial attach="material" />
     </mesh>

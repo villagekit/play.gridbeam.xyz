@@ -2,13 +2,13 @@ import { range } from 'lodash'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useResource } from 'react-three-fiber'
-import { PolarGridHelper } from 'react-three-fiber/components'
 import {
   BoxGeometry,
   CircleGeometry,
   Color,
   MeshBasicMaterial,
   Plane,
+  RingGeometry,
   Vector3,
 } from 'three'
 
@@ -103,7 +103,7 @@ function Beam(props: BeamProps) {
   >(null)
   const handleMove = React.useCallback(
     (ev) => {
-      ev.stopPropagation()
+      console.log('move', uuid, atMoveStart)
       if (ev.buttons <= 0) return
       if (atMoveStart == null) return
 
@@ -151,12 +151,11 @@ function Beam(props: BeamProps) {
 
       move([delta.x, delta.y, delta.z])
     },
-    [atMoveStart, beamWidth, origin.x, origin.y, origin.z, move],
+    [uuid, atMoveStart, beamWidth, origin.x, origin.y, origin.z, move],
   )
 
   const handleHover = React.useCallback(
     (ev) => {
-      ev.stopPropagation()
       // console.log('hover', uuid)
       hover()
     },
@@ -165,7 +164,6 @@ function Beam(props: BeamProps) {
 
   const handleUnhover = React.useCallback(
     (ev) => {
-      ev.stopPropagation()
       // console.log('unhover', uuid)
       unhover()
     },
@@ -175,8 +173,34 @@ function Beam(props: BeamProps) {
   const handleClick = React.useCallback((ev) => {
     ev.stopPropagation()
     // console.log('click x', ev.detail)
-    // if (ev.detail > 1) select()
   }, [])
+
+  const handlePointerDown = React.useCallback(
+    (ev) => {
+      ev.stopPropagation()
+      // @ts-ignore
+      ev.target.setPointerCapture(ev.pointerId)
+      dispatch(doDisableCameraControl())
+      dispatch(doDisableSelection())
+      dispatch(doSetAnyPartIsMoving(true))
+      if (!isSelected) select()
+      setAtMoveStart([ev.point, origin])
+    },
+    [dispatch, origin, isSelected, select, setAtMoveStart],
+  )
+
+  const handlePointerUp = React.useCallback(
+    (ev) => {
+      ev.stopPropagation()
+      // @ts-ignore
+      ev.target.releasePointerCapture(ev.pointerId)
+      dispatch(doEnableCameraControl())
+      dispatch(doEnableSelection())
+      dispatch(doSetAnyPartIsMoving(false))
+      setAtMoveStart(null)
+    },
+    [dispatch],
+  )
 
   const color = React.useMemo(() => {
     return new Color(isSelected ? 'cyan' : isHovered ? 'magenta' : 'white')
@@ -192,25 +216,8 @@ function Beam(props: BeamProps) {
       position={position}
       rotation={rotation}
       onClick={handleClick}
-      onPointerDown={(ev) => {
-        ev.stopPropagation()
-        // @ts-ignore
-        ev.target.setPointerCapture(ev.pointerId)
-        dispatch(doDisableCameraControl())
-        dispatch(doDisableSelection())
-        dispatch(doSetAnyPartIsMoving(true))
-        if (!isSelected) select()
-        setAtMoveStart([ev.point, origin])
-      }}
-      onPointerUp={(ev) => {
-        ev.stopPropagation()
-        // @ts-ignore
-        ev.target.releasePointerCapture(ev.pointerId)
-        dispatch(doEnableCameraControl())
-        dispatch(doEnableSelection())
-        dispatch(doSetAnyPartIsMoving(false))
-        setAtMoveStart(null)
-      }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
       onPointerMove={handleMove}
       onPointerOver={handleHover}
       onPointerOut={handleUnhover}
@@ -258,40 +265,34 @@ function Holes(props: HolesProps) {
             material={material}
             geometry={geometry}
             rotation={[0, 0, 0]}
-            position={[index * beamWidth, 0, 0.01 + (1 / 2) * beamWidth]}
+            position={[index * beamWidth, 0, 1e-5 + (1 / 2) * beamWidth]}
           />
           {/* bottom */}
           <mesh
             material={material}
             geometry={geometry}
             rotation={[Math.PI, 0, 0]}
-            position={[index * beamWidth, 0, -0.01 - (1 / 2) * beamWidth]}
+            position={[index * beamWidth, 0, -1e-5 - (1 / 2) * beamWidth]}
           />
           {/* left */}
           <mesh
             material={material}
             geometry={geometry}
             rotation={[(3 / 2) * Math.PI, 0, 0]}
-            position={[index * beamWidth, 0.01 + (1 / 2) * beamWidth, 0]}
+            position={[index * beamWidth, 1e-5 + (1 / 2) * beamWidth, 0]}
           />
           {/* right */}
           <mesh
             material={material}
             geometry={geometry}
             rotation={[(1 / 2) * Math.PI, 0, 0]}
-            position={[index * beamWidth, -0.01 - (1 / 2) * beamWidth, 0]}
+            position={[index * beamWidth, -1e-6 - (1 / 2) * beamWidth, 0]}
           />
         </React.Fragment>
       ))}
     </group>
   )
 }
-
-const HOLE_MARKER_RADIALS = 16
-const HOLE_MARKER_CIRCLES = 8
-const HOLE_MARKER_DIVISIONS = 8
-const HOLE_MARKER_COLOR1 = 'white'
-const HOLE_MARKER_COLOR2 = 'magenta'
 
 interface FirstHoleMarkerProps {
   beamWidth: number
@@ -300,56 +301,45 @@ interface FirstHoleMarkerProps {
 
 function FirstHoleMarker(props: FirstHoleMarkerProps) {
   const { beamWidth, holeDiameter } = props
+  const holeRadius = holeDiameter / 2
+  const innerRadius = holeRadius
+  const outerRadius = holeRadius * 2
+
+  const [materialRef, material] = useResource<MeshBasicMaterial>()
+  const [geometryRef, geometry] = useResource<RingGeometry>()
+
   return (
     <group>
+      <meshBasicMaterial ref={materialRef} color="magenta" />
+      <ringGeometry ref={geometryRef} args={[innerRadius, outerRadius]} />
       {/* top */}
-      <HoleMarker
-        rotation={[-(1 / 2) * Math.PI, 0, 0]}
-        position={[0, 0, 0.02 + (1 / 2) * beamWidth]}
-        holeDiameter={holeDiameter}
+      <mesh
+        material={material}
+        geometry={geometry}
+        rotation={[0, 0, 0]}
+        position={[0, 0, 2e-5 + (1 / 2) * beamWidth]}
       />
       {/* bottom */}
-      <HoleMarker
-        rotation={[(1 / 2) * Math.PI, 0, 0]}
-        position={[0, 0, -0.02 - (1 / 2) * beamWidth]}
-        holeDiameter={holeDiameter}
+      <mesh
+        material={material}
+        geometry={geometry}
+        rotation={[Math.PI, 0, 0]}
+        position={[0, 0, -2e-5 - (1 / 2) * beamWidth]}
       />
       {/* left */}
-      <HoleMarker
-        rotation={[Math.PI, 0, 0]}
-        position={[0, 0.02 + (1 / 2) * beamWidth, 0]}
-        holeDiameter={holeDiameter}
+      <mesh
+        material={material}
+        geometry={geometry}
+        rotation={[-(1 / 2) * Math.PI, 0, 0]}
+        position={[0, 2e-5 + (1 / 2) * beamWidth, 0]}
       />
       {/* right */}
-      <HoleMarker
-        rotation={[0, 0, 0]}
-        position={[0, -0.02 - (1 / 2) * beamWidth, 0]}
-        holeDiameter={holeDiameter}
+      <mesh
+        material={material}
+        geometry={geometry}
+        rotation={[(1 / 2) * Math.PI, 0, 0]}
+        position={[0, -2e-5 - (1 / 2) * beamWidth, 0]}
       />
     </group>
-  )
-}
-
-interface HoleMarkerProps extends React.ComponentProps<typeof PolarGridHelper> {
-  holeDiameter: number
-}
-
-function HoleMarker(props: HoleMarkerProps) {
-  const { holeDiameter, ...forwardedProps } = props
-  const holeRadius = holeDiameter / 2
-  const holeMarkerRadius = holeRadius * 2
-
-  return (
-    <polarGridHelper
-      args={[
-        holeMarkerRadius,
-        HOLE_MARKER_RADIALS,
-        HOLE_MARKER_CIRCLES,
-        HOLE_MARKER_DIVISIONS,
-        HOLE_MARKER_COLOR1,
-        HOLE_MARKER_COLOR2,
-      ]}
-      {...forwardedProps}
-    />
   )
 }
