@@ -14,12 +14,13 @@ function Help(props: HelpProps) {
         yet supported.
       </HelpText>
       <HelpText>
-        Left click and drag to orbit the camera. Right click and drag to pan the
-        camera.
+        To select a single beam, click on it. To select many beams, click and
+        drag a selection box over the beams you want to select.
       </HelpText>
       <HelpText>
-        To select a single beam, click on it. To select many beams, press shift,
-        then click and drag a selection box over the beams you want to select.
+        To rotate the camera, hold the Alt key, then left click and drag. To
+        truck the camera, hold both the Alt key and the Shift key, then left
+        click and drag.
       </HelpText>
       <HelpText>
         Click and drag on a beam (or on your selected beams) to move them around

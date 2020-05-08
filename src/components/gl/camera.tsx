@@ -38,7 +38,7 @@ function Camera(props: CameraProps) {
   const isMoving = useSelector(getAnyPartIsMoving)
   const isSelecting = useSelector(getIsSelecting)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const controls = controlsRef.current
     if (controls == null) return
     camera.left = size.width / -200
@@ -54,11 +54,69 @@ function Camera(props: CameraProps) {
     controls.update()
   }, [camera, controlsRef, size])
 
+  // set camera controls, copied from Blender
+  // - left mouse:
+  //    - by default: select box (no camera control)
+  //    - with alt: orbit camera
+  //    - with alt and shift: truck camera
+  // - mouse wheel: zoom
+  // - right mouse: nothing
+  useEffect(() => {
+    let altDowns = 0
+    let shiftDowns = 0
+
+    document.addEventListener('keyup', handleKeyUp)
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('blur', handleBlur)
+
+    setControls()
+
+    return () => {
+      document.removeEventListener('keyup', handleKeyUp)
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('blur', handleBlur)
+    }
+
+    function handleKeyUp(ev: KeyboardEvent) {
+      if (ev.code === 'AltLeft' || ev.code === 'AltRight') altDowns--
+      else if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') shiftDowns--
+      setControls()
+    }
+
+    function handleKeyDown(ev: KeyboardEvent) {
+      if (ev.code === 'AltLeft' || ev.code === 'AltRight') altDowns++
+      else if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') shiftDowns++
+      setControls()
+    }
+
+    function handleBlur() {
+      altDowns = 0
+      shiftDowns = 0
+    }
+
+    function setControls() {
+      const controls = controlsRef.current
+      if (controls == null) return
+
+      if (altDowns > 0) {
+        if (shiftDowns > 0) {
+          controls.mouseButtons.left = CameraControlsImpl.ACTION.TRUCK
+        } else {
+          controls.mouseButtons.left = CameraControlsImpl.ACTION.ROTATE
+        }
+      } else {
+        controls.mouseButtons.left = CameraControlsImpl.ACTION.NONE
+        controls.mouseButtons.right = CameraControlsImpl.ACTION.NONE
+        controls.mouseButtons.wheel = CameraControlsImpl.ACTION.ZOOM
+      }
+    }
+  }, [camera, controlsRef])
+
   // center camera on parts
   // TODO: create a center object with right-click
   // - move it around to change the center
   // - removing the center goes back to the default behavior
-  React.useEffect(() => {
+  useEffect(() => {
     if (isMoving || isSelecting) return
 
     let centeredParts = parts
