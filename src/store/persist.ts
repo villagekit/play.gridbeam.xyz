@@ -5,7 +5,7 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit'
 import produce from 'immer'
-// NOTE: pako exports are overriden in ./src/index.d.ts
+// NOTE: pako exports are overriden in /src/modules.d.ts
 import { deflateRaw, inflateRaw, Z_BEST_COMPRESSION } from 'pako'
 
 import Codec from '../codec'

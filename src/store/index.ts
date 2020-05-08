@@ -13,9 +13,6 @@ export * from './persist'
 export * from './selection'
 export * from './spec'
 
-export type { Direction } from '../helpers/direction'
-export { AxisDirection } from '../helpers/direction'
-
 const reducer = combineReducers({
   camera: cameraReducer,
   parts: partsReducer,
@@ -24,7 +21,7 @@ const reducer = combineReducers({
   spec: specReducer,
 })
 
-export default function createStore() {
+export function createStore() {
   return configureStore({
     reducer,
   })

@@ -3,17 +3,6 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useResource } from 'react-three-fiber'
 import {
-  BoxGeometry,
-  CircleGeometry,
-  Color,
-  MeshBasicMaterial,
-  Plane,
-  RingGeometry,
-  Vector3,
-} from 'three'
-
-import { directionToRotation } from '../../helpers/rotation'
-import {
   Direction,
   doDisableCameraControl,
   doDisableSelection,
@@ -25,7 +14,18 @@ import {
   GridPosition,
   PartValue,
   Uuid,
-} from '../../store'
+} from 'src'
+import {
+  BoxGeometry,
+  CircleGeometry,
+  Color,
+  MeshBasicMaterial,
+  Plane,
+  RingGeometry,
+  Vector3,
+} from 'three'
+
+import { directionToRotation } from '../../helpers/rotation'
 import { TexturesByMaterialType } from './'
 
 export default Beam

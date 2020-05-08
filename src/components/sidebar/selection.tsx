@@ -2,16 +2,10 @@ import { map } from 'lodash'
 import React, { useCallback, useMemo } from 'react'
 import { useDebounce } from 'react-debounce-hook'
 import { useDispatch, useSelector } from 'react-redux'
+import { doUpdatePart, getSelectedParts, PartType, PartValue, Uuid } from 'src'
 import { Box, Flex, Label, Select, Slider, Text } from 'theme-ui'
 
 import { UpdateDescriptor } from '../../helpers/updater'
-import {
-  doUpdatePart,
-  getSelectedParts,
-  PartType,
-  PartValue,
-  Uuid,
-} from '../../store'
 
 export default Selection
 

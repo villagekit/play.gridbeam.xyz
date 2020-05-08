@@ -1,10 +1,10 @@
 import React from 'react'
+import { AxisDirection, MaterialId, PartType, SizeId, SpecId } from 'src'
 
 import Head from '../components/head'
 import { withLayout } from '../components/layout'
 import Playground from '../components/playground'
 import { directionByAxis } from '../helpers/direction'
-import { AxisDirection, MaterialId, PartType, SizeId, SpecId } from '../store'
 
 const defaultModel = {
   specId: SpecId.og,

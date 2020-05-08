@@ -1,8 +1,8 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
+import { doDisableCameraControl, doEnableCameraControl } from 'src'
 import { Box, Button, Flex } from 'theme-ui'
 
-import { doDisableCameraControl, doEnableCameraControl } from '../../store'
 import HelpWidget from './help'
 import PartsWidget from './parts'
 import SelectionWidget from './selection'

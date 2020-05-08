@@ -1,13 +1,12 @@
 import { values } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
 import {
   doAddParts,
   doRemoveSelectedParts,
   getSelectedParts,
   PartEntity,
-} from '../store'
+} from 'src'
 
 export default Clipboard
 

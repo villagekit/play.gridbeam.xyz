@@ -1,7 +1,6 @@
 import { isEqual } from 'lodash'
+import { Direction } from 'src'
 import { Euler, Vector3 } from 'three'
-
-import { Direction } from '../store'
 
 type Axis = Vector3
 

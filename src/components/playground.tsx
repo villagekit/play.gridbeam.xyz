@@ -1,8 +1,6 @@
 import { values } from 'lodash'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Box } from 'theme-ui'
-
 import {
   doAsyncLoadModel,
   doAsyncSaveModel,
@@ -12,7 +10,9 @@ import {
   getPartsEntities,
   getSavedHash,
   ModelEntity,
-} from '../store'
+} from 'src'
+import { Box } from 'theme-ui'
+
 import Actions from './action'
 import Gl from './gl'
 import Keyboard from './keyboard'

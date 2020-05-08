@@ -1,8 +1,8 @@
 // declarative updates
 
 import { clamp, flow, isArray, update } from 'lodash'
+import { Direction } from 'src'
 
-import { Direction } from '../store'
 import { rotateDirection } from './rotation'
 
 export interface BaseDescriptor {

@@ -1,9 +1,8 @@
 import { groupBy, map, sum } from 'lodash'
 import React from 'react'
 import { useSelector } from 'react-redux'
+import { getPartsByType, PartType, PartValue } from 'src'
 import { Box, Text } from 'theme-ui'
-
-import { getPartsByType, PartType, PartValue } from '../../store'
 
 export default Parts
 

@@ -1,7 +1,7 @@
 {
   "include": ["src", "types"],
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "es2017"],

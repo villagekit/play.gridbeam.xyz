@@ -2,8 +2,6 @@ import { mapValues } from 'lodash'
 import React, { forwardRef, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Canvas, extend, ReactThreeFiber } from 'react-three-fiber'
-import { Object3D, Texture, TextureLoader, Vector3 } from 'three'
-
 import {
   doHoverPart,
   doSelectParts,
@@ -14,7 +12,9 @@ import {
   MaterialId,
   PartType,
   PartValue,
-} from '../../store'
+} from 'src'
+import { Object3D, Texture, TextureLoader, Vector3 } from 'three'
+
 import { Sky as SkyImpl } from '../../vendor/Sky'
 import Clipboard from '../clipboard'
 import { GlProvider } from '../provider'

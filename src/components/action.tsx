@@ -1,9 +1,9 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
+import { getHasSelectedAnyParts } from 'src'
 import { Button, Flex } from 'theme-ui'
 
 import useCommands from '../commands'
-import { getHasSelectedAnyParts } from '../store'
 
 interface Action {
   id: string

@@ -1,8 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useThree } from 'react-three-fiber'
-import { Box2, Vector2 } from 'three'
-
 import {
   doSelectParts,
   doUpdateSelectableScreenBounds,
@@ -12,7 +10,8 @@ import {
   getSelectionEndPoint,
   getSelectionStartPoint,
   Uuid,
-} from '../../store'
+} from 'src'
+import { Box2, Vector2 } from 'three'
 
 export default SelectionGl
 

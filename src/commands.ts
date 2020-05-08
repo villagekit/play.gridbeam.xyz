@@ -1,10 +1,6 @@
 import { mapValues } from 'lodash'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
-import Codec from './codec'
-import { X_AXIS, Y_AXIS, Z_AXIS } from './helpers/axis'
-import { ROTATION } from './helpers/rotation'
 import {
   doAddPart,
   doRemoveSelectedParts,
@@ -16,7 +12,11 @@ import {
   MaterialId,
   SizeId,
   SpecId,
-} from './store'
+} from 'src'
+
+import Codec from './codec'
+import { X_AXIS, Y_AXIS, Z_AXIS } from './helpers/axis'
+import { ROTATION } from './helpers/rotation'
 
 interface CommandOptions {
   specId: SpecId | null

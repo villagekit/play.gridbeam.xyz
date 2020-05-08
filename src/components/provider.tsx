@@ -1,7 +1,6 @@
 import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
-
-import createStore from '../store'
+import { createStore } from 'src'
 
 const store = createStore()
 

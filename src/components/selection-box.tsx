@@ -1,7 +1,5 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Box } from 'theme-ui'
-
 import {
   doDisableCameraControl,
   doEnableCameraControl,
@@ -14,7 +12,8 @@ import {
   getSelectionEndPoint,
   getSelectionStartPoint,
   Point,
-} from '../store'
+} from 'src'
+import { Box } from 'theme-ui'
 
 export default SelectionBox
 

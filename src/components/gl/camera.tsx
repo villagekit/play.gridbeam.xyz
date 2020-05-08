@@ -7,9 +7,6 @@ import { useSelector } from 'react-redux'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ReactThreeFiber } from 'react-three-fiber'
 import { extend, useFrame, useThree } from 'react-three-fiber'
-import { Box3, OrthographicCamera, Scene, Vector3 } from 'three'
-import * as THREE from 'three'
-
 import {
   getAnyPartIsMoving,
   getIsCameraControlEnabled,
@@ -17,7 +14,9 @@ import {
   getParts,
   getSelectedParts,
   Uuid,
-} from '../../store'
+} from 'src'
+import { Box3, OrthographicCamera, Scene, Vector3 } from 'three'
+import * as THREE from 'three'
 
 export default Camera
 
