@@ -11,7 +11,7 @@ import {
   Vector3,
 } from 'three'
 
-import { AppDispatch, RootState } from './'
+import { AppDispatch, getPartsUuids, RootState } from './'
 
 export interface Point {
   x: number
@@ -90,9 +90,11 @@ export const doUpdateSelectableScreenBounds = ({
 }: {
   scene: Scene
   camera: Camera
-}) => (dispatch: AppDispatch) => {
+}) => (dispatch: AppDispatch, getState: () => RootState) => {
+  const partsUuids = getPartsUuids(getState())
   const selectableScreenBounds: SelectableScreenBounds = {}
   forEachMesh(scene, (mesh: Object3D) => {
+    if (!partsUuids.includes(mesh.uuid)) return
     selectableScreenBounds[mesh.uuid] = computeScreenBounds({
       mesh: mesh as Mesh,
       camera,

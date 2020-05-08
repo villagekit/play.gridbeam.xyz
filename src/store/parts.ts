@@ -186,6 +186,10 @@ export const getPartsEntities = createSelector(
   getPartsState,
   (state) => state.entities,
 )
+export const getPartsUuids = createSelector(
+  getPartsEntities,
+  (parts): Array<Uuid> => keys(parts),
+)
 export const getParts = createSelector(
   getPartsEntities,
   getHoveredUuids,
