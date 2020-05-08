@@ -10,6 +10,7 @@ import {
   getPartsEntities,
   getSavedHash,
   ModelEntity,
+  useInput,
 } from 'src'
 import { Box } from 'theme-ui'
 
@@ -26,6 +27,8 @@ interface GridBeamPlaygroundProps {
 }
 
 function GridBeamPlayground({ defaultModel }: GridBeamPlaygroundProps) {
+  useInput()
+
   const dispatch = useDispatch()
 
   const parts = useSelector(getPartsEntities)
