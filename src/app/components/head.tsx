@@ -20,7 +20,7 @@ const defaultProps: HeadProps = {
   keywords: [],
 }
 
-function Head({
+export function Head({
   description,
   lang,
   meta,
@@ -105,8 +105,6 @@ Head.propTypes = {
   keywords: PropTypes.arrayOf(PropTypes.string),
   title: PropTypes.string,
 }
-
-export default Head
 
 const detailsQuery = graphql`
   query DefaultSEOQuery {

@@ -13,11 +13,11 @@ import {
   PartType,
   PartValue,
 } from 'src'
+import { GlProvider } from 'src/components'
 import { Object3D, Texture, TextureLoader, Vector3 } from 'three'
 
 import { Sky as SkyImpl } from '../../vendor/Sky'
 import Clipboard from '../clipboard'
-import { GlProvider } from '../provider'
 import Beam from './beam'
 import Camera from './camera'
 import Scale from './scale'

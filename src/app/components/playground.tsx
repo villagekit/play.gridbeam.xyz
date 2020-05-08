@@ -10,24 +10,21 @@ import {
   getPartsEntities,
   getSavedHash,
   ModelEntity,
-  useInput,
+  useApp,
 } from 'src'
+import Actions from 'src/components/action'
+import Gl from 'src/components/gl'
+import Keyboard from 'src/components/keyboard'
+import SelectionBox from 'src/components/selection-box'
+import Sidebar from 'src/components/sidebar'
 import { Box } from 'theme-ui'
 
-import Actions from './action'
-import Gl from './gl'
-import Keyboard from './keyboard'
-import SelectionBox from './selection-box'
-import Sidebar from './sidebar'
-
-export default GridBeamPlayground
-
-interface GridBeamPlaygroundProps {
+interface AppProps {
   defaultModel: ModelEntity
 }
 
-function GridBeamPlayground({ defaultModel }: GridBeamPlaygroundProps) {
-  useInput()
+export function App({ defaultModel }: AppProps) {
+  useApp()
 
   const dispatch = useDispatch()
 

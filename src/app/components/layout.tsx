@@ -13,7 +13,7 @@ interface LayoutProps {
   children: React.ReactNode
 }
 
-const Layout = ({ children }: LayoutProps) => (
+export const Layout = ({ children }: LayoutProps) => (
   <Main>
     <GlobalStyle
       styles={css`
@@ -113,8 +113,6 @@ function Footer(props: FooterProps) {
     </Box>
   )
 }
-
-export default Layout
 
 export function withLayout(PageComponent: React.ComponentType) {
   return function PageWithLayout(
