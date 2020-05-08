@@ -11557,10 +11557,10 @@ react-side-effect@^2.1.0:
   resolved "https://registry.yarnpkg.com/react-side-effect/-/react-side-effect-2.1.0.tgz#1ce4a8b4445168c487ed24dab886421f74d380d3"
   integrity sha512-IgmcegOSi5SNX+2Snh1vqmF0Vg/CbkycU9XZbOHJlZ6kMzTmi3yc254oB1WCkgA7OQtIAoLmcSFuHTc/tlcqXg==
 
-react-three-fiber@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/react-three-fiber/-/react-three-fiber-4.1.1.tgz#441e2000bee0dc5872affaf189d8dfa6739d5c0e"
-  integrity sha512-dFvG8ITjMD1p3qxHERuAl1B1tCOW8YfvWWOxyQVUO1wjkvdBXrMZ272cx//2lTF4y3O59n08M8nudN/kNAPQ/w==
+react-three-fiber@^4.1.4:
+  version "4.1.4"
+  resolved "https://registry.yarnpkg.com/react-three-fiber/-/react-three-fiber-4.1.4.tgz#55ea847f6aa7bd88eea077c1212151343be94427"
+  integrity sha512-c1NchqRPAP27GQchSKkpRgz+XwwPvRJo/cTjPWQmX0H2MqnIu4vBTV1GKBqn+uWeDHjjfcWHZyq8zH5JccP+NA==
   dependencies:
     "@babel/runtime" "^7.9.2"
     "@juggle/resize-observer" "^3.1.3"

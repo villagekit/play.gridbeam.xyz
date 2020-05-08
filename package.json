@@ -36,7 +36,7 @@
     "react-helmet": "^6.0.0",
     "react-merge-refs": "^1.0.0",
     "react-redux": "^7.2.0",
-    "react-three-fiber": "^4.1.1",
+    "react-three-fiber": "^4.1.4",
     "theme-ui": "^0.3.1",
     "three": "^0.115.0",
     "typeface-bungee": "0.0.72",
