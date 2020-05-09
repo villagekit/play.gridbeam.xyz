@@ -8,11 +8,7 @@ import {
   PartEntity,
 } from 'src'
 
-export default Clipboard
-
-interface ClipboardProps {}
-
-function Clipboard(props: ClipboardProps) {
+export const useClipboard = () => {
   const dispatch = useDispatch()
 
   const selectedParts = useSelector(getSelectedParts)
@@ -54,6 +50,4 @@ function Clipboard(props: ClipboardProps) {
       }
     }
   }, [cut, copy, paste])
-
-  return null
 }

@@ -17,11 +17,9 @@ import { GlProvider } from 'src/components'
 import { Object3D, Texture, TextureLoader, Vector3 } from 'three'
 
 import { Sky as SkyImpl } from '../../vendor/Sky'
-import Clipboard from '../clipboard'
 import Beam from './beam'
 import Camera from './camera'
 import Scale from './scale'
-import Selector from './selection'
 
 export type TexturePathsByMaterialType = Record<MaterialId, string>
 export type TexturesByMaterialType = Record<MaterialId, Texture>
@@ -95,10 +93,7 @@ function Gl(props: GlProps) {
     >
       <GlProvider>
         <Camera />
-        <Selector />
         <Background currentBeamWidth={currentBeamWidth} />
-        <Clipboard />
-
         {renderParts(parts)}
       </GlProvider>
     </Canvas>

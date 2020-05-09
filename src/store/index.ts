@@ -2,18 +2,19 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { useDispatch } from 'react-redux'
 
 import inputReducer from '../input/store'
+import selectionReducer from '../selection/store'
 import cameraReducer from './camera'
 import partsReducer from './parts'
 import persistReducer from './persist'
-import selectionReducer from './selection'
 import specReducer from './spec'
 
 export * from './camera'
 export * from './parts'
 export * from './persist'
-export * from './selection'
 export * from './spec'
+
 export * from '../input/store'
+export * from '../selection/store'
 
 const reducer = combineReducers({
   camera: cameraReducer,

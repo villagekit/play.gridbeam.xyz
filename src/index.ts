@@ -5,3 +5,4 @@ export * from './helpers/direction'
 
 export * from './app'
 export * from './input'
+export * from './selection'

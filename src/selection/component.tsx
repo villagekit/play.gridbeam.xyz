@@ -15,11 +15,9 @@ import {
 } from 'src'
 import { Box } from 'theme-ui'
 
-export default SelectionBox
-
 interface SelectionBoxProps {}
 
-function SelectionBox(props: SelectionBoxProps) {
+export function SelectionBox(props: SelectionBoxProps) {
   const dispatch = useDispatch()
 
   const isEnabled = useSelector(getIsSelectionEnabled)

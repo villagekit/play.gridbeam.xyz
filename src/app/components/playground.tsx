@@ -10,12 +10,12 @@ import {
   getPartsEntities,
   getSavedHash,
   ModelEntity,
+  SelectionBox,
   useApp,
 } from 'src'
 import Actions from 'src/components/action'
 import Gl from 'src/components/gl'
 import Keyboard from 'src/components/keyboard'
-import SelectionBox from 'src/components/selection-box'
 import Sidebar from 'src/components/sidebar'
 import { Box } from 'theme-ui'
 
