@@ -21,6 +21,8 @@ export const useInputModifiers = () => {
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('blur', handleBlur)
 
+    updateModifiers()
+
     return () => {
       document.removeEventListener('keyup', handleKeyUp)
       document.removeEventListener('keydown', handleKeyDown)

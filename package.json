@@ -35,7 +35,6 @@
     "react-debounce-hook": "^1.1.19",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.0.0",
-    "react-merge-refs": "^1.0.0",
     "react-redux": "^7.2.0",
     "react-three-fiber": "^4.1.4",
     "theme-ui": "^0.3.1",
@@ -44,6 +43,7 @@
     "typeface-ibm-plex-sans": "0.0.75",
     "typeface-ibm-plex-serif": "0.0.75",
     "typescript": "^3.8.3",
+    "use-callback-ref": "^1.2.3",
     "use-clipboard-copy": "^0.1.2"
   },
   "license": "AGPL-3.0",

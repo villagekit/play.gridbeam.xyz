@@ -1,9 +1,7 @@
 import { usePreviousValue } from '@huse/previous-value'
 import type CameraControlsType from 'camera-controls'
 import { isEqual, map } from 'lodash'
-import React, { forwardRef, useEffect, useRef } from 'react'
-// @ts-ignore
-import mergeRefs from 'react-merge-refs'
+import React, { forwardRef, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ReactThreeFiber } from 'react-three-fiber'
@@ -14,22 +12,29 @@ import {
   getIsSelecting,
   getParts,
   getSelectedParts,
+  useCameraInput,
   Uuid,
 } from 'src'
-import { useCameraInput } from 'src'
 import { Box3, OrthographicCamera, Scene, Vector3 } from 'three'
 import * as THREE from 'three'
+import { useCallbackRef, useMergeRefs } from 'use-callback-ref'
 
 const ROT = Math.PI * 2
 
 interface CameraProps {}
 
 export function GlCamera(props: CameraProps) {
-  const controlsRef = React.useRef<any>()
   const canvasContext = useThree()
 
   const { scene, size } = canvasContext
   const camera = canvasContext.camera as OrthographicCamera
+
+  // force update when camera controls ref mutates
+  const [, forceUpdate] = useState()
+  const controlsRef = useCallbackRef<CameraControlsType>(null, forceUpdate)
+  // so we will always have ref here before
+  // (fixes bug where camera input not setup until first re-render)
+  useCameraInput(controlsRef.current)
 
   const isControlEnabled = useSelector(getIsCameraControlEnabled)
   const parts = useSelector(getParts)
@@ -54,10 +59,7 @@ export function GlCamera(props: CameraProps) {
     controls.zoomTo(5)
     controls.rotateTo((3 / 8) * ROT, (3 / 16) * ROT)
     camera.updateProjectionMatrix()
-    controls.update()
   }, [camera, controlsRef, size])
-
-  useCameraInput(controlsRef.current)
 
   // center camera on parts
   // TODO: create a center object with right-click
@@ -65,6 +67,8 @@ export function GlCamera(props: CameraProps) {
   // - removing the center goes back to the default behavior
   useEffect(() => {
     if (isMoving || isSelecting) return
+    const controls = controlsRef.current
+    if (controls == null) return
 
     let centeredParts = parts
     if (selectedParts.length > 0) {
@@ -72,7 +76,7 @@ export function GlCamera(props: CameraProps) {
     }
 
     if (centeredParts.length === 0) {
-      new Vector3(0, 0, 0).copy(controlsRef.current.target)
+      controls.setTarget(0, 0, 0)
       return
     }
 
@@ -85,10 +89,7 @@ export function GlCamera(props: CameraProps) {
     const box = compute3dBounds(scene, uuids)
     const center = new Vector3()
     box.getCenter(center)
-    if (controlsRef.current) {
-      const controls = controlsRef.current
-      controls.setTarget(center.x, center.y, center.z)
-    }
+    controls.setTarget(center.x, center.y, center.z)
   }, [
     isMoving,
     scene,
@@ -96,6 +97,7 @@ export function GlCamera(props: CameraProps) {
     selectedParts,
     previousSelectedParts,
     isSelecting,
+    controlsRef,
   ])
 
   return (
@@ -144,8 +146,11 @@ declare global {
   }
 }
 
-export const CameraControls = forwardRef((props: CameraControlsProps, ref) => {
-  const controlsRef = useRef<CameraControlsType>()
+export const CameraControls = forwardRef<
+  CameraControlsType,
+  CameraControlsProps
+>((props, ref) => {
+  const controlsRef = useRef<CameraControlsType>(null)
 
   const { camera, gl, invalidate } = useThree()
 
@@ -159,7 +164,7 @@ export const CameraControls = forwardRef((props: CameraControlsProps, ref) => {
 
   return (
     <cameraControlsImpl
-      ref={mergeRefs([controlsRef, ref])}
+      ref={useMergeRefs<CameraControlsType>([controlsRef, ref])}
       args={[camera, gl.domElement]}
       {...props}
     />

@@ -1,8 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  doDisableCameraControl,
-  doEnableCameraControl,
   doEndSelection,
   doSetSelectionEndPoint,
   doSetSelectionStartPoint,
@@ -27,12 +25,10 @@ export function DomSelectionBox(props: SelectionBoxProps) {
 
   const handleStartSelection = React.useCallback(() => {
     dispatch(doStartSelection())
-    dispatch(doDisableCameraControl())
   }, [dispatch])
 
   const handleEndSelection = React.useCallback(() => {
     dispatch(doEndSelection())
-    dispatch(doEnableCameraControl())
   }, [dispatch])
 
   React.useEffect(() => {
