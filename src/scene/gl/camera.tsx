@@ -1,6 +1,6 @@
 import { usePreviousValue } from '@huse/previous-value'
 import type CameraControlsType from 'camera-controls'
-import { map } from 'lodash'
+import { isEqual, map } from 'lodash'
 import React, { forwardRef, useEffect, useRef } from 'react'
 // @ts-ignore
 import mergeRefs from 'react-merge-refs'
@@ -37,6 +37,10 @@ export function GlCamera(props: CameraProps) {
   const isMoving = useSelector(getAnyPartIsMoving)
   const isSelecting = useSelector(getIsSelecting)
 
+  const previousSelectedParts = usePreviousValue<typeof selectedParts>(
+    selectedParts,
+  )
+
   useEffect(() => {
     const controls = controlsRef.current
     if (controls == null) return
@@ -66,10 +70,17 @@ export function GlCamera(props: CameraProps) {
     if (selectedParts.length > 0) {
       centeredParts = selectedParts
     }
+
     if (centeredParts.length === 0) {
       new Vector3(0, 0, 0).copy(controlsRef.current.target)
       return
     }
+
+    // don't move camera if no change in selected parts
+    if (isEqual(selectedParts, previousSelectedParts)) {
+      return
+    }
+
     const uuids = map(centeredParts, 'uuid')
     const box = compute3dBounds(scene, uuids)
     const center = new Vector3()
@@ -78,7 +89,14 @@ export function GlCamera(props: CameraProps) {
       const controls = controlsRef.current
       controls.setTarget(center.x, center.y, center.z)
     }
-  }, [isMoving, scene, parts, selectedParts, isSelecting])
+  }, [
+    isMoving,
+    scene,
+    parts,
+    selectedParts,
+    previousSelectedParts,
+    isSelecting,
+  ])
 
   return (
     <CameraControls

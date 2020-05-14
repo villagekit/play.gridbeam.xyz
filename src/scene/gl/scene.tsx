@@ -77,7 +77,6 @@ export function GlScene(props: GlProps) {
       shadowMap
       colorManagement
       onPointerMissed={() => {
-        console.log('deselect')
         dispatch(doSelectParts([]))
       }}
     >

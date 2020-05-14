@@ -5,6 +5,7 @@
   "private": true,
   "author": "Michael Williams <michael.williams@enspiral.com>",
   "dependencies": {
+    "@huse/previous-value": "^1.0.1",
     "@jscad/csg": "^0.7.0",
     "@reduxjs/toolkit": "^1.3.5",
     "@theme-ui/color": "^0.3.1",

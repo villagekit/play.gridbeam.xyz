@@ -1129,6 +1129,14 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
+"@huse/previous-value@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@huse/previous-value/-/previous-value-1.0.1.tgz#77807e59b26e2cd86ebb6aac295163a71bbf1099"
+  integrity sha512-tQnbgqLZrb3720bE6tMhw922TG4dQ4HuEs6ZecOeJexXiVvGNdX3Oa5TDtdK+7tn809Ap/ui9DhIsGTOrmvZeQ==
+  dependencies:
+    fast-deep-equal "^3.1.1"
+    shallowequal "^1.1.0"
+
 "@jest/types@^25.4.0":
   version "25.4.0"
   resolved "https://registry.yarnpkg.com/@jest/types/-/types-25.4.0.tgz#5afeb8f7e1cba153a28e5ac3c9fe3eede7206d59"
