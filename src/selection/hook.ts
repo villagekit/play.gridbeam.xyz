@@ -13,11 +13,7 @@ import {
 } from 'src'
 import { Box2, Vector2 } from 'three'
 
-export default SelectionGl
-
-interface SelectionGlProps {}
-
-function SelectionGl(props: SelectionGlProps) {
+export function useGlSelection() {
   const dispatch = useDispatch()
 
   const isEnabled = useSelector(getIsSelectionEnabled)
@@ -60,6 +56,4 @@ function SelectionGl(props: SelectionGlProps) {
     selectableScreenBounds,
     dispatch,
   ])
-
-  return null
 }

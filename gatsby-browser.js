@@ -3,8 +3,10 @@ import 'pepjs'
 import React from 'react'
 import { Object3D, Vector3 } from 'three'
 
-import Provider from './src/app/components/provider'
+import { DomProvider } from './src'
 
-export const wrapRootElement = ({ element }) => <Provider>{element}</Provider>
+export const wrapRootElement = ({ element }) => (
+  <DomProvider>{element}</DomProvider>
+)
 
 Object3D.DefaultUp = new Vector3(0, 0, 1)

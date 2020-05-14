@@ -1,5 +1,6 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { flow, mapValues, property } from 'lodash'
+import { AppDispatch, getPartsUuids, RootState } from 'src'
 import {
   Box2,
   Camera,
@@ -10,8 +11,6 @@ import {
   Vector2,
   Vector3,
 } from 'three'
-
-import { AppDispatch, getPartsUuids, RootState } from './'
 
 export interface Point {
   x: number

@@ -1,7 +1,7 @@
 import React from 'react'
 import { AxisDirection, MaterialId, PartType, SizeId, SpecId } from 'src'
 import { directionByAxis } from 'src'
-import { App, Head, withLayout } from 'src/components'
+import { DomApp, DomHead, withDomLayout } from 'src'
 
 const defaultModel = {
   specId: SpecId.og,
@@ -48,7 +48,7 @@ const defaultModel = {
 function Page() {
   return (
     <>
-      <Head
+      <DomHead
         keywords={[
           'grid',
           'beam',
@@ -59,9 +59,9 @@ function Page() {
           'furniture',
         ]}
       />
-      <App defaultModel={defaultModel} />
+      <DomApp defaultModel={defaultModel} />
     </>
   )
 }
 
-export default withLayout(Page)
+export default withDomLayout(Page)

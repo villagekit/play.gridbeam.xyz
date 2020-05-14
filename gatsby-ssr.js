@@ -1,5 +1,7 @@
 import React from 'react'
 
-import Provider from './src/app/components/provider'
+import { DomProvider } from './src'
 
-export const wrapRootElement = ({ element }) => <Provider>{element}</Provider>
+export const wrapRootElement = ({ element }) => (
+  <DomProvider>{element}</DomProvider>
+)
