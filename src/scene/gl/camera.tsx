@@ -1,4 +1,5 @@
-import CameraControlsImpl from 'camera-controls'
+import { usePreviousValue } from '@huse/previous-value'
+import type CameraControlsType from 'camera-controls'
 import { map } from 'lodash'
 import React, { forwardRef, useEffect, useRef } from 'react'
 // @ts-ignore
@@ -103,12 +104,17 @@ function compute3dBounds(scene: Scene, uuids: Array<Uuid>) {
 
 // https://github.com/react-spring/drei/blob/master/src/OrbitControls.tsx
 
-CameraControlsImpl.install({ THREE })
+const CameraControlsImpl =
+  typeof window !== 'undefined' ? require('camera-controls').default : null
 
-extend({ CameraControlsImpl })
+if (CameraControlsImpl != null) {
+  CameraControlsImpl.install({ THREE })
+
+  extend({ CameraControlsImpl })
+}
 
 type CameraControlsProps = ReactThreeFiber.Object3DNode<
-  CameraControlsImpl,
+  CameraControlsType,
   typeof CameraControlsImpl
 >
 
@@ -121,7 +127,7 @@ declare global {
 }
 
 export const CameraControls = forwardRef((props: CameraControlsProps, ref) => {
-  const controlsRef = useRef<CameraControlsImpl>()
+  const controlsRef = useRef<CameraControlsType>()
 
   const { camera, gl, invalidate } = useThree()
 
