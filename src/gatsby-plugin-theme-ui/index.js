@@ -1,4 +1,7 @@
+import baseTheme from '@theme-ui/preset-base'
+
 const colors = {
+  ...baseTheme.colors,
   primary: '#462E74',
   secondary: ['#6E9B34', '#AA7439'],
   // prev:
@@ -22,6 +25,7 @@ const colors = {
 }
 
 const fonts = {
+  ...baseTheme.fonts,
   headline: 'Bungee',
   sans: 'IBM Plex Sans',
   serif: 'IBM Plex Serif',
@@ -30,6 +34,8 @@ fonts.heading = fonts.sans
 fonts.body = fonts.serif
 
 export default {
+  ...baseTheme,
   colors,
   fonts,
+  sizes: baseTheme.space,
 }

@@ -36,13 +36,11 @@ export function DomSelectionBox(props: SelectionBoxProps) {
   }, [handleEndSelection, isEnabled])
 
   React.useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('mousedown', handleMouseDown)
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('mousedown', handleMouseDown)
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
@@ -66,15 +64,6 @@ export function DomSelectionBox(props: SelectionBoxProps) {
       if (!isSelecting) return
       handleEndSelection()
       handleEnd(ev)
-    }
-
-    // if the user presses alt while selecting, end selection
-    function handleKeyDown(ev: KeyboardEvent) {
-      if (!isEnabled) return
-      if (!isSelecting) return
-      if (ev.code === 'AltLeft' || ev.code === 'AltRight') {
-        handleEndSelection()
-      }
     }
 
     function handleStart(ev: MouseEvent) {

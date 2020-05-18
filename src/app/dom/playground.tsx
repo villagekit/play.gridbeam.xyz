@@ -5,6 +5,7 @@ import {
   doAsyncLoadModel,
   doAsyncSaveModel,
   DomActionButtons,
+  DomCameraWidget,
   DomSelectionBox,
   DomSidebar,
   getCurrentSpecId,
@@ -73,6 +74,7 @@ export function DomApp({ defaultModel }: AppProps) {
       <DomSidebar />
       <DomActionButtons />
       <DomSelectionBox />
+      <DomCameraWidget />
     </Container>
   )
 }

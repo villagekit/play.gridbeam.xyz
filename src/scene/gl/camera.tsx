@@ -1,11 +1,11 @@
 import { usePreviousValue } from '@huse/previous-value'
 import type CameraControlsType from 'camera-controls'
 import { isEqual, map } from 'lodash'
-import React, { forwardRef, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ReactThreeFiber } from 'react-three-fiber'
-import { extend, useFrame, useThree } from 'react-three-fiber'
+import { useThree } from 'react-three-fiber'
 import {
   getAnyPartIsMoving,
   getIsCameraControlEnabled,
@@ -16,8 +16,9 @@ import {
   Uuid,
 } from 'src'
 import { Box3, OrthographicCamera, Scene, Vector3 } from 'three'
-import * as THREE from 'three'
-import { useCallbackRef, useMergeRefs } from 'use-callback-ref'
+import { useCallbackRef } from 'use-callback-ref'
+
+import { GlCameraControls } from './camera-controls'
 
 const ROT = Math.PI * 2
 
@@ -101,7 +102,7 @@ export function GlCamera(props: CameraProps) {
   ])
 
   return (
-    <CameraControls
+    <GlCameraControls
       ref={controlsRef}
       enabled={isControlEnabled}
       dampingFactor={0.1}
@@ -121,52 +122,3 @@ function compute3dBounds(scene: Scene, uuids: Array<Uuid>) {
 
   return box
 }
-
-// https://github.com/react-spring/drei/blob/master/src/OrbitControls.tsx
-
-const CameraControlsImpl =
-  typeof window !== 'undefined' ? require('camera-controls').default : null
-
-if (CameraControlsImpl != null) {
-  CameraControlsImpl.install({ THREE })
-
-  extend({ CameraControlsImpl })
-}
-
-type CameraControlsProps = ReactThreeFiber.Object3DNode<
-  CameraControlsType,
-  typeof CameraControlsImpl
->
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      cameraControlsImpl: CameraControlsProps
-    }
-  }
-}
-
-export const CameraControls = forwardRef<
-  CameraControlsType,
-  CameraControlsProps
->((props, ref) => {
-  const controlsRef = useRef<CameraControlsType>(null)
-
-  const { camera, gl, invalidate } = useThree()
-
-  useFrame((_, delta) => controlsRef.current?.update(delta))
-
-  useEffect(() => {
-    const controls = controlsRef.current
-    controls?.addEventListener('change', invalidate)
-    return () => controls?.removeEventListener('change', invalidate)
-  }, [invalidate])
-
-  return (
-    <cameraControlsImpl
-      ref={useMergeRefs<CameraControlsType>([controlsRef, ref])}
-      args={[camera, gl.domElement]}
-      {...props}
-    />
-  )
-})

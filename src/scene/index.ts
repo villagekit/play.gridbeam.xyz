@@ -1,3 +1,5 @@
+export * from './dom'
 export * from './gl'
+export * from './hooks'
 export * from './helpers'
 export * from './store'

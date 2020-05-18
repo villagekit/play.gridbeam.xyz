@@ -73,6 +73,7 @@ export function GlScene(props: GlProps) {
 
   return (
     <Canvas
+      id="scene-container"
       orthographic
       shadowMap
       colorManagement

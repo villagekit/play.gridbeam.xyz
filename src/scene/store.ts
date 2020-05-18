@@ -1,17 +1,26 @@
-import { createSelector, createSlice } from '@reduxjs/toolkit'
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from 'src'
 
 export interface CameraState {
   controlEnabled: boolean
+  controlMode: CameraControlMode
 }
 
 export interface SceneState {
   camera: CameraState
 }
 
+export enum CameraControlMode {
+  Default = 'default',
+  Orbit = 'orbit',
+  Pan = 'pan',
+  Zoom = 'zoom',
+}
+
 const initialState: SceneState = {
   camera: {
     controlEnabled: true,
+    controlMode: CameraControlMode.Default,
   },
 }
 
@@ -25,12 +34,19 @@ export const sceneSlice = createSlice({
     doDisableCameraControl: (state) => {
       state.camera.controlEnabled = false
     },
+    doSetCameraControlMode: (
+      state,
+      action: PayloadAction<CameraControlMode>,
+    ) => {
+      state.camera.controlMode = action.payload
+    },
   },
 })
 
 export const {
   doEnableCameraControl,
   doDisableCameraControl,
+  doSetCameraControlMode,
 } = sceneSlice.actions
 
 export default sceneSlice.reducer
@@ -44,4 +60,9 @@ export const getCameraState = createSelector(
 export const getIsCameraControlEnabled = createSelector(
   getCameraState,
   (cameraState: CameraState): boolean => cameraState.controlEnabled,
+)
+
+export const getCameraControlMode = createSelector(
+  getCameraState,
+  (cameraState: CameraState): CameraControlMode => cameraState.controlMode,
 )
