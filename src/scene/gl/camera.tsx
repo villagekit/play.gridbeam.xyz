@@ -7,11 +7,13 @@ import { useSelector } from 'react-redux'
 import type { ReactThreeFiber } from 'react-three-fiber'
 import { useThree } from 'react-three-fiber'
 import {
+  doSetCameraControls,
   getAnyPartIsMoving,
   getIsCameraControlEnabled,
   getIsSelecting,
   getParts,
   getSelectedParts,
+  useAppDispatch,
   useCameraInput,
   Uuid,
 } from 'src'
@@ -25,6 +27,7 @@ const ROT = Math.PI * 2
 interface CameraProps {}
 
 export function GlCamera(props: CameraProps) {
+  const dispatch = useAppDispatch()
   const canvasContext = useThree()
 
   const { scene, size } = canvasContext
@@ -35,7 +38,10 @@ export function GlCamera(props: CameraProps) {
   const controlsRef = useCallbackRef<CameraControlsType>(null, forceUpdate)
   // so we will always have ref here before
   // (fixes bug where camera input not setup until first re-render)
-  useCameraInput(controlsRef.current)
+  useEffect(() => {
+    const controls = controlsRef.current
+    if (controls) dispatch(doSetCameraControls(controls))
+  }, [controlsRef, dispatch])
 
   const isControlEnabled = useSelector(getIsCameraControlEnabled)
   const parts = useSelector(getParts)

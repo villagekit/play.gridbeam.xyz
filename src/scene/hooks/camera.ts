@@ -4,8 +4,8 @@ import {
   CameraControlMode,
   doDisableSelection,
   doEnableSelection,
-  doSetCameraSpherical,
   getCameraControlMode,
+  getCameraControls,
   getInputModifiers,
   useAppDispatch,
 } from 'src'
@@ -20,10 +20,11 @@ const CameraControls =
 //    - with alt and shift: truck camera
 // - mouse wheel: zoom
 // - right mouse: nothing
-export const useCameraInput = (controls: typeof CameraControls | null) => {
+export const useGlCameraInput = () => {
   const dispatch = useAppDispatch()
   const modifiers = useSelector(getInputModifiers)
   const cameraControlMode = useSelector(getCameraControlMode)
+  const controls = useSelector(getCameraControls)
 
   useEffect(() => {
     if (controls == null) return
@@ -61,24 +62,4 @@ export const useCameraInput = (controls: typeof CameraControls | null) => {
       dispatch(doEnableSelection())
     }
   }, [cameraControlMode, dispatch])
-
-  // update camera state when camera changes
-  useEffect(() => {
-    if (controls == null) return
-
-    controls.addEventListener('update', handleUpdate)
-
-    return () => {
-      controls.removeEventListener('update', handleUpdate)
-    }
-
-    function handleUpdate() {
-      dispatch(
-        doSetCameraSpherical({
-          polar: controls.polarAngle,
-          azimuth: controls.azimuthAngle,
-        }),
-      )
-    }
-  }, [controls, dispatch])
 }

@@ -4,8 +4,9 @@ import { useSelector, useStore } from 'react-redux'
 import { Canvas, useThree } from 'react-three-fiber'
 import {
   AppStore,
-  doSetCameraSpherical,
-  getCameraSpherical,
+  doDisableSelection,
+  doEnableSelection,
+  getCameraControls,
   GlProvider,
   useAppDispatch,
 } from 'src'
@@ -42,32 +43,55 @@ function CameraSphericalContainer(props: CameraSphericalContainerProps) {
 
 export function CameraSphericalWidget() {
   const dispatch = useAppDispatch()
-  const cameraSpherical = useSelector(getCameraSpherical)
+  const appControls = useSelector(getCameraControls)
 
   const controlsRef = useRef<CameraControlsType>(null)
-  const [isControlling, setIsControlling] = useState<boolean>(false)
 
   const canvasContext = useThree()
 
   const { size } = canvasContext
   const camera = canvasContext.camera as OrthographicCamera
 
+  const [isControlling, setIsControlling] = useState<boolean>(false)
+
+  // receive updates from app camera controls, unless controlling
   useEffect(() => {
-    const controls = controlsRef.current
-    if (controls == null) return
+    const widgetControls = controlsRef.current
+    if (widgetControls == null || appControls == null) return
 
-    controls.mouseButtons.left = CameraControls.ACTION.ROTATE
-    controls.mouseButtons.right = CameraControls.ACTION.NONE
-    controls.mouseButtons.wheel = CameraControls.ACTION.NONE
-
-    controls.addEventListener('controlstart', handleControlStart)
-    controls.addEventListener('control', handleControl)
-    controls.addEventListener('controlend', handleControlEnd)
+    appControls.addEventListener('update', handleUpdate)
+    handleUpdate()
 
     return () => {
-      controls.removeEventListener('controlstart', handleControlStart)
-      controls.removeEventListener('control', handleControl)
-      controls.removeEventListener('controlend', handleControlEnd)
+      appControls.removeEventListener('update', handleUpdate)
+    }
+
+    function handleUpdate() {
+      if (widgetControls == null || appControls == null) return
+      if (!isControlling) {
+        widgetControls.polarAngle = appControls.polarAngle
+        widgetControls.azimuthAngle = appControls.azimuthAngle
+      }
+    }
+  }, [appControls, controlsRef, isControlling])
+
+  // send widget control updates to app camera controls
+  useEffect(() => {
+    const widgetControls = controlsRef.current
+    if (widgetControls == null || appControls == null) return
+
+    widgetControls.mouseButtons.left = CameraControls.ACTION.ROTATE
+    widgetControls.mouseButtons.right = CameraControls.ACTION.NONE
+    widgetControls.mouseButtons.wheel = CameraControls.ACTION.NONE
+
+    widgetControls.addEventListener('controlstart', handleControlStart)
+    widgetControls.addEventListener('control', handleControl)
+    widgetControls.addEventListener('controlend', handleControlEnd)
+
+    return () => {
+      widgetControls.removeEventListener('controlstart', handleControlStart)
+      widgetControls.removeEventListener('control', handleControl)
+      widgetControls.removeEventListener('controlend', handleControlEnd)
     }
 
     function handleControlStart() {
@@ -75,20 +99,16 @@ export function CameraSphericalWidget() {
     }
 
     function handleControl() {
-      if (controls == null) return
+      if (widgetControls == null || appControls == null) return
 
-      dispatch(
-        doSetCameraSpherical({
-          polar: controls.polarAngle,
-          azimuth: controls.azimuthAngle,
-        }),
-      )
+      appControls.polarAngle = widgetControls.polarAngle
+      appControls.azimuthAngle = widgetControls.azimuthAngle
     }
 
     function handleControlEnd() {
       setIsControlling(false)
     }
-  }, [controlsRef, dispatch, setIsControlling])
+  }, [appControls, controlsRef, dispatch, isControlling, setIsControlling])
 
   useEffect(() => {
     const controls = controlsRef.current
@@ -106,14 +126,12 @@ export function CameraSphericalWidget() {
   }, [camera, controlsRef, size])
 
   useEffect(() => {
-    const controls = controlsRef.current
-    if (controls == null) return
-
-    if (!isControlling) {
-      controls.polarAngle = cameraSpherical.polar
-      controls.azimuthAngle = cameraSpherical.azimuth
+    if (isControlling) {
+      dispatch(doDisableSelection())
+    } else {
+      dispatch(doEnableSelection())
     }
-  }, [controlsRef, cameraSpherical, isControlling])
+  }, [dispatch, isControlling])
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { useGlSelection, useInput } from 'src'
+import { useGlCameraInput, useGlSelection, useInput } from 'src'
 
 export const useApp = () => {
   useInput()
@@ -6,4 +6,5 @@ export const useApp = () => {
 
 export const useGl = () => {
   useGlSelection()
+  useGlCameraInput()
 }

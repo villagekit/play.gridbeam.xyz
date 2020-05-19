@@ -1,10 +1,11 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from 'src'
+import type CameraControlsType from 'camera-controls'
+import { AppDispatch, RootState } from 'src'
 
 export interface CameraState {
   controlEnabled: boolean
   controlMode: CameraControlMode
-  spherical: SphericalCoordinate
+  controlReady: boolean
 }
 
 export interface SceneState {
@@ -18,20 +19,22 @@ export enum CameraControlMode {
   Zoom = 'zoom',
 }
 
-export interface SphericalCoordinate {
-  polar: number
-  azimuth: number
-}
-
 const initialState: SceneState = {
   camera: {
     controlEnabled: true,
     controlMode: CameraControlMode.Default,
-    spherical: {
-      polar: 0,
-      azimuth: 0,
-    },
+    controlReady: false,
   },
+}
+
+// NOTE: storing in the state caused an infinite loop bug with immer.
+let cameraControls: CameraControlsType | null = null
+
+export const doSetCameraControls = (
+  nextCameraControls: typeof cameraControls,
+) => (dispatch: AppDispatch) => {
+  cameraControls = nextCameraControls
+  dispatch(doSetCameraControlReady(true))
 }
 
 export const sceneSlice = createSlice({
@@ -50,11 +53,8 @@ export const sceneSlice = createSlice({
     ) => {
       state.camera.controlMode = action.payload
     },
-    doSetCameraSpherical: (
-      state,
-      action: PayloadAction<SphericalCoordinate>,
-    ) => {
-      state.camera.spherical = action.payload
+    doSetCameraControlReady: (state, action: PayloadAction<boolean>) => {
+      state.camera.controlReady = action.payload
     },
   },
 })
@@ -63,7 +63,7 @@ export const {
   doEnableCameraControl,
   doDisableCameraControl,
   doSetCameraControlMode,
-  doSetCameraSpherical,
+  doSetCameraControlReady,
 } = sceneSlice.actions
 
 export default sceneSlice.reducer
@@ -84,7 +84,12 @@ export const getCameraControlMode = createSelector(
   (cameraState: CameraState): CameraControlMode => cameraState.controlMode,
 )
 
-export const getCameraSpherical = createSelector(
+export const getCameraControlReady = createSelector(
   getCameraState,
-  (cameraState: CameraState): SphericalCoordinate => cameraState.spherical,
+  (cameraState: CameraState) => cameraState.controlReady,
+)
+
+export const getCameraControls = createSelector(
+  getCameraControlReady,
+  () => cameraControls,
 )
