@@ -2,17 +2,30 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { GrZoomIn } from 'react-icons/gr'
 import { IoMdHand, IoMdPlanet } from 'react-icons/io'
 import { useAppDispatch } from 'src'
-import { Flex, IconButton } from 'theme-ui'
+import { Box, Flex, IconButton } from 'theme-ui'
 
-import { CameraControlMode, doSetCameraControlMode } from '..'
+import {
+  CameraControlMode,
+  doSetCameraControlMode,
+  GlCameraSpherical,
+} from '..'
 
 interface CameraWidgetProps {}
 
 export function DomCameraWidget(props: CameraWidgetProps) {
   return (
     <CameraWidgetContainer>
+      <CameraSpherical />
       <CameraControlModeButtons />
     </CameraWidgetContainer>
+  )
+}
+
+function CameraSpherical() {
+  return (
+    <Box sx={{ margin: 2, width: 6, height: 6 }}>
+      <GlCameraSpherical />
+    </Box>
   )
 }
 
@@ -122,7 +135,13 @@ const CameraControlModeButtons = (props: CameraControlModeButtonsProps) => {
   }, [activeMode, dispatch])
 
   return (
-    <>
+    <Flex
+      sx={{
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        justifyContent: 'flex-start',
+      }}
+    >
       {cameraControlButtonDescriptors.map((cameraControlButtonDescriptor) => {
         const { mode } = cameraControlButtonDescriptor
         return (
@@ -135,7 +154,7 @@ const CameraControlModeButtons = (props: CameraControlModeButtonsProps) => {
           />
         )
       })}
-    </>
+    </Flex>
   )
 }
 

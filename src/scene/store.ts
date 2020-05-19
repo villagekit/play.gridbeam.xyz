@@ -4,6 +4,7 @@ import { RootState } from 'src'
 export interface CameraState {
   controlEnabled: boolean
   controlMode: CameraControlMode
+  spherical: SphericalCoordinate
 }
 
 export interface SceneState {
@@ -17,10 +18,19 @@ export enum CameraControlMode {
   Zoom = 'zoom',
 }
 
+export interface SphericalCoordinate {
+  polar: number
+  azimuth: number
+}
+
 const initialState: SceneState = {
   camera: {
     controlEnabled: true,
     controlMode: CameraControlMode.Default,
+    spherical: {
+      polar: 0,
+      azimuth: 0,
+    },
   },
 }
 
@@ -40,6 +50,12 @@ export const sceneSlice = createSlice({
     ) => {
       state.camera.controlMode = action.payload
     },
+    doSetCameraSpherical: (
+      state,
+      action: PayloadAction<SphericalCoordinate>,
+    ) => {
+      state.camera.spherical = action.payload
+    },
   },
 })
 
@@ -47,6 +63,7 @@ export const {
   doEnableCameraControl,
   doDisableCameraControl,
   doSetCameraControlMode,
+  doSetCameraSpherical,
 } = sceneSlice.actions
 
 export default sceneSlice.reducer
@@ -65,4 +82,9 @@ export const getIsCameraControlEnabled = createSelector(
 export const getCameraControlMode = createSelector(
   getCameraState,
   (cameraState: CameraState): CameraControlMode => cameraState.controlMode,
+)
+
+export const getCameraSpherical = createSelector(
+  getCameraState,
+  (cameraState: CameraState): SphericalCoordinate => cameraState.spherical,
 )

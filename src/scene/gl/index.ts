@@ -1,4 +1,5 @@
 export * from './camera'
+export * from './camera-spherical'
 export * from './complex'
 export * from './csg'
 export * from './scale'
