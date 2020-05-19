@@ -1,5 +1,13 @@
+import { alpha } from '@theme-ui/color'
 import type CameraControlsType from 'camera-controls'
-import React, { createRef, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useSelector, useStore } from 'react-redux'
 import { Canvas, Dom, useThree } from 'react-three-fiber'
 import {
@@ -13,7 +21,7 @@ import {
   Y_AXIS,
   Z_AXIS,
 } from 'src'
-import { Text } from 'theme-ui'
+import { Box, Button, Text } from 'theme-ui'
 import { Color, OrthographicCamera, Vector3 } from 'three'
 
 import { GlCameraControls } from './camera-controls'
@@ -41,12 +49,12 @@ function CameraSphericalContainer(props: CameraSphericalContainerProps) {
   const store: AppStore = useStore()
 
   return (
-    <>
-      <div ref={portal} style={{ pointerEvents: 'none' }} />
+    <Box sx={{ margin: 2, marginBottom: 4, width: 6, height: 6 }}>
       <Canvas orthographic colorManagement noEvents>
         <GlProvider store={store}>{children}</GlProvider>
       </Canvas>
-    </>
+      <div ref={portal} />
+    </Box>
   )
 }
 
@@ -161,6 +169,8 @@ function AxesArrows() {
   )
 }
 
+const AXIS_LENGTH = 0.16
+
 interface AxisArrowProps {
   axis: Vector3
   color: string
@@ -168,26 +178,82 @@ interface AxisArrowProps {
 }
 
 function AxisArrow(props: AxisArrowProps) {
-  const { axis: direction, color, name } = props
+  const { axis, color, name } = props
 
-  const length = 0.16
   const origin = useMemo(() => new Vector3(0, 0, 0), [])
   const hex = useMemo(() => new Color(color).getHex(), [color])
-  const endPosition = useMemo(() => {
-    return direction.clone().multiplyScalar(length)
-  }, [direction])
+
+  const minusAxis = useMemo(() => {
+    return axis.clone().multiplyScalar(-1)
+  }, [axis])
 
   return (
     <>
       <arrowHelper
-        args={[direction, origin, length, hex, length * 0.625, length * 0.3125]}
+        args={[
+          axis,
+          origin,
+          AXIS_LENGTH,
+          hex,
+          AXIS_LENGTH * 0.625,
+          AXIS_LENGTH * 0.3125,
+        ]}
       />
-      <Dom
-        portal={portal as React.MutableRefObject<HTMLElement>}
-        position={endPosition}
+      <AxisButton axis={axis} color={color} name={name} />
+      <AxisButton axis={minusAxis} color={color} name={`-${name}`} />
+    </>
+  )
+}
+
+interface AxisButtonProps {
+  axis: Vector3
+  color: string
+  name: string
+}
+
+function AxisButton(props: AxisButtonProps) {
+  const { axis, color, name } = props
+
+  const axisEndPosition = useMemo(() => {
+    return axis.clone().multiplyScalar(AXIS_LENGTH)
+  }, [axis])
+
+  const cameraControls = useSelector(getCameraControls)
+  const handleAxisClick = useCallback(() => {
+    if (cameraControls == null) return
+
+    let target = new Vector3()
+    cameraControls.getTarget(target)
+    const nextPosition = axis
+      .clone()
+      .multiplyScalar(cameraControls.distance)
+      .add(target)
+
+    cameraControls.setPosition(nextPosition.x, nextPosition.y, nextPosition.z)
+  }, [axis, cameraControls])
+
+  return (
+    <Dom
+      portal={portal as React.MutableRefObject<HTMLElement>}
+      center
+      position={axisEndPosition}
+      // to ensure button is higher click order than canvas
+      style={{ position: 'absolute' }}
+    >
+      <Button
+        sx={{
+          backgroundColor: alpha(color, 0.6),
+          borderRadius: '50%',
+          // to ensure button is higher click order than canvas
+          position: 'absolute',
+          zIndex: 2,
+          // to ensure button text fits on one line
+          width: 'max-content',
+        }}
+        onClick={handleAxisClick}
       >
         <Text>{name}</Text>
-      </Dom>
-    </>
+      </Button>
+    </Dom>
   )
 }

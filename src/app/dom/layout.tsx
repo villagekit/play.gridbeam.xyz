@@ -23,6 +23,7 @@ export const DomLayout = ({ children }: LayoutProps) => (
           padding: 0;
           width: 100%;
           height: 100%;
+          overflow: hidden;
         }
 
         *,

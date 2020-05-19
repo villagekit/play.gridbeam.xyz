@@ -15,17 +15,9 @@ interface CameraWidgetProps {}
 export function DomCameraWidget(props: CameraWidgetProps) {
   return (
     <CameraWidgetContainer>
-      <CameraSpherical />
+      <GlCameraSpherical />
       <CameraControlModeButtons />
     </CameraWidgetContainer>
-  )
-}
-
-function CameraSpherical() {
-  return (
-    <Box sx={{ margin: 2, width: 6, height: 6 }}>
-      <GlCameraSpherical />
-    </Box>
   )
 }
 
