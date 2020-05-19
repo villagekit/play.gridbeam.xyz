@@ -14,7 +14,6 @@ import {
   getParts,
   getSelectedParts,
   useAppDispatch,
-  useCameraInput,
   Uuid,
 } from 'src'
 import { Box3, OrthographicCamera, Scene, Vector3 } from 'three'

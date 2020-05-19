@@ -88,6 +88,7 @@ export { Color } from 'three/src/math/Color.js'
 export { GridHelper } from 'three/src/helpers/GridHelper.js'
 // export { PolarGridHelper } from 'three/src/helpers/PolarGridHelper.js'
 export { AxesHelper } from 'three/src/helpers/AxesHelper.js'
+export { ArrowHelper } from 'three/src/helpers/ArrowHelper.js'
 export * from 'three/src/constants.js'
 // export {
 //   InstancedBufferGeometry

@@ -1,7 +1,7 @@
 import type CameraControlsType from 'camera-controls'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { createRef, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector, useStore } from 'react-redux'
-import { Canvas, useThree } from 'react-three-fiber'
+import { Canvas, Dom, useThree } from 'react-three-fiber'
 import {
   AppStore,
   doDisableSelection,
@@ -9,13 +9,19 @@ import {
   getCameraControls,
   GlProvider,
   useAppDispatch,
+  X_AXIS,
+  Y_AXIS,
+  Z_AXIS,
 } from 'src'
-import { OrthographicCamera } from 'three'
+import { Text } from 'theme-ui'
+import { Color, OrthographicCamera, Vector3 } from 'three'
 
 import { GlCameraControls } from './camera-controls'
 
 const CameraControls =
   typeof window !== 'undefined' ? require('camera-controls').default : null
+
+const portal = createRef<HTMLDivElement>()
 
 export function GlCameraSpherical() {
   return (
@@ -35,9 +41,12 @@ function CameraSphericalContainer(props: CameraSphericalContainerProps) {
   const store: AppStore = useStore()
 
   return (
-    <Canvas orthographic colorManagement>
-      <GlProvider store={store}>{children}</GlProvider>
-    </Canvas>
+    <>
+      <div ref={portal} style={{ pointerEvents: 'none' }} />
+      <Canvas orthographic colorManagement noEvents>
+        <GlProvider store={store}>{children}</GlProvider>
+      </Canvas>
+    </>
   )
 }
 
@@ -136,7 +145,49 @@ export function CameraSphericalWidget() {
   return (
     <>
       <GlCameraControls ref={controlsRef} />
-      <axesHelper args={[5]} />
+      <AxesArrows />
+      {/*<axesHelper args={[1]} />*/}
+    </>
+  )
+}
+
+function AxesArrows() {
+  return (
+    <group>
+      <AxisArrow name={'x'} axis={X_AXIS} color="red" />
+      <AxisArrow name={'y'} axis={Y_AXIS} color="green" />
+      <AxisArrow name={'z'} axis={Z_AXIS} color="blue" />
+    </group>
+  )
+}
+
+interface AxisArrowProps {
+  axis: Vector3
+  color: string
+  name: string
+}
+
+function AxisArrow(props: AxisArrowProps) {
+  const { axis: direction, color, name } = props
+
+  const length = 0.16
+  const origin = useMemo(() => new Vector3(0, 0, 0), [])
+  const hex = useMemo(() => new Color(color).getHex(), [color])
+  const endPosition = useMemo(() => {
+    return direction.clone().multiplyScalar(length)
+  }, [direction])
+
+  return (
+    <>
+      <arrowHelper
+        args={[direction, origin, length, hex, length * 0.625, length * 0.3125]}
+      />
+      <Dom
+        portal={portal as React.MutableRefObject<HTMLElement>}
+        position={endPosition}
+      >
+        <Text>{name}</Text>
+      </Dom>
     </>
   )
 }
