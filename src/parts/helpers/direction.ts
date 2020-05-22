@@ -1,4 +1,6 @@
 import { isEqual } from 'lodash'
+import { isStandardAxis } from 'src'
+import { Vector3 } from 'three'
 
 export interface Direction {
   x: number
@@ -35,4 +37,12 @@ export function directionToAxis(direction: Direction) {
     const axisDirection = directionByAxis[axis]
     return isEqual(direction, axisDirection)
   })
+}
+
+export function isStandardDirection(direction: Direction): boolean {
+  return isStandardAxis(directionToVector(direction))
+}
+
+function directionToVector(direction: Direction): Vector3 {
+  return new Vector3(direction.x, direction.y, direction.z)
 }

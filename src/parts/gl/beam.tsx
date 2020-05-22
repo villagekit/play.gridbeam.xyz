@@ -15,6 +15,7 @@ import {
   getCurrentSpecMaterials,
   getCurrentSpecSizes,
   GridPosition,
+  isStandardDirection,
   NEGATIVE_X_AXIS,
   PartValue,
   ROTATION,
@@ -467,8 +468,9 @@ function LengthArrow(props: LengthArrowProps) {
   const {
     arrowDirection,
     beamDirection,
-    beamWidth,
     beamLength,
+    beamOrigin,
+    beamWidth,
     lockBeforeMoving,
     unlockAfterMoving,
     isSelected,
@@ -498,24 +500,61 @@ function LengthArrow(props: LengthArrowProps) {
       console.log('change', change)
       if (arrowDirection === ArrowDirection.positive) {
         updatePart([
-          // increase length by change
-          {},
+          // update length by change
+          {
+            update: 'add',
+            path: 'length',
+            value: change,
+          },
         ])
       } else if (arrowDirection === ArrowDirection.negative) {
+        // TODO tidy this up
+        let beamDirectionAxis
+        if (Math.abs(beamDirection.x) === 1) beamDirectionAxis = 'x'
+        else if (Math.abs(beamDirection.y) === 1) beamDirectionAxis = 'y'
+        else if (Math.abs(beamDirection.z) === 1) beamDirectionAxis = 'z'
+        if (beamDirectionAxis === undefined)
+          throw new Error('incorrect beam direction axis')
+
+        if (beamDirectionAxis === 'z' && beamOrigin.z === 0 && change > 0)
+          return
+
+        let beamDirectionUpdate = 'sub'
+        if (
+          beamDirection.x === -1 ||
+          beamDirection.y === -1 ||
+          beamDirection.z === -1
+        ) {
+          beamDirectionUpdate = 'add'
+        }
         updatePart([
-          // decrease length by change
-          {},
+          // update length by change
+          {
+            update: 'add',
+            path: 'length',
+            value: change,
+          },
           // move forward by change
-          {},
+          {
+            update: beamDirectionUpdate,
+            path: ['origin', beamDirectionAxis],
+            value: change,
+          },
         ])
       }
     },
-    [arrowDirection, updatePart],
+    [
+      arrowDirection,
+      beamDirection.x,
+      beamDirection.y,
+      beamDirection.z,
+      beamOrigin,
+      updatePart,
+    ],
   )
 
   const handlePointerDown = useCallback(
     (ev: PointerEvent) => {
-      console.log('down', ev)
       ev.stopPropagation()
       // @ts-ignore
       ev.target.setPointerCapture(ev.pointerId)
@@ -529,7 +568,6 @@ function LengthArrow(props: LengthArrowProps) {
 
   const handlePointerUp = useCallback(
     (ev: PointerEvent) => {
-      console.log('up', ev)
       ev.stopPropagation()
       // @ts-ignore
       ev.target.releasePointerCapture(ev.pointerId)
@@ -542,18 +580,20 @@ function LengthArrow(props: LengthArrowProps) {
 
   const handlePointerMove = useCallback(
     (ev) => {
-      console.log('move', ev)
       ev.stopPropagation()
 
       if (ev.buttons <= 0) return
-      if (pointAtMoveStart == null) return
+      if (pointAtMoveStart == null || beamLengthAtMoveStart == null) return
 
-      console.log('point', ev.point, beamDirection)
       const direction = new Vector3(
         beamDirection.x,
         beamDirection.y,
         beamDirection.z,
       )
+
+      if (arrowDirection === ArrowDirection.negative) {
+        direction.negate()
+      }
 
       const movementVector = new Vector3().copy(ev.point).sub(pointAtMoveStart)
 
@@ -571,21 +611,39 @@ function LengthArrow(props: LengthArrowProps) {
       const beamLengthChangeSinceMoveStart = Math.round(
         projectionScalar / beamWidth,
       )
-      console.log(
-        'beamLengthChangeSinceMoveStart',
-        beamLengthChangeSinceMoveStart,
-      )
 
-      // const nextBeamLength = Math.max(1, Math.round(movement / beamWidth))
-      //
-      // console.log('nextBeamLength', nextBeamLength)
+      const nextBeamLength = Math.max(
+        1,
+        beamLengthAtMoveStart + beamLengthChangeSinceMoveStart,
+      )
+      const beamLengthChange = nextBeamLength - beamLength
+      handleLengthChange(beamLengthChange)
     },
-    [beamDirection, beamWidth, pointAtMoveStart],
+    [
+      arrowDirection,
+      beamDirection.x,
+      beamDirection.y,
+      beamDirection.z,
+      beamLength,
+      beamLengthAtMoveStart,
+      beamWidth,
+      handleLengthChange,
+      pointAtMoveStart,
+    ],
   )
 
   const planeRotation = useMemo(() => {
     return directionToRotation(beamDirection)
   }, [beamDirection])
+
+  const beamIsStandardDirection = useMemo(() => {
+    return isStandardDirection(beamDirection)
+  }, [beamDirection])
+
+  // TODO: support negative length arrows in non-standard beam directions.
+  if (arrowDirection === ArrowDirection.negative && !beamIsStandardDirection) {
+    return null
+  }
 
   return (
     <group name="beam-length-arrow">
