@@ -77,6 +77,13 @@ export function GlScene(props: GlProps) {
       orthographic
       shadowMap
       colorManagement
+      raycaster={{
+        params: {
+          Line: {
+            threshold: 0.005,
+          },
+        },
+      }}
       onPointerMissed={() => {
         dispatch(doSelectParts([]))
       }}

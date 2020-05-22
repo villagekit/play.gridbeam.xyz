@@ -7,7 +7,7 @@ export { UniformsUtils } from 'three/src/renderers/shaders/UniformsUtils.js'
 export { Scene } from 'three/src/scenes/Scene.js'
 export { Mesh } from 'three/src/objects/Mesh.js'
 // export { LineSegments } from 'three/src/objects/LineSegments.js'
-// export { Line } from 'three/src/objects/Line.js'
+export { Line } from 'three/src/objects/Line.js'
 // export { CubeTexture } from 'three/src/textures/CubeTexture.js'
 // export { CanvasTexture } from 'three/src/textures/CanvasTexture.js'
 export { Group } from 'three/src/objects/Group.js'
@@ -24,10 +24,10 @@ export {
 //   ConeGeometry,
 //   ConeBufferGeometry
 // } from 'three/src/geometries/ConeGeometry.js'
-// export {
-//   CylinderGeometry,
-//   CylinderBufferGeometry
-// } from 'three/src/geometries/CylinderGeometry.js'
+export {
+  //   CylinderGeometry,
+  CylinderBufferGeometry,
+} from 'three/src/geometries/CylinderGeometry.js'
 export { CircleGeometry } from 'three/src/geometries/CircleGeometry.js'
 export {
   RingGeometry, //   RingBufferGeometry
@@ -44,7 +44,7 @@ export { MeshLambertMaterial } from 'three/src/materials/MeshLambertMaterial.js'
 export { MeshNormalMaterial } from 'three/src/materials/MeshNormalMaterial.js'
 // export { LineDashedMaterial } from 'three/src/materials/LineDashedMaterial.js'
 // export { SpriteMaterial } from 'three/src/materials/SpriteMaterial.js'
-// export { LineBasicMaterial } from 'three/src/materials/LineBasicMaterial.js'
+export { LineBasicMaterial } from 'three/src/materials/LineBasicMaterial.js'
 export { TextureLoader } from 'three/src/loaders/TextureLoader.js'
 export { Texture } from 'three/src/textures/Texture.js'
 // export { Sprite } from 'three/src/objects/Sprite.js'

@@ -1,8 +1,10 @@
 import { range } from 'lodash'
-import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useResource } from 'react-three-fiber'
+import React, { useCallback, useMemo } from 'react'
+import { useSelector } from 'react-redux'
+import { PointerEvent, useResource, useUpdate } from 'react-three-fiber'
+import { Group as GroupComponent, Line } from 'react-three-fiber/components'
 import {
+  AppDispatch,
   Direction,
   directionToRotation,
   doDisableCameraControl,
@@ -10,20 +12,30 @@ import {
   doEnableCameraControl,
   doEnableSelection,
   doSetAnyPartIsMoving,
+  doUpdatePart,
   getCurrentSpecMaterials,
   getCurrentSpecSizes,
   GridPosition,
+  NEGATIVE_X_AXIS,
   PartValue,
   TexturesByMaterialType,
+  UpdateDescriptor,
+  useAppDispatch,
   Uuid,
+  X_AXIS,
 } from 'src'
 import {
   BoxGeometry,
+  BufferGeometry,
   CircleGeometry,
   Color,
+  CylinderBufferGeometry,
+  Float32BufferAttribute,
+  Group,
   MeshBasicMaterial,
   Plane,
   RingGeometry,
+  Texture,
   Vector3,
 } from 'three'
 
@@ -60,7 +72,7 @@ export function GlBeam(props: BeamProps) {
     texturesByMaterialType,
   } = props
 
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const currentSpecSizes = useSelector(getCurrentSpecSizes)
   const currentSpecMaterials = useSelector(getCurrentSpecMaterials)
@@ -72,21 +84,6 @@ export function GlBeam(props: BeamProps) {
   const beamWidth = beamSpecSize.normalizedBeamWidth
   const holeDiameter = beamSpecMaterialSize.normalizedHoleDiameter
 
-  const beamTexture = React.useMemo(() => {
-    return texturesByMaterialType[beamSpecMaterial.id]
-  }, [beamSpecMaterial.id, texturesByMaterialType])
-
-  const geometry = React.useMemo(() => {
-    const boxSize = [beamWidth * length, beamWidth, beamWidth]
-    const boxGeometry = new BoxGeometry(...boxSize, length)
-
-    // translate beam so first hole is at (0, 0).
-    // this way, the first hole is preserved across rotations.
-    boxGeometry.translate((beamWidth * (length - 1)) / 2, 0, 0)
-
-    return boxGeometry
-  }, [beamWidth, length])
-
   const position: [number, number, number] = React.useMemo(() => {
     return [
       (1 / 2 + origin.x) * beamWidth,
@@ -94,6 +91,106 @@ export function GlBeam(props: BeamProps) {
       (1 / 2 + origin.z) * beamWidth,
     ]
   }, [beamWidth, origin])
+
+  const rotation = React.useMemo(() => {
+    return directionToRotation(direction)
+  }, [direction])
+
+  const beamTexture = React.useMemo(() => {
+    return texturesByMaterialType[beamSpecMaterial.id]
+  }, [beamSpecMaterial.id, texturesByMaterialType])
+
+  const updatePart = React.useCallback(
+    (updater: UpdateDescriptor) => {
+      dispatch(doUpdatePart({ uuid, updater }))
+    },
+    [dispatch, uuid],
+  )
+
+  return (
+    <group position={position} rotation={rotation}>
+      <BeamMain
+        uuid={uuid}
+        origin={origin}
+        length={length}
+        move={move}
+        hover={hover}
+        unhover={unhover}
+        isHovered={isHovered}
+        select={select}
+        isSelected={isSelected}
+        beamWidth={beamWidth}
+        beamTexture={beamTexture}
+        dispatch={dispatch}
+      >
+        <Holes
+          numHoles={length}
+          beamWidth={beamWidth}
+          holeDiameter={holeDiameter}
+        />
+        {isSelected && (
+          <FirstHoleMarker beamWidth={beamWidth} holeDiameter={holeDiameter} />
+        )}
+      </BeamMain>
+      <LengthArrowAtOrigin
+        beamDirection={direction}
+        beamOrigin={origin}
+        beamWidth={beamWidth}
+        updatePart={updatePart}
+      />
+      <LengthArrowAtEnd
+        beamDirection={direction}
+        beamOrigin={origin}
+        beamWidth={beamWidth}
+        updatePart={updatePart}
+        length={length}
+      />
+    </group>
+  )
+}
+
+interface BeamMainProps {
+  uuid: Uuid
+  origin: PartValue['origin']
+  length: PartValue['length']
+  move: (movement: [number, number, number]) => void
+  hover: () => void
+  unhover: () => void
+  isHovered: PartValue['isHovered']
+  select: () => void
+  isSelected: PartValue['isSelected']
+  beamWidth: number
+  beamTexture: Texture
+  dispatch: AppDispatch
+  children: React.ReactNode
+}
+
+function BeamMain(props: BeamMainProps) {
+  const {
+    uuid,
+    origin,
+    length,
+    move,
+    hover,
+    unhover,
+    isHovered,
+    select,
+    isSelected,
+    beamWidth,
+    beamTexture,
+    dispatch,
+    children,
+  } = props
+
+  const geometry = React.useMemo(() => {
+    const boxSize = [beamWidth * length, beamWidth, beamWidth]
+    const boxGeometry = new BoxGeometry(...boxSize, length)
+    // translate beam so first hole is at (0, 0).
+    // this way, the first hole is preserved across rotations.
+    boxGeometry.translate((beamWidth * (length - 1)) / 2, 0, 0)
+
+    return boxGeometry
+  }, [beamWidth, length])
 
   const [atMoveStart, setAtMoveStart] = React.useState<
     [Vector3, GridPosition] | null
@@ -203,15 +300,9 @@ export function GlBeam(props: BeamProps) {
     return new Color(isSelected ? 'cyan' : isHovered ? 'magenta' : 'white')
   }, [isSelected, isHovered])
 
-  const rotation = React.useMemo(() => {
-    return directionToRotation(direction)
-  }, [direction])
-
   return (
     <group
       name={uuid}
-      position={position}
-      rotation={rotation}
       onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
@@ -229,14 +320,7 @@ export function GlBeam(props: BeamProps) {
           <shadowMaterial attach="material" />
         </mesh>
       </group>
-      <Holes
-        numHoles={length}
-        beamWidth={beamWidth}
-        holeDiameter={holeDiameter}
-      />
-      {isSelected && (
-        <FirstHoleMarker beamWidth={beamWidth} holeDiameter={holeDiameter} />
-      )}
+      {children}
     </group>
   )
 }
@@ -342,6 +426,229 @@ function FirstHoleMarker(props: FirstHoleMarkerProps) {
         rotation={[(1 / 2) * Math.PI, 0, 0]}
         position={[0, -2e-5 - (1 / 2) * beamWidth, 0]}
       />
+    </group>
+  )
+}
+
+interface LengthArrowAtProps {
+  beamDirection: PartValue['direction']
+  beamOrigin: PartValue['origin']
+  beamWidth: number
+  updatePart: (updater: UpdateDescriptor) => void
+}
+
+interface LenghtArrowAtOriginProps extends LengthArrowAtProps {}
+
+function LengthArrowAtOrigin(props: LengthArrowAtProps) {
+  const { beamDirection, beamOrigin, beamWidth, updatePart } = props
+
+  const handleLengthChange = React.useCallback((change: number) => {
+    console.log('change', change)
+    /*
+    updatePart([
+      // decrease length by change
+      {
+      },
+      // move forward by change
+      {
+      }
+    ])
+    */
+  }, [])
+
+  return (
+    <LengthArrow
+      arrowAxis={NEGATIVE_X_AXIS}
+      beamDirection={beamDirection}
+      beamOrigin={beamOrigin}
+      beamWidth={beamWidth}
+      handleLengthChange={handleLengthChange}
+      position={[(-1 / 2) * beamWidth, 0, 0]}
+    />
+  )
+}
+
+interface LengthArrowAtEndProps extends LengthArrowAtProps {
+  length: number
+}
+
+function LengthArrowAtEnd(props: LengthArrowAtEndProps) {
+  const { beamDirection, beamOrigin, beamWidth, length, updatePart } = props
+
+  const handleLengthChange = React.useCallback((change: number) => {
+    console.log('change', change)
+    /*
+    updatePart([
+      // increase length by change
+      {
+      },
+    ])
+    */
+  }, [])
+
+  return (
+    <LengthArrow
+      arrowAxis={X_AXIS}
+      beamDirection={beamDirection}
+      beamOrigin={beamOrigin}
+      beamWidth={beamWidth}
+      handleLengthChange={handleLengthChange}
+      position={[(1 / 2 + length) * beamWidth, 0, 0]}
+    />
+  )
+}
+
+// NOTE: to determine the length change from dragging the arrow, we project the cursor onto the beam's direction axis.
+
+interface LengthArrowProps extends React.ComponentProps<typeof Arrow> {
+  arrowAxis: Vector3
+  beamDirection: PartValue['direction']
+  beamOrigin: PartValue['origin']
+  beamWidth: number
+  handleLengthChange: (change: number) => void
+}
+
+function LengthArrow(props: LengthArrowProps) {
+  const {
+    arrowAxis,
+    beamDirection,
+    beamWidth,
+    handleLengthChange,
+    ...arrowHelperProps
+  } = props
+
+  const handlePointerDown = useCallback((ev: PointerEvent) => {
+    console.log('down', ev)
+    ev.stopPropagation()
+  }, [])
+
+  const handlePointerUp = useCallback((ev: PointerEvent) => {
+    console.log('up')
+    ev.stopPropagation()
+  }, [])
+
+  const handlePointerMove = useCallback((ev: PointerEvent) => {
+    console.log('move')
+    ev.stopPropagation()
+  }, [])
+
+  const colorHex = React.useMemo(() => new Color('magenta').getHex(), [])
+
+  return (
+    /*
+    <arrowHelper
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      args={[
+        arrowAxis,
+        undefined, // origin
+        beamWidth, // length
+        colorHex, // hex
+        (1 / 2) * beamWidth, // head length
+        (1 / 3) * beamWidth, // headWidth
+      ]}
+      {...arrowHelperProps}
+    />
+    */
+    <Arrow
+      direction={arrowAxis}
+      length={beamWidth}
+      color="magenta"
+      headLength={(1 / 2) * beamWidth}
+      headWidth={(1 / 3) * beamWidth}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      {...arrowHelperProps}
+    />
+  )
+}
+
+interface ArrowProps extends React.ComponentProps<typeof GroupComponent> {
+  direction?: [number, number, number] | Vector3
+  origin?: [number, number, number] | Vector3
+  color?: string | Color
+  length?: number
+  headLength?: number
+  headWidth?: number
+}
+
+function Arrow(props: ArrowProps) {
+  const {
+    direction = new Vector3(0, 0, 1),
+    origin = new Vector3(0, 0, 0),
+    color = 0xffff00,
+    length = 1,
+    headLength = 0.2 * length,
+    headWidth = 0.2 * headLength,
+    ...containerProps
+  } = props
+
+  const arrowRef = useUpdate<Group>(
+    (group) => {
+      const dir =
+        direction instanceof Vector3
+          ? direction
+          : new Vector3().fromArray(direction)
+
+      if (dir.y > 0.99999) {
+        group.quaternion.set(0, 0, 0, 1)
+      } else if (dir.y < -0.99999) {
+        group.quaternion.set(1, 0, 0, 0)
+      } else {
+        const axis = new Vector3(dir.z, 0, -dir.x).normalize()
+        const radians = Math.acos(dir.y)
+        group.quaternion.setFromAxisAngle(axis, radians)
+      }
+    },
+    [direction],
+  )
+
+  const lineGeometryRef = useUpdate<BufferGeometry>((geometry) => {
+    geometry.setAttribute(
+      'position',
+      new Float32BufferAttribute([0, 0, 0, 0, 1, 0], 3),
+    )
+  }, [])
+  const lineScale: [number, number, number] = useMemo(() => {
+    return [1, Math.max(0.0001, length - headLength), 1]
+  }, [headLength, length])
+
+  const coneGeometryRef = useUpdate<CylinderBufferGeometry>((geometry) => {
+    geometry.translate(0, -0.5, 0)
+  }, [])
+  const coneScale: [number, number, number] = useMemo(() => {
+    return [headWidth, headLength, headWidth]
+  }, [headWidth, headLength])
+  const conePosition: [number, number, number] = useMemo(() => [0, length, 0], [
+    length,
+  ])
+
+  return (
+    <group {...containerProps}>
+      <group ref={arrowRef} position={origin}>
+        <Line scale={lineScale}>
+          <bufferGeometry attach="geometry" ref={lineGeometryRef} />
+          <lineBasicMaterial
+            attach="material"
+            color={color}
+            toneMapped={false}
+          />
+        </Line>
+        <mesh position={conePosition} scale={coneScale}>
+          <cylinderBufferGeometry
+            attach="geometry"
+            ref={coneGeometryRef}
+            args={[0, 0.5, 1, 5, 1]}
+          />
+          <meshBasicMaterial
+            attach="material"
+            color={color}
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
     </group>
   )
 }
