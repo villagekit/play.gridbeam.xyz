@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux'
 import { PointerEvent, useResource, useUpdate } from 'react-three-fiber'
 import { Group as GroupComponent, Line } from 'react-three-fiber/components'
 import {
-  AppDispatch,
   Direction,
   directionToRotation,
   doDisableCameraControl,
@@ -18,6 +17,7 @@ import {
   GridPosition,
   NEGATIVE_X_AXIS,
   PartValue,
+  ROTATION,
   TexturesByMaterialType,
   UpdateDescriptor,
   useAppDispatch,
@@ -38,6 +38,11 @@ import {
   Texture,
   Vector3,
 } from 'three'
+
+enum ArrowDirection {
+  positive = 'positive',
+  negative = 'negative',
+}
 
 interface BeamProps {
   uuid: Uuid
@@ -100,7 +105,19 @@ export function GlBeam(props: BeamProps) {
     return texturesByMaterialType[beamSpecMaterial.id]
   }, [beamSpecMaterial.id, texturesByMaterialType])
 
-  const updatePart = React.useCallback(
+  const lockBeforeMoving = useCallback(() => {
+    dispatch(doDisableCameraControl())
+    dispatch(doDisableSelection())
+    dispatch(doSetAnyPartIsMoving(true))
+  }, [dispatch])
+
+  const unlockAfterMoving = useCallback(() => {
+    dispatch(doEnableCameraControl())
+    dispatch(doEnableSelection())
+    dispatch(doSetAnyPartIsMoving(false))
+  }, [dispatch])
+
+  const updatePart = useCallback(
     (updater: UpdateDescriptor) => {
       dispatch(doUpdatePart({ uuid, updater }))
     },
@@ -108,7 +125,7 @@ export function GlBeam(props: BeamProps) {
   )
 
   return (
-    <group position={position} rotation={rotation}>
+    <group name="beam" position={position} rotation={rotation}>
       <BeamMain
         uuid={uuid}
         origin={origin}
@@ -121,7 +138,8 @@ export function GlBeam(props: BeamProps) {
         isSelected={isSelected}
         beamWidth={beamWidth}
         beamTexture={beamTexture}
-        dispatch={dispatch}
+        lockBeforeMoving={lockBeforeMoving}
+        unlockAfterMoving={unlockAfterMoving}
       >
         <Holes
           numHoles={length}
@@ -132,19 +150,23 @@ export function GlBeam(props: BeamProps) {
           <FirstHoleMarker beamWidth={beamWidth} holeDiameter={holeDiameter} />
         )}
       </BeamMain>
-      <LengthArrowAtOrigin
-        beamDirection={direction}
-        beamOrigin={origin}
-        beamWidth={beamWidth}
-        updatePart={updatePart}
-      />
-      <LengthArrowAtEnd
-        beamDirection={direction}
-        beamOrigin={origin}
-        beamWidth={beamWidth}
-        updatePart={updatePart}
-        length={length}
-      />
+      {[ArrowDirection.positive, ArrowDirection.negative].map(
+        (arrowDirection) => (
+          <LengthArrow
+            key={arrowDirection}
+            arrowDirection={arrowDirection}
+            beamDirection={direction}
+            beamOrigin={origin}
+            beamWidth={beamWidth}
+            beamLength={length}
+            updatePart={updatePart}
+            lockBeforeMoving={lockBeforeMoving}
+            unlockAfterMoving={unlockAfterMoving}
+            isSelected={isSelected}
+            select={select}
+          />
+        ),
+      )}
     </group>
   )
 }
@@ -161,7 +183,8 @@ interface BeamMainProps {
   isSelected: PartValue['isSelected']
   beamWidth: number
   beamTexture: Texture
-  dispatch: AppDispatch
+  lockBeforeMoving: () => void
+  unlockAfterMoving: () => void
   children: React.ReactNode
 }
 
@@ -178,7 +201,8 @@ function BeamMain(props: BeamMainProps) {
     isSelected,
     beamWidth,
     beamTexture,
-    dispatch,
+    lockBeforeMoving,
+    unlockAfterMoving,
     children,
   } = props
 
@@ -195,7 +219,7 @@ function BeamMain(props: BeamMainProps) {
   const [atMoveStart, setAtMoveStart] = React.useState<
     [Vector3, GridPosition] | null
   >(null)
-  const handleMove = React.useCallback(
+  const handleMove = useCallback(
     (ev) => {
       // console.log('move', uuid)
       if (ev.buttons <= 0) return
@@ -248,7 +272,7 @@ function BeamMain(props: BeamMainProps) {
     [atMoveStart, beamWidth, origin.x, origin.y, origin.z, move],
   )
 
-  const handleHover = React.useCallback(
+  const handleHover = useCallback(
     (ev) => {
       // console.log('hover', uuid)
       hover()
@@ -256,7 +280,7 @@ function BeamMain(props: BeamMainProps) {
     [hover],
   )
 
-  const handleUnhover = React.useCallback(
+  const handleUnhover = useCallback(
     (ev) => {
       // console.log('unhover', uuid)
       unhover()
@@ -264,36 +288,32 @@ function BeamMain(props: BeamMainProps) {
     [unhover],
   )
 
-  const handleClick = React.useCallback((ev) => {
+  const handleClick = useCallback((ev) => {
     ev.stopPropagation()
     // console.log('click x', ev.detail)
   }, [])
 
-  const handlePointerDown = React.useCallback(
+  const handlePointerDown = useCallback(
     (ev) => {
       ev.stopPropagation()
       // @ts-ignore
       ev.target.setPointerCapture(ev.pointerId)
-      dispatch(doDisableCameraControl())
-      dispatch(doDisableSelection())
-      dispatch(doSetAnyPartIsMoving(true))
+      lockBeforeMoving()
       if (!isSelected) select()
       setAtMoveStart([ev.point, origin])
     },
-    [dispatch, origin, isSelected, select, setAtMoveStart],
+    [lockBeforeMoving, isSelected, select, origin],
   )
 
-  const handlePointerUp = React.useCallback(
+  const handlePointerUp = useCallback(
     (ev) => {
       ev.stopPropagation()
       // @ts-ignore
       ev.target.releasePointerCapture(ev.pointerId)
-      dispatch(doEnableCameraControl())
-      dispatch(doEnableSelection())
-      dispatch(doSetAnyPartIsMoving(false))
+      unlockAfterMoving()
       setAtMoveStart(null)
     },
-    [dispatch],
+    [unlockAfterMoving],
   )
 
   const color = React.useMemo(() => {
@@ -302,7 +322,7 @@ function BeamMain(props: BeamMainProps) {
 
   return (
     <group
-      name={uuid}
+      name="beam-main"
       onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
@@ -310,13 +330,13 @@ function BeamMain(props: BeamMainProps) {
       onPointerOver={handleHover}
       onPointerOut={handleUnhover}
     >
-      <group>
-        <mesh uuid={uuid} geometry={geometry} castShadow>
+      <group name="beam-material">
+        <mesh uuid={uuid} name="beam-texture" geometry={geometry} castShadow>
           <meshLambertMaterial attach="material" color={color}>
             <primitive object={beamTexture} attach="map" />
           </meshLambertMaterial>
         </mesh>
-        <mesh geometry={geometry} receiveShadow>
+        <mesh name="beam-shadow" geometry={geometry} receiveShadow>
           <shadowMaterial attach="material" />
         </mesh>
       </group>
@@ -341,7 +361,7 @@ function Holes(props: HolesProps) {
   const [geometryRef, geometry] = useResource<CircleGeometry>()
 
   return (
-    <group>
+    <group name="beam-holes">
       <meshBasicMaterial ref={materialRef} color="black" />
       <circleGeometry ref={geometryRef} args={[holeRadius, HOLE_SEGMENTS]} />
       {range(0, numHoles).map((index) => (
@@ -395,7 +415,7 @@ function FirstHoleMarker(props: FirstHoleMarkerProps) {
   const [geometryRef, geometry] = useResource<RingGeometry>()
 
   return (
-    <group>
+    <group name="beam-first-hole-markers">
       <meshBasicMaterial ref={materialRef} color="magenta" />
       <ringGeometry ref={geometryRef} args={[innerRadius, outerRadius]} />
       {/* top */}
@@ -430,138 +450,165 @@ function FirstHoleMarker(props: FirstHoleMarkerProps) {
   )
 }
 
-interface LengthArrowAtProps {
+interface LengthArrowProps {
+  arrowDirection: ArrowDirection
   beamDirection: PartValue['direction']
   beamOrigin: PartValue['origin']
   beamWidth: number
+  beamLength: number
   updatePart: (updater: UpdateDescriptor) => void
-}
-
-interface LenghtArrowAtOriginProps extends LengthArrowAtProps {}
-
-function LengthArrowAtOrigin(props: LengthArrowAtProps) {
-  const { beamDirection, beamOrigin, beamWidth, updatePart } = props
-
-  const handleLengthChange = React.useCallback((change: number) => {
-    console.log('change', change)
-    /*
-    updatePart([
-      // decrease length by change
-      {
-      },
-      // move forward by change
-      {
-      }
-    ])
-    */
-  }, [])
-
-  return (
-    <LengthArrow
-      arrowAxis={NEGATIVE_X_AXIS}
-      beamDirection={beamDirection}
-      beamOrigin={beamOrigin}
-      beamWidth={beamWidth}
-      handleLengthChange={handleLengthChange}
-      position={[(-1 / 2) * beamWidth, 0, 0]}
-    />
-  )
-}
-
-interface LengthArrowAtEndProps extends LengthArrowAtProps {
-  length: number
-}
-
-function LengthArrowAtEnd(props: LengthArrowAtEndProps) {
-  const { beamDirection, beamOrigin, beamWidth, length, updatePart } = props
-
-  const handleLengthChange = React.useCallback((change: number) => {
-    console.log('change', change)
-    /*
-    updatePart([
-      // increase length by change
-      {
-      },
-    ])
-    */
-  }, [])
-
-  return (
-    <LengthArrow
-      arrowAxis={X_AXIS}
-      beamDirection={beamDirection}
-      beamOrigin={beamOrigin}
-      beamWidth={beamWidth}
-      handleLengthChange={handleLengthChange}
-      position={[(1 / 2 + length) * beamWidth, 0, 0]}
-    />
-  )
-}
-
-// NOTE: to determine the length change from dragging the arrow, we project the cursor onto the beam's direction axis.
-
-interface LengthArrowProps extends React.ComponentProps<typeof Arrow> {
-  arrowAxis: Vector3
-  beamDirection: PartValue['direction']
-  beamOrigin: PartValue['origin']
-  beamWidth: number
-  handleLengthChange: (change: number) => void
+  lockBeforeMoving: () => void
+  unlockAfterMoving: () => void
+  isSelected: boolean
+  select: () => void
 }
 
 function LengthArrow(props: LengthArrowProps) {
   const {
-    arrowAxis,
+    arrowDirection,
     beamDirection,
     beamWidth,
-    handleLengthChange,
-    ...arrowHelperProps
+    beamLength,
+    lockBeforeMoving,
+    unlockAfterMoving,
+    isSelected,
+    select,
+    updatePart,
   } = props
 
-  const handlePointerDown = useCallback((ev: PointerEvent) => {
-    console.log('down', ev)
-    ev.stopPropagation()
-  }, [])
+  const arrowAxis =
+    arrowDirection === ArrowDirection.positive ? X_AXIS : NEGATIVE_X_AXIS
 
-  const handlePointerUp = useCallback((ev: PointerEvent) => {
-    console.log('up')
-    ev.stopPropagation()
-  }, [])
+  const position: [number, number, number] = useMemo(() => {
+    return arrowDirection === ArrowDirection.positive
+      ? [(beamLength - 1 / 2) * beamWidth, 0, 0]
+      : [(-1 / 2) * beamWidth, 0, 0]
+  }, [arrowDirection, beamLength, beamWidth])
 
-  const handlePointerMove = useCallback((ev: PointerEvent) => {
-    console.log('move')
-    ev.stopPropagation()
-  }, [])
+  const [
+    pointAtMoveStart,
+    setPointAtMoveStart,
+  ] = React.useState<Vector3 | null>(null)
+  const [beamLengthAtMoveStart, setBeamLengthAtMoveStart] = React.useState<
+    number | null
+  >(null)
 
-  const colorHex = React.useMemo(() => new Color('magenta').getHex(), [])
+  const handleLengthChange = useCallback(
+    (change: number) => {
+      console.log('change', change)
+      if (arrowDirection === ArrowDirection.positive) {
+        updatePart([
+          // increase length by change
+          {},
+        ])
+      } else if (arrowDirection === ArrowDirection.negative) {
+        updatePart([
+          // decrease length by change
+          {},
+          // move forward by change
+          {},
+        ])
+      }
+    },
+    [arrowDirection, updatePart],
+  )
+
+  const handlePointerDown = useCallback(
+    (ev: PointerEvent) => {
+      console.log('down', ev)
+      ev.stopPropagation()
+      // @ts-ignore
+      ev.target.setPointerCapture(ev.pointerId)
+      lockBeforeMoving()
+      if (!isSelected) select()
+      setPointAtMoveStart(ev.point)
+      setBeamLengthAtMoveStart(beamLength)
+    },
+    [beamLength, isSelected, lockBeforeMoving, select],
+  )
+
+  const handlePointerUp = useCallback(
+    (ev: PointerEvent) => {
+      console.log('up', ev)
+      ev.stopPropagation()
+      // @ts-ignore
+      ev.target.releasePointerCapture(ev.pointerId)
+      unlockAfterMoving()
+      setPointAtMoveStart(null)
+      setBeamLengthAtMoveStart(null)
+    },
+    [unlockAfterMoving],
+  )
+
+  const handlePointerMove = useCallback(
+    (ev) => {
+      console.log('move', ev)
+      ev.stopPropagation()
+
+      if (ev.buttons <= 0) return
+      if (pointAtMoveStart == null) return
+
+      console.log('point', ev.point, beamDirection)
+      const direction = new Vector3(
+        beamDirection.x,
+        beamDirection.y,
+        beamDirection.z,
+      )
+
+      const movementVector = new Vector3().copy(ev.point).sub(pointAtMoveStart)
+
+      // https://en.wikipedia.org/wiki/Vector_projection
+      const projectionVector = movementVector.clone().projectOnVector(direction)
+      const projectionMagnitude = projectionVector.length()
+      const projectionAngle = movementVector.angleTo(direction)
+      const projectionIsNegative =
+        projectionAngle > (1 / 4) * ROTATION &&
+        projectionAngle <= (1 / 2) * ROTATION
+      const projectionScalar = projectionIsNegative
+        ? -projectionMagnitude
+        : projectionMagnitude
+
+      const beamLengthChangeSinceMoveStart = Math.round(
+        projectionScalar / beamWidth,
+      )
+      console.log(
+        'beamLengthChangeSinceMoveStart',
+        beamLengthChangeSinceMoveStart,
+      )
+
+      // const nextBeamLength = Math.max(1, Math.round(movement / beamWidth))
+      //
+      // console.log('nextBeamLength', nextBeamLength)
+    },
+    [beamDirection, beamWidth, pointAtMoveStart],
+  )
+
+  const planeRotation = useMemo(() => {
+    return directionToRotation(beamDirection)
+  }, [beamDirection])
 
   return (
-    /*
-    <arrowHelper
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerMove={handlePointerMove}
-      args={[
-        arrowAxis,
-        undefined, // origin
-        beamWidth, // length
-        colorHex, // hex
-        (1 / 2) * beamWidth, // head length
-        (1 / 3) * beamWidth, // headWidth
-      ]}
-      {...arrowHelperProps}
-    />
-    */
-    <Arrow
-      direction={arrowAxis}
-      length={beamWidth}
-      color="magenta"
-      headLength={(1 / 2) * beamWidth}
-      headWidth={(1 / 3) * beamWidth}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerMove={handlePointerMove}
-      {...arrowHelperProps}
-    />
+    <group name="beam-length-arrow">
+      <Arrow
+        position={position}
+        direction={arrowAxis}
+        length={beamWidth}
+        color="magenta"
+        headLength={(2 / 3) * beamWidth}
+        headWidth={(1 / 2) * beamWidth}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+      />
+      {pointAtMoveStart != null && (
+        <mesh
+          visible={false}
+          rotation={planeRotation}
+          onPointerMove={handlePointerMove}
+        >
+          <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
+        </mesh>
+      )}
+    </group>
   )
 }
 
@@ -626,7 +673,7 @@ function Arrow(props: ArrowProps) {
   ])
 
   return (
-    <group {...containerProps}>
+    <group name="arrow" {...containerProps}>
       <group ref={arrowRef} position={origin}>
         <Line scale={lineScale}>
           <bufferGeometry attach="geometry" ref={lineGeometryRef} />
