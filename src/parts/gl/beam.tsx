@@ -665,6 +665,12 @@ function LengthArrow(props: LengthArrowProps) {
           onPointerMove={handlePointerMove}
         >
           <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
+          <meshLambertMaterial
+            attach="material"
+            color={'magenta'}
+            transparent
+            opacity={0.1}
+          />
         </mesh>
       )}
     </group>
