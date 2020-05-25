@@ -308,13 +308,14 @@ function BeamMain(props: BeamMainProps) {
 
   const handlePointerUp = useCallback(
     (ev) => {
+      if (atMoveStart == null) return
       ev.stopPropagation()
       // @ts-ignore
       ev.target.releasePointerCapture(ev.pointerId)
       unlockAfterMoving()
       setAtMoveStart(null)
     },
-    [unlockAfterMoving],
+    [atMoveStart, unlockAfterMoving],
   )
 
   const color = React.useMemo(() => {
@@ -497,7 +498,6 @@ function LengthArrow(props: LengthArrowProps) {
 
   const handleLengthChange = useCallback(
     (change: number) => {
-      console.log('change', change)
       if (arrowDirection === ArrowDirection.positive) {
         updatePart([
           // update length by change
@@ -568,6 +568,7 @@ function LengthArrow(props: LengthArrowProps) {
 
   const handlePointerUp = useCallback(
     (ev: PointerEvent) => {
+      if (pointAtMoveStart == null || beamLengthAtMoveStart == null) return
       ev.stopPropagation()
       // @ts-ignore
       ev.target.releasePointerCapture(ev.pointerId)
@@ -575,7 +576,7 @@ function LengthArrow(props: LengthArrowProps) {
       setPointAtMoveStart(null)
       setBeamLengthAtMoveStart(null)
     },
-    [unlockAfterMoving],
+    [beamLengthAtMoveStart, pointAtMoveStart, unlockAfterMoving],
   )
 
   const handlePointerMove = useCallback(
@@ -659,7 +660,7 @@ function LengthArrow(props: LengthArrowProps) {
       />
       {pointAtMoveStart != null && (
         <mesh
-          visible={false}
+          // visible={false}
           rotation={planeRotation}
           onPointerMove={handlePointerMove}
         >
