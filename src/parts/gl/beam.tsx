@@ -516,8 +516,9 @@ function LengthArrow(props: LengthArrowProps) {
         if (beamDirectionAxis === undefined)
           throw new Error('incorrect beam direction axis')
 
-        if (beamDirectionAxis === 'z' && beamOrigin.z === 0 && change > 0)
-          return
+        if (beamDirectionAxis === 'z' && change > 0) {
+          change = Math.min(change, beamOrigin.z)
+        }
 
         let beamDirectionUpdate = 'sub'
         if (
