@@ -12,6 +12,7 @@ import {
   Point,
 } from 'src'
 import { Box } from 'theme-ui'
+import { MOUSE } from 'three'
 
 interface SelectionBoxProps {}
 
@@ -49,6 +50,7 @@ export function DomSelectionBox(props: SelectionBoxProps) {
     function handleMouseDown(ev: MouseEvent) {
       if (!isEnabled) return
       if (ev.altKey) return
+      if (ev.button !== MOUSE.LEFT) return
       handleStartSelection()
       handleStart(ev)
     }

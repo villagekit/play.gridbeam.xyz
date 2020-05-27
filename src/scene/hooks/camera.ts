@@ -38,7 +38,8 @@ export const useGlCameraInput = () => {
       }
     }
 
-    controls.mouseButtons.right = CameraControls.ACTION.NONE
+    controls.mouseButtons.middle = CameraControls.ACTION.ROTATE
+    controls.mouseButtons.right = CameraControls.ACTION.TRUCK
     controls.mouseButtons.wheel = CameraControls.ACTION.ZOOM
 
     switch (cameraControlMode) {
