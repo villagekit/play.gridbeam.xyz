@@ -1,3 +1,4 @@
+export * from './arrow'
 export * from './camera'
 export * from './camera-spherical'
 export * from './complex'

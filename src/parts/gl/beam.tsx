@@ -1,8 +1,7 @@
 import { range } from 'lodash'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { PointerEvent, useResource, useUpdate } from 'react-three-fiber'
-import { Group as GroupComponent, Line } from 'react-three-fiber/components'
+import { PointerEvent, useResource } from 'react-three-fiber'
 import {
   Direction,
   directionToRotation,
@@ -14,6 +13,7 @@ import {
   doUpdatePart,
   getCurrentSpecMaterials,
   getCurrentSpecSizes,
+  GlArrow,
   GridPosition,
   isStandardDirection,
   NEGATIVE_X_AXIS,
@@ -27,12 +27,8 @@ import {
 } from 'src'
 import {
   BoxGeometry,
-  BufferGeometry,
   CircleGeometry,
   Color,
-  CylinderBufferGeometry,
-  Float32BufferAttribute,
-  Group,
   MeshBasicMaterial,
   Plane,
   RingGeometry,
@@ -90,7 +86,7 @@ export function GlBeam(props: BeamProps) {
   const beamWidth = beamSpecSize.normalizedBeamWidth
   const holeDiameter = beamSpecMaterialSize.normalizedHoleDiameter
 
-  const position: [number, number, number] = React.useMemo(() => {
+  const position: [number, number, number] = useMemo(() => {
     return [
       (1 / 2 + origin.x) * beamWidth,
       (1 / 2 + origin.y) * beamWidth,
@@ -98,11 +94,11 @@ export function GlBeam(props: BeamProps) {
     ]
   }, [beamWidth, origin])
 
-  const rotation = React.useMemo(() => {
+  const rotation = useMemo(() => {
     return directionToRotation(direction)
   }, [direction])
 
-  const beamTexture = React.useMemo(() => {
+  const beamTexture = useMemo(() => {
     return texturesByMaterialType[beamSpecMaterial.id]
   }, [beamSpecMaterial.id, texturesByMaterialType])
 
@@ -207,7 +203,7 @@ function BeamMain(props: BeamMainProps) {
     children,
   } = props
 
-  const geometry = React.useMemo(() => {
+  const geometry = useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
     const boxGeometry = new BoxGeometry(...boxSize, length)
     // translate beam so first hole is at (0, 0).
@@ -217,7 +213,7 @@ function BeamMain(props: BeamMainProps) {
     return boxGeometry
   }, [beamWidth, length])
 
-  const [atMoveStart, setAtMoveStart] = React.useState<
+  const [atMoveStart, setAtMoveStart] = useState<
     [Vector3, GridPosition] | null
   >(null)
   const handleMove = useCallback(
@@ -318,7 +314,7 @@ function BeamMain(props: BeamMainProps) {
     [atMoveStart, unlockAfterMoving],
   )
 
-  const color = React.useMemo(() => {
+  const color = useMemo(() => {
     return new Color(isSelected ? 'cyan' : isHovered ? 'magenta' : 'white')
   }, [isSelected, isHovered])
 
@@ -488,11 +484,8 @@ function LengthArrow(props: LengthArrowProps) {
       : [(-1 / 2) * beamWidth, 0, 0]
   }, [arrowDirection, beamLength, beamWidth])
 
-  const [
-    pointAtMoveStart,
-    setPointAtMoveStart,
-  ] = React.useState<Vector3 | null>(null)
-  const [beamLengthAtMoveStart, setBeamLengthAtMoveStart] = React.useState<
+  const [pointAtMoveStart, setPointAtMoveStart] = useState<Vector3 | null>(null)
+  const [beamLengthAtMoveStart, setBeamLengthAtMoveStart] = useState<
     number | null
   >(null)
 
@@ -649,7 +642,7 @@ function LengthArrow(props: LengthArrowProps) {
 
   return (
     <group name="beam-length-arrow">
-      <Arrow
+      <GlArrow
         position={position}
         direction={arrowAxis}
         length={beamWidth}
@@ -674,94 +667,6 @@ function LengthArrow(props: LengthArrowProps) {
           />
         </mesh>
       )}
-    </group>
-  )
-}
-
-interface ArrowProps extends React.ComponentProps<typeof GroupComponent> {
-  direction?: [number, number, number] | Vector3
-  origin?: [number, number, number] | Vector3
-  color?: string | Color
-  length?: number
-  headLength?: number
-  headWidth?: number
-}
-
-function Arrow(props: ArrowProps) {
-  const {
-    direction = new Vector3(0, 0, 1),
-    origin = new Vector3(0, 0, 0),
-    color = 0xffff00,
-    length = 1,
-    headLength = 0.2 * length,
-    headWidth = 0.2 * headLength,
-    ...containerProps
-  } = props
-
-  const arrowRef = useUpdate<Group>(
-    (group) => {
-      const dir =
-        direction instanceof Vector3
-          ? direction
-          : new Vector3().fromArray(direction)
-
-      if (dir.y > 0.99999) {
-        group.quaternion.set(0, 0, 0, 1)
-      } else if (dir.y < -0.99999) {
-        group.quaternion.set(1, 0, 0, 0)
-      } else {
-        const axis = new Vector3(dir.z, 0, -dir.x).normalize()
-        const radians = Math.acos(dir.y)
-        group.quaternion.setFromAxisAngle(axis, radians)
-      }
-    },
-    [direction],
-  )
-
-  const lineGeometryRef = useUpdate<BufferGeometry>((geometry) => {
-    geometry.setAttribute(
-      'position',
-      new Float32BufferAttribute([0, 0, 0, 0, 1, 0], 3),
-    )
-  }, [])
-  const lineScale: [number, number, number] = useMemo(() => {
-    return [1, Math.max(0.0001, length - headLength), 1]
-  }, [headLength, length])
-
-  const coneGeometryRef = useUpdate<CylinderBufferGeometry>((geometry) => {
-    geometry.translate(0, -0.5, 0)
-  }, [])
-  const coneScale: [number, number, number] = useMemo(() => {
-    return [headWidth, headLength, headWidth]
-  }, [headWidth, headLength])
-  const conePosition: [number, number, number] = useMemo(() => [0, length, 0], [
-    length,
-  ])
-
-  return (
-    <group name="arrow" {...containerProps}>
-      <group ref={arrowRef} position={origin}>
-        <Line scale={lineScale}>
-          <bufferGeometry attach="geometry" ref={lineGeometryRef} />
-          <lineBasicMaterial
-            attach="material"
-            color={color}
-            toneMapped={false}
-          />
-        </Line>
-        <mesh position={conePosition} scale={coneScale}>
-          <cylinderBufferGeometry
-            attach="geometry"
-            ref={coneGeometryRef}
-            args={[0, 0.5, 1, 5, 1]}
-          />
-          <meshBasicMaterial
-            attach="material"
-            color={color}
-            toneMapped={false}
-          />
-        </mesh>
-      </group>
     </group>
   )
 }
