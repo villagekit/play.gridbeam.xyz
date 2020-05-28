@@ -128,16 +128,16 @@ const SPECS: Array<SpecEntity> = [
 
 export interface SpecState {
   specs: Array<SpecEntity>
-  currentSpecId: SpecId | null
-  currentSizeId: SizeId | null
-  currentMaterialId: MaterialId | null
+  currentSpecId: SpecId
+  currentSizeId: SizeId
+  currentMaterialId: MaterialId
 }
 
 const initialState: SpecState = {
   specs: SPECS,
-  currentSpecId: null,
-  currentSizeId: null,
-  currentMaterialId: null,
+  currentSpecId: SPECS[0].id,
+  currentSizeId: SPECS[0].sizes[0].id,
+  currentMaterialId: SPECS[0].materials[0].id,
 }
 
 export const specSlice = createSlice({

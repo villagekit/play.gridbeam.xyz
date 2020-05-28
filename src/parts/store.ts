@@ -5,9 +5,20 @@ import {
   createSlice,
   PayloadAction,
 } from '@reduxjs/toolkit'
-import { capitalize, groupBy, isEmpty, keys, map, zipObject } from 'lodash'
-import { MaterialId, RootState, SizeId } from 'src'
-import { MathUtils } from 'three'
+import { capitalize, groupBy, isEmpty, keys, values, zipObject } from 'lodash'
+import { createObjectSelector } from 'reselect-map'
+import {
+  directionToRotation,
+  getCurrentSpecMaterials,
+  getCurrentSpecSizes,
+  MaterialId,
+  RootState,
+  SizeId,
+  SpecMaterialSizeValue,
+  SpecMaterialValue,
+  SpecSizeValue,
+} from 'src'
+import { Euler, MathUtils } from 'three'
 
 import { Direction } from './helpers/direction'
 import createUpdater, { UpdateDescriptor } from './helpers/updater'
@@ -44,6 +55,14 @@ export interface PartValue extends PartEntity {
   uuid: Uuid
   isHovered: boolean
   isSelected: boolean
+  specMaterial: SpecMaterialValue
+  specMaterialSize: SpecMaterialSizeValue
+  specSize: SpecSizeValue
+  beamWidth: number
+  holeDiameter: number
+  boltDiameter: number
+  position: [number, number, number]
+  rotation: Euler
 }
 
 type HoverStateKey = 'hoveredUuids'
@@ -190,20 +209,62 @@ export const getPartsUuids = createSelector(
   getPartsEntities,
   (parts): Array<Uuid> => keys(parts),
 )
-export const getParts = createSelector(
+// HACK to ensure reselect-map always has an object
+export const getPartsEntitiesNotNull = createSelector(
   getPartsEntities,
+  (entities) => entities || {},
+)
+export const getPartsByUuid = createObjectSelector(
+  getPartsEntitiesNotNull,
   getHoveredUuids,
   getSelectedUuids,
-  (parts, hoveredUuids, selectedUuids): Array<PartValue> => {
-    parts = parts == null ? {} : parts
-    return map(parts, (part, uuid) =>
-      Object.assign({}, part, {
-        uuid,
-        isHovered: Boolean(uuid in hoveredUuids),
-        isSelected: Boolean(uuid in selectedUuids),
-      }),
-    )
+  getCurrentSpecSizes,
+  getCurrentSpecMaterials,
+  (
+    part,
+    hoveredUuids,
+    selectedUuids,
+    currentSpecSizes,
+    currentSpecMaterials,
+    uuid,
+  ): PartValue => {
+    const isHovered = Boolean(uuid in hoveredUuids)
+    const isSelected = Boolean(uuid in selectedUuids)
+
+    const { sizeId, materialId } = part
+    const specSize = currentSpecSizes[sizeId]
+    const specMaterial = currentSpecMaterials[materialId]
+    const specMaterialSize = specMaterial.sizes[sizeId]
+    const beamWidth = specSize.normalizedBeamWidth
+    const holeDiameter = specMaterialSize.normalizedHoleDiameter
+    const boltDiameter = specMaterialSize.normalizedBoltDiameter
+
+    const { origin, direction } = part
+    const position = [
+      (1 / 2 + origin.x) * beamWidth,
+      (1 / 2 + origin.y) * beamWidth,
+      (1 / 2 + origin.z) * beamWidth,
+    ]
+    const rotation = directionToRotation(direction)
+
+    return Object.assign({}, part, {
+      uuid,
+      isHovered,
+      isSelected,
+      specSize,
+      specMaterial,
+      specMaterialSize,
+      beamWidth,
+      holeDiameter,
+      boltDiameter,
+      position,
+      rotation,
+    })
   },
+)
+export const getParts = createSelector(
+  getPartsByUuid,
+  (partsByUuid): Array<PartValue> => values(partsByUuid),
 )
 export const getSelectedParts = createSelector(getParts, (parts) =>
   parts.filter((part) => part.isSelected === true),

@@ -1,22 +1,19 @@
 import { mapValues } from 'lodash'
-import React, { forwardRef, useCallback, useMemo } from 'react'
+import React, { forwardRef, useMemo } from 'react'
 import { useDispatch, useSelector, useStore } from 'react-redux'
 import { Canvas, extend, ReactThreeFiber } from 'react-three-fiber'
 import {
   AppStore,
-  doHoverPart,
   doSelectParts,
-  doUnhoverPart,
-  doUpdateSelectedParts,
   getCurrentSpecSize,
-  getParts,
-  PartType,
-  PartValue,
+  GlCamera,
+  GlParts,
+  GlProvider,
+  GlScaleReference,
   texturePathsByMaterialType,
   TexturesByMaterialType,
   useGl,
 } from 'src'
-import { GlBeam, GlCamera, GlProvider, GlScaleReference } from 'src'
 import { Object3D, TextureLoader, Vector3 } from 'three'
 
 import { Sky as SkyImpl } from '../../vendor/Sky'
@@ -27,8 +24,6 @@ export function GlScene(props: GlProps) {
   const store: AppStore = useStore()
   const dispatch = useDispatch()
 
-  const parts = useSelector(getParts)
-
   const currentSize = useSelector(getCurrentSpecSize)
   if (currentSize == null) throw new Error('currentSize is null')
   const currentBeamWidth = currentSize.normalizedBeamWidth
@@ -38,38 +33,6 @@ export function GlScene(props: GlProps) {
       return new TextureLoader().load(texturePath)
     })
   }, [])
-
-  const renderParts = useCallback(
-    (parts: Array<PartValue>) =>
-      parts.map((part) => {
-        const { uuid } = part
-        const partProps = {
-          ...part,
-          hover: () => dispatch(doHoverPart(uuid)),
-          unhover: () => dispatch(doUnhoverPart(uuid)),
-          select: () => dispatch(doSelectParts([uuid])),
-          move: (delta: [number, number, number]) =>
-            dispatch(
-              doUpdateSelectedParts([
-                { update: 'add', path: 'origin.x', value: delta[0] },
-                { update: 'add', path: 'origin.y', value: delta[1] },
-                { update: 'add', path: 'origin.z', value: delta[2] },
-              ]),
-            ),
-        }
-        if (part.type === PartType.Beam) {
-          return (
-            <GlBeam
-              key={part.uuid}
-              {...partProps}
-              texturesByMaterialType={texturesByMaterialType}
-            />
-          )
-        }
-        return null
-      }),
-    [dispatch, texturesByMaterialType],
-  )
 
   return (
     <Canvas
@@ -92,7 +55,7 @@ export function GlScene(props: GlProps) {
         <GlHooks />
         <GlCamera />
         <Background currentBeamWidth={currentBeamWidth} />
-        {renderParts(parts)}
+        <GlParts texturesByMaterialType={texturesByMaterialType} />
       </GlProvider>
     </Canvas>
   )

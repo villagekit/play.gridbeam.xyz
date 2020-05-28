@@ -1,5 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useStore } from 'react-redux'
 
 import inputReducer from './input/store'
 import partsReducer from './parts/store'
@@ -31,6 +31,7 @@ export function createStore() {
 }
 
 export type AppStore = ReturnType<typeof createStore>
+export const useAppStore = (): AppStore => useStore()
 export type RootState = ReturnType<typeof reducer>
 export type AppDispatch = AppStore['dispatch']
 export const useAppDispatch = (): AppDispatch => useDispatch<AppDispatch>()

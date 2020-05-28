@@ -1,27 +1,19 @@
 import { range } from 'lodash'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { PointerEvent, useResource } from 'react-three-fiber'
+import { PointerEvent, useFrame, useResource } from 'react-three-fiber'
 import {
-  Direction,
   directionToRotation,
-  doDisableCameraControl,
-  doDisableSelection,
-  doEnableCameraControl,
-  doEnableSelection,
-  doSetAnyPartIsMoving,
-  doUpdatePart,
-  getCurrentSpecMaterials,
-  getCurrentSpecSizes,
+  getPartsByUuid,
   GlArrow,
   GridPosition,
   isStandardDirection,
   NEGATIVE_X_AXIS,
   PartValue,
   ROTATION,
-  TexturesByMaterialType,
   UpdateDescriptor,
-  useAppDispatch,
+  useAppStore,
+  usePartActions,
   Uuid,
   X_AXIS,
 } from 'src'
@@ -29,7 +21,9 @@ import {
   BoxGeometry,
   CircleGeometry,
   Color,
+  Group,
   MeshBasicMaterial,
+  Object3D,
   Plane,
   RingGeometry,
   Texture,
@@ -43,86 +37,58 @@ enum ArrowDirection {
 
 interface BeamProps {
   uuid: Uuid
-  origin: PartValue['origin']
-  direction: Direction
-  length: PartValue['length']
-  isHovered: PartValue['isHovered']
-  hover: () => void
-  unhover: () => void
-  isSelected: PartValue['isSelected']
-  select: () => void
-  move: (movement: [number, number, number]) => void
-  sizeId: PartValue['sizeId']
-  materialId: PartValue['materialId']
-  texturesByMaterialType: TexturesByMaterialType
+  texture: Texture
 }
 
 export function GlBeam(props: BeamProps) {
+  const { uuid, texture: beamTexture } = props
+
+  const partsByUuid = useSelector(getPartsByUuid)
+  // @ts-ignore
+  const part = partsByUuid[uuid] as PartValue
+
   const {
-    uuid,
     origin,
     direction,
     length,
     isHovered,
+    isSelected,
+    beamWidth,
+    holeDiameter,
+  } = part
+
+  const {
     hover,
     unhover,
-    isSelected,
     select,
     move,
-    sizeId,
-    materialId,
-    texturesByMaterialType,
-  } = props
+    lockBeforeMoving,
+    unlockAfterMoving,
+    updatePart,
+  } = usePartActions(uuid)
 
-  const dispatch = useAppDispatch()
-
-  const currentSpecSizes = useSelector(getCurrentSpecSizes)
-  const currentSpecMaterials = useSelector(getCurrentSpecMaterials)
-
-  const beamSpecSize = currentSpecSizes[sizeId]
-  const beamSpecMaterial = currentSpecMaterials[materialId]
-  const beamSpecMaterialSize = beamSpecMaterial.sizes[sizeId]
-
-  const beamWidth = beamSpecSize.normalizedBeamWidth
-  const holeDiameter = beamSpecMaterialSize.normalizedHoleDiameter
-
-  const position: [number, number, number] = useMemo(() => {
-    return [
-      (1 / 2 + origin.x) * beamWidth,
-      (1 / 2 + origin.y) * beamWidth,
-      (1 / 2 + origin.z) * beamWidth,
-    ]
-  }, [beamWidth, origin])
-
-  const rotation = useMemo(() => {
-    return directionToRotation(direction)
-  }, [direction])
-
-  const beamTexture = useMemo(() => {
-    return texturesByMaterialType[beamSpecMaterial.id]
-  }, [beamSpecMaterial.id, texturesByMaterialType])
-
-  const lockBeforeMoving = useCallback(() => {
-    dispatch(doDisableCameraControl())
-    dispatch(doDisableSelection())
-    dispatch(doSetAnyPartIsMoving(true))
-  }, [dispatch])
-
-  const unlockAfterMoving = useCallback(() => {
-    dispatch(doEnableCameraControl())
-    dispatch(doEnableSelection())
-    dispatch(doSetAnyPartIsMoving(false))
-  }, [dispatch])
-
-  const updatePart = useCallback(
-    (updater: UpdateDescriptor) => {
-      dispatch(doUpdatePart({ uuid, updater }))
-    },
-    [dispatch, uuid],
-  )
+  // update position and rotation outside of React
+  const store = useAppStore()
+  const beamRef = useRef<typeof Group>()
+  useFrame(() => {
+    if (beamRef.current == null) return
+    const partsByUuid = getPartsByUuid(store.getState())
+    // @ts-ignore
+    const part = partsByUuid[uuid] as PartValue
+    const { position, rotation } = part
+    // @ts-ignore
+    const obj3d = beamRef.current as Object3D
+    obj3d.position.x = position[0]
+    obj3d.position.y = position[1]
+    obj3d.position.z = position[2]
+    obj3d.rotation.x = rotation.x
+    obj3d.rotation.y = rotation.y
+    obj3d.rotation.z = rotation.z
+    obj3d.rotation.order = rotation.order
+  })
 
   return (
-    <group name="beam" position={position} rotation={rotation}>
+    <group name="beam" ref={beamRef}>
       <BeamMain
         uuid={uuid}
         origin={origin}
@@ -213,60 +179,80 @@ function BeamMain(props: BeamMainProps) {
     return boxGeometry
   }, [beamWidth, length])
 
+  const originVector: Vector3 = useMemo(
+    () => new Vector3(origin.x, origin.y, origin.z),
+    [origin],
+  )
+
   const [atMoveStart, setAtMoveStart] = useState<
     [Vector3, GridPosition] | null
   >(null)
+  const originVectorAtMoveStart = useMemo(() => {
+    if (atMoveStart == null) return null
+    const [, originAtMoveStart] = atMoveStart
+    return new Vector3(
+      originAtMoveStart.x,
+      originAtMoveStart.y,
+      originAtMoveStart.z,
+    )
+  }, [atMoveStart])
+
+  const horizontalPlane = useMemo(() => {
+    if (atMoveStart == null) return null
+    const [pointAtMoveStart] = atMoveStart
+    return new Plane(new Vector3(0, 0, 1), -pointAtMoveStart.z)
+  }, [atMoveStart])
+  const verticalPlane = useMemo(() => {
+    if (atMoveStart == null) return null
+    const [pointAtMoveStart] = atMoveStart
+    return new Plane(new Vector3(1, 0, 0), -pointAtMoveStart.x)
+  }, [atMoveStart])
+
+  // computation vectors to re-use
+  const intersectionPoint: Vector3 = useMemo(() => new Vector3(), [])
+  const movementVector: Vector3 = useMemo(() => new Vector3(), [])
+  const deltaVector: Vector3 = useMemo(() => new Vector3(), [])
+
   const handleMove = useCallback(
     (ev) => {
       // console.log('move', uuid)
       if (ev.buttons <= 0) return
       if (atMoveStart == null) return
 
-      const [pointAtMoveStart, originAtMoveStart] = atMoveStart
-      const intersectionPoint = new Vector3()
-      let movementVector
+      const [pointAtMoveStart] = atMoveStart
 
+      // get pointer movement over plane
       if (ev.shiftKey) {
         // TODO is this correct?
-        const verticalPlane = new Plane(
-          new Vector3(1, 0, 0),
-          -pointAtMoveStart.x,
-        )
         ev.ray.intersectPlane(verticalPlane, intersectionPoint)
-        movementVector = new Vector3(
-          0,
-          0,
-          intersectionPoint.z - pointAtMoveStart.z,
-        )
+        movementVector.set(0, 0, intersectionPoint.z - pointAtMoveStart.z)
       } else {
-        const horizontalPlane = new Plane(
-          new Vector3(0, 0, 1),
-          -pointAtMoveStart.z,
-        )
         ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
-        movementVector = new Vector3()
-          .copy(intersectionPoint)
-          .sub(pointAtMoveStart)
+        movementVector.copy(intersectionPoint).sub(pointAtMoveStart)
       }
 
-      const beamMovementVector = new Vector3()
-        .copy(movementVector)
-        .divideScalar(beamWidth)
-        .round()
+      // calculate beam movement
+      movementVector.divideScalar(beamWidth).round()
 
-      const nextOrigin = new Vector3(
-        originAtMoveStart.x,
-        originAtMoveStart.y,
-        originAtMoveStart.z,
-      ).add(beamMovementVector)
+      deltaVector
+        .copy(originVectorAtMoveStart)
+        .add(movementVector)
+        .sub(originVector)
 
-      const delta = new Vector3()
-        .copy(nextOrigin)
-        .sub(new Vector3(origin.x, origin.y, origin.z))
-
-      move([delta.x, delta.y, delta.z])
+      move([deltaVector.x, deltaVector.y, deltaVector.z])
     },
-    [atMoveStart, beamWidth, origin.x, origin.y, origin.z, move],
+    [
+      atMoveStart,
+      movementVector,
+      beamWidth,
+      deltaVector,
+      originVectorAtMoveStart,
+      originVector,
+      move,
+      verticalPlane,
+      intersectionPoint,
+      horizontalPlane,
+    ],
   )
 
   const handleHover = useCallback(

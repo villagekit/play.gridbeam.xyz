@@ -8,7 +8,7 @@ export const ROTATION = 2 * Math.PI
 
 // TODO: figure out the proper solution to this.
 // i just did a radical guess, and it checked.
-export function directionToRotation(direction: Direction) {
+export function directionToRotation(direction: Direction): Euler {
   const { x, y, z } = direction
   const radius = Math.sqrt(x * x + y * y + z * z)
   const theta = -Math.atan2(z, y)
