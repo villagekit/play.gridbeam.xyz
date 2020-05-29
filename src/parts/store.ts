@@ -5,7 +5,19 @@ import {
   createSlice,
   PayloadAction,
 } from '@reduxjs/toolkit'
-import { capitalize, groupBy, isEmpty, keys, values, zipObject } from 'lodash'
+import produce from 'immer'
+import {
+  capitalize,
+  flattenDeep,
+  forEach,
+  get,
+  groupBy,
+  isArray,
+  isEmpty,
+  keys,
+  values,
+  zipObject,
+} from 'lodash'
 import { createObjectSelector } from 'reselect-map'
 import {
   directionToRotation,
@@ -68,13 +80,42 @@ export interface PartValue extends PartEntity {
 type HoverStateKey = 'hoveredUuids'
 type SelectStateKey = 'selectedUuids'
 type HappenStateKey = HoverStateKey | SelectStateKey
-type HappenStateValue = Record<Uuid, boolean>
+type HappenStateValue = Record<Uuid, true>
 type HappenState = Record<HappenStateKey, HappenStateValue>
+
+enum PartTransitionType {
+  move = 'move',
+  length = 'length',
+  rotate = 'rotate',
+}
+// TODO should transition contain uuids affected, or assume selected uuids?
+interface Transition {
+  type: PartTransitionType
+  update: UpdateDescriptor
+}
+
+interface Undo {
+  transition: Transition
+  reverseUpdate: Record<Uuid, UpdateDescriptor>
+}
+
+// or maybe Undo should reference a PartUpdate
+// where a PartUpdate can update one or more parts
+// then an Undo would be the Set updates for the parts
+// to re-set them to their state before the transition.
+// ---
+// given the transition update,
+// iterate through each selected part,
+// flatten the update, iterate through each path
+// get the previous state
+// get the next state
+// create a reverse set update for that path back to previous state
+// set the next state
 
 export type PartsState = {
   entities: null | Record<Uuid, PartEntity>
-  isMoving: boolean
-  previousStates: Array<PartsState>
+  currentTransition: null | Transition
+  undos: Array<Undo>
 } & HappenState
 
 const hoverHappening = buildPartHappening<HoverStateKey>(
@@ -88,19 +129,37 @@ const selectHappening = buildPartHappening<SelectStateKey>(
 
 const initialState: PartsState = {
   entities: null,
-  isMoving: false,
+  currentTransition: null,
+  undos: [],
   hoveredUuids: hoverHappening.initialState,
   selectedUuids: selectHappening.initialState,
-  previousStates: [],
+}
+
+function helpUpdateSelectedParts({
+  entities,
+  selectedUuids,
+  update,
+}: {
+  entities: Record<Uuid, PartEntity>
+  selectedUuids: Record<Uuid, true>
+  update: UpdateDescriptor
+}) {
+  const updater = createUpdater<PartEntity>(update)
+  const safeUpdater = SafeUpdater(updater)
+  keys(selectedUuids).forEach((uuid) => {
+    if (entities !== null) {
+      if (entities[uuid] === null) {
+        throw new Error(`cannot update a part that doesn't exist: ${uuid}`)
+      }
+      safeUpdater(entities[uuid])
+    }
+  })
 }
 
 export const partsSlice = createSlice({
   name: 'parts',
   initialState,
   reducers: {
-    doSetAnyPartIsMoving: (state, action) => {
-      state.isMoving = action.payload
-    },
     doSetParts: (
       state: PartsState,
       action: PayloadAction<Array<PartEntity>>,
@@ -139,16 +198,9 @@ export const partsSlice = createSlice({
       action: PayloadAction<UpdateDescriptor>,
     ) => {
       if (state.entities === null) state.entities = {}
-      const updater = action.payload
-      const safeUpdater = SafeUpdater(createUpdater<PartEntity>(updater))
-      const { selectedUuids } = state
-      keys(selectedUuids).forEach((uuid) => {
-        if (state.entities !== null) {
-          if (state.entities[uuid] === null)
-            throw new Error(`cannot update a part that doesn't exist: ${uuid}`)
-          safeUpdater(state.entities[uuid])
-        }
-      })
+      const { entities, selectedUuids } = state
+      const update = action.payload
+      helpUpdateSelectedParts({ entities, selectedUuids, update })
     },
     doRemoveSelectedParts: (state) => {
       if (state.entities === null) state.entities = {}
@@ -159,7 +211,61 @@ export const partsSlice = createSlice({
         }
       })
     },
-    doAddPreviousState: (state) => {},
+    doStartPartTransition: (
+      state: PartsState,
+      action: PayloadAction<PartTransitionType>,
+    ) => {
+      state.currentTransition = {
+        type: action.payload,
+        update: null,
+      }
+    },
+    doUpdatePartTransition: (
+      state: PartsState,
+      action: PayloadAction<UpdateDescriptor>,
+    ) => {
+      if (state.currentTransition == null)
+        throw new Error('cannot update transition without start')
+      state.currentTransition.update = action.payload
+    },
+    doEndPartTransition: (state: PartsState) => {
+      if (state.currentTransition == null)
+        throw new Error('cannot end transition without start')
+      if (state.entities === null) state.entities = {}
+      const { entities, selectedUuids, currentTransition } = state
+      const { update } = currentTransition
+
+      // generate undo using un-updated state
+      let reverseUpdate: Undo['reverseUpdate'] = {}
+      let undo: Undo = {
+        transition: currentTransition,
+        reverseUpdate,
+      }
+      const updates = isArray(update) ? flattenDeep(update) : [update]
+      forEach(keys(selectedUuids), (uuid: Uuid) => {
+        forEach(updates, (update: UpdateDescriptor) => {
+          if (update == null || isArray(update)) return
+          const { path } = update
+          const entity = entities[uuid]
+          const previousValueAtPath = get(entity, path)
+          if (reverseUpdate[uuid] == null) {
+            reverseUpdate[uuid] = [] as Array<UpdateDescriptor>
+          }
+          // @ts-ignore
+          reverseUpdate[uuid].push({
+            update: 'set',
+            path,
+            value: previousValueAtPath,
+          })
+        })
+      })
+
+      // apply transition update
+      helpUpdateSelectedParts({ entities, selectedUuids, update })
+
+      state.currentTransition = null
+      state.undos.push(undo)
+    },
   },
   extraReducers: (builder) => {
     hoverHappening.buildReducers(builder)
@@ -180,7 +286,6 @@ export const {
 } = selectHappening.actions
 
 export const {
-  doSetAnyPartIsMoving,
   doSetParts,
   doAddPart,
   doAddParts,
@@ -192,10 +297,6 @@ export const {
 export default partsSlice.reducer
 
 export const getPartsState = (state: RootState): PartsState => state.parts
-export const getAnyPartIsMoving = createSelector(
-  getPartsState,
-  (state) => state.isMoving,
-)
 export const getHoveredUuids = createSelector(
   getPartsState,
   (state) => state.hoveredUuids,
@@ -208,6 +309,31 @@ export const getPartsEntities = createSelector(
   getPartsState,
   (state) => state.entities,
 )
+/*
+function helpGetSelectedPartsEntities(
+  entities: PartsState['entities'],
+  selectedUuids: PartsState['selectedUuids'],
+) {
+  return pick(entities, keys(selectedUuids)) as Record<Uuid, PartEntity>
+}
+export const getSelectedPartsEntities = createSelector(
+  getPartsEntities,
+  getSelectedUuids,
+  helpGetSelectedPartsEntities,
+)
+*/
+export const getCurrentPartTransition = createSelector(
+  getPartsState,
+  (state) => state.currentTransition,
+)
+export const getPartUndos = createSelector(
+  getPartsState,
+  (state) => state.undos,
+)
+export const getIsPartTransitioning = createSelector(
+  getCurrentPartTransition,
+  (currentTransition) => currentTransition != null,
+)
 export const getPartsUuids = createSelector(
   getPartsEntities,
   (parts): Array<Uuid> => keys(parts),
@@ -217,8 +343,24 @@ export const getPartsEntitiesNotNull = createSelector(
   getPartsEntities,
   (entities) => entities || {},
 )
-export const getPartsByUuid = createObjectSelector(
+export const getPartsEntitiesUpdatedByTransition = createObjectSelector(
   getPartsEntitiesNotNull,
+  getSelectedUuids,
+  getCurrentPartTransition,
+  (part, selectedUuids, currentTransition, uuid) => {
+    if (currentTransition == null) return part
+    const isTransitioning = Boolean(uuid in selectedUuids)
+    if (!isTransitioning) return part
+    const { update } = currentTransition
+    const updater = createUpdater<PartEntity>(update)
+    const safeUpdater = SafeUpdater(updater)
+    const immUpdater = produce(safeUpdater)
+    return immUpdater(part)
+  },
+)
+
+export const getPartsByUuid = createObjectSelector(
+  getPartsEntitiesUpdatedByTransition,
   getHoveredUuids,
   getSelectedUuids,
   getCurrentSpecSizes,

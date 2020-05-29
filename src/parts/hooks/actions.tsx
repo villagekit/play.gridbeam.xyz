@@ -4,12 +4,15 @@ import {
   doDisableSelection,
   doEnableCameraControl,
   doEnableSelection,
+  doEndPartTransition,
   doHoverPart,
   doSelectParts,
-  doSetAnyPartIsMoving,
+  doStartPartTransition,
   doUnhoverPart,
   doUpdatePart,
+  doUpdatePartTransition,
   doUpdateSelectedParts,
+  PartTransitionType,
   UpdateDescriptor,
   useAppDispatch,
   Uuid,
@@ -27,10 +30,29 @@ export function usePartActions(uuid: Uuid) {
     dispatch,
     uuid,
   ])
-  const move = useCallback(
+
+  const startTransition = useCallback(
+    (transitionType: PartTransitionType) => {
+      dispatch(doDisableCameraControl())
+      dispatch(doDisableSelection())
+      dispatch(doStartPartTransition(transitionType))
+    },
+    [dispatch],
+  )
+
+  const endTransition = useCallback(() => {
+    dispatch(doEnableCameraControl())
+    dispatch(doEnableSelection())
+    dispatch(doEndPartTransition())
+  }, [dispatch])
+
+  const startMoveTransition = useCallback(() => {
+    startTransition(PartTransitionType.move)
+  }, [startTransition])
+  const updateMoveTransition = useCallback(
     (delta: [number, number, number]) => {
       dispatch(
-        doUpdateSelectedParts([
+        doUpdatePartTransition([
           { update: 'add', path: 'origin.x', value: delta[0] },
           { update: 'add', path: 'origin.y', value: delta[1] },
           { update: 'add', path: 'origin.z', value: delta[2] },
@@ -39,33 +61,38 @@ export function usePartActions(uuid: Uuid) {
     },
     [dispatch],
   )
+  const endMoveTransition = useCallback(() => {
+    endTransition()
+  }, [endTransition])
 
-  const lockBeforeMoving = useCallback(() => {
-    dispatch(doDisableCameraControl())
-    dispatch(doDisableSelection())
-    dispatch(doSetAnyPartIsMoving(true))
-  }, [dispatch])
-
-  const unlockAfterMoving = useCallback(() => {
-    dispatch(doEnableCameraControl())
-    dispatch(doEnableSelection())
-    dispatch(doSetAnyPartIsMoving(false))
-  }, [dispatch])
-
-  const updatePart = useCallback(
-    (updater: UpdateDescriptor) => {
-      dispatch(doUpdatePart({ uuid, updater }))
+  const startLengthTransition = useCallback(() => {
+    startTransition(PartTransitionType.length)
+  }, [startTransition])
+  const updateLengthTransition = useCallback(
+    (length: number) => {
+      dispatch(
+        doUpdatePartTransition({
+          update: 'add',
+          path: 'length',
+          value: length,
+        }),
+      )
     },
-    [dispatch, uuid],
+    [dispatch],
   )
+  const endLengthTransition = useCallback(() => {
+    endTransition()
+  }, [endTransition])
 
   return {
     hover,
     unhover,
     select,
-    move,
-    lockBeforeMoving,
-    unlockAfterMoving,
-    updatePart,
+    startMoveTransition,
+    updateMoveTransition,
+    endMoveTransition,
+    startLengthTransition,
+    updateLengthTransition,
+    endLengthTransition,
   }
 }
