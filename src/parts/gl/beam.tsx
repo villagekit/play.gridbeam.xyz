@@ -217,7 +217,7 @@ function BeamMain(props: BeamMainProps) {
     (ev) => {
       // console.log('move', uuid)
       if (ev.buttons <= 0) return
-      if (atMoveStart == null) return
+      if (atMoveStart == null || originVectorAtMoveStart == null) return
 
       const [pointAtMoveStart] = atMoveStart
 

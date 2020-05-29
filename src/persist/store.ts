@@ -29,7 +29,7 @@ export const doAsyncLoadModel = createAsyncThunk<
   void,
   ModelEntity | null,
   ThunkArg
->('persist/loadModel', async (defaultModel, { dispatch }) => {
+>('persist/doAsyncLoadModel', async (defaultModel, { dispatch }) => {
   dispatch(doSetLoadStatus('loading'))
 
   const modelUriComponent = window.location.href.split('#')[1]
@@ -79,7 +79,7 @@ export const doAsyncLoadModel = createAsyncThunk<
 })
 
 export const doAsyncSaveModel = createAsyncThunk<void, ModelEntity, ThunkArg>(
-  'persist/saveModel',
+  'persist/doAsyncSaveModel',
   async ({ parts, specId }, { dispatch }) => {
     const version = 1
 

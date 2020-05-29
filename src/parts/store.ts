@@ -74,6 +74,7 @@ type HappenState = Record<HappenStateKey, HappenStateValue>
 export type PartsState = {
   entities: null | Record<Uuid, PartEntity>
   isMoving: boolean
+  previousStates: Array<PartsState>
 } & HappenState
 
 const hoverHappening = buildPartHappening<HoverStateKey>(
@@ -90,6 +91,7 @@ const initialState: PartsState = {
   isMoving: false,
   hoveredUuids: hoverHappening.initialState,
   selectedUuids: selectHappening.initialState,
+  previousStates: [],
 }
 
 export const partsSlice = createSlice({
@@ -157,6 +159,7 @@ export const partsSlice = createSlice({
         }
       })
     },
+    doAddPreviousState: (state) => {},
   },
   extraReducers: (builder) => {
     hoverHappening.buildReducers(builder)
@@ -240,7 +243,7 @@ export const getPartsByUuid = createObjectSelector(
     const boltDiameter = specMaterialSize.normalizedBoltDiameter
 
     const { origin, direction } = part
-    const position = [
+    const position: [number, number, number] = [
       (1 / 2 + origin.x) * beamWidth,
       (1 / 2 + origin.y) * beamWidth,
       (1 / 2 + origin.z) * beamWidth,
