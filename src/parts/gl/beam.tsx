@@ -6,7 +6,6 @@ import {
   directionToRotation,
   getPartsByUuid,
   GlArrow,
-  GridPosition,
   isStandardDirection,
   NEGATIVE_X_AXIS,
   PartValue,
@@ -30,7 +29,7 @@ import {
   Vector3,
 } from 'three'
 
-enum ArrowDirection {
+export enum LengthDirection {
   positive = 'positive',
   negative = 'negative',
 }
@@ -51,20 +50,30 @@ export function GlBeam(props: BeamProps) {
     origin,
     direction,
     length,
+    // stateBeforeTransition,
     isHovered,
     isSelected,
     beamWidth,
     holeDiameter,
   } = part
 
+  /*
+  const {
+    origin: originBeforeTransition,
+    length: lengthBeforeTransition,
+  } = stateBeforeTransition
+   */
+
   const {
     hover,
     unhover,
     select,
-    move,
-    lockBeforeMoving,
-    unlockAfterMoving,
-    updatePart,
+    startMoveTransition,
+    updateMoveTransition,
+    endMoveTransition,
+    startLengthTransition,
+    updateLengthTransition,
+    endLengthTransition,
   } = usePartActions(uuid)
 
   // update position and rotation outside of React
@@ -92,17 +101,18 @@ export function GlBeam(props: BeamProps) {
       <BeamMain
         uuid={uuid}
         origin={origin}
+        // originBeforeTransition={originBeforeTransition}
         length={length}
-        move={move}
         hover={hover}
         unhover={unhover}
         isHovered={isHovered}
         select={select}
         isSelected={isSelected}
+        startMoveTransition={startMoveTransition}
+        updateMoveTransition={updateMoveTransition}
+        endMoveTransition={endMoveTransition}
         beamWidth={beamWidth}
         beamTexture={beamTexture}
-        lockBeforeMoving={lockBeforeMoving}
-        unlockAfterMoving={unlockAfterMoving}
       >
         <Holes
           numHoles={length}
@@ -113,20 +123,21 @@ export function GlBeam(props: BeamProps) {
           <FirstHoleMarker beamWidth={beamWidth} holeDiameter={holeDiameter} />
         )}
       </BeamMain>
-      {[ArrowDirection.positive, ArrowDirection.negative].map(
-        (arrowDirection) => (
+      {[LengthDirection.positive, LengthDirection.negative].map(
+        (lengthDirection) => (
           <LengthArrow
-            key={arrowDirection}
-            arrowDirection={arrowDirection}
+            key={lengthDirection}
+            lengthDirection={lengthDirection}
             beamDirection={direction}
             beamOrigin={origin}
             beamWidth={beamWidth}
             beamLength={length}
-            updatePart={updatePart}
-            lockBeforeMoving={lockBeforeMoving}
-            unlockAfterMoving={unlockAfterMoving}
+            // beamLengthBeforeTransition={lengthBeforeTransition}
             isSelected={isSelected}
             select={select}
+            startLengthTransition={startLengthTransition}
+            updateLengthTransition={updateLengthTransition}
+            endLengthTransition={endLengthTransition}
           />
         ),
       )}
@@ -137,8 +148,8 @@ export function GlBeam(props: BeamProps) {
 interface BeamMainProps {
   uuid: Uuid
   origin: PartValue['origin']
+  // originBeforeTransition: PartValue['origin']
   length: PartValue['length']
-  move: (movement: [number, number, number]) => void
   hover: () => void
   unhover: () => void
   isHovered: PartValue['isHovered']
@@ -146,8 +157,9 @@ interface BeamMainProps {
   isSelected: PartValue['isSelected']
   beamWidth: number
   beamTexture: Texture
-  lockBeforeMoving: () => void
-  unlockAfterMoving: () => void
+  startMoveTransition: () => void
+  updateMoveTransition: (delta: [number, number, number]) => void
+  endMoveTransition: () => void
   children: React.ReactNode
 }
 
@@ -155,8 +167,8 @@ function BeamMain(props: BeamMainProps) {
   const {
     uuid,
     origin,
+    // originBeforeTransition,
     length,
-    move,
     hover,
     unhover,
     isHovered,
@@ -164,8 +176,9 @@ function BeamMain(props: BeamMainProps) {
     isSelected,
     beamWidth,
     beamTexture,
-    lockBeforeMoving,
-    unlockAfterMoving,
+    startMoveTransition,
+    updateMoveTransition,
+    endMoveTransition,
     children,
   } = props
 
@@ -179,34 +192,28 @@ function BeamMain(props: BeamMainProps) {
     return boxGeometry
   }, [beamWidth, length])
 
-  const originVector: Vector3 = useMemo(
-    () => new Vector3(origin.x, origin.y, origin.z),
-    [origin],
+  /*
+  const originBeforeTransitionVector: Vector3 = useMemo(
+    () =>
+      new Vector3(
+        originBeforeTransition.x,
+        originBeforeTransition.y,
+        originBeforeTransition.z,
+      ),
+    [originBeforeTransition],
   )
+  */
 
-  const [atMoveStart, setAtMoveStart] = useState<
-    [Vector3, GridPosition] | null
-  >(null)
-  const originVectorAtMoveStart = useMemo(() => {
-    if (atMoveStart == null) return null
-    const [, originAtMoveStart] = atMoveStart
-    return new Vector3(
-      originAtMoveStart.x,
-      originAtMoveStart.y,
-      originAtMoveStart.z,
-    )
-  }, [atMoveStart])
+  const [pointAtMoveStart, setPointAtMoveStart] = useState<Vector3 | null>(null)
 
   const horizontalPlane = useMemo(() => {
-    if (atMoveStart == null) return null
-    const [pointAtMoveStart] = atMoveStart
+    if (pointAtMoveStart == null) return null
     return new Plane(new Vector3(0, 0, 1), -pointAtMoveStart.z)
-  }, [atMoveStart])
+  }, [pointAtMoveStart])
   const verticalPlane = useMemo(() => {
-    if (atMoveStart == null) return null
-    const [pointAtMoveStart] = atMoveStart
+    if (pointAtMoveStart == null) return null
     return new Plane(new Vector3(1, 0, 0), -pointAtMoveStart.x)
-  }, [atMoveStart])
+  }, [pointAtMoveStart])
 
   // computation vectors to re-use
   const intersectionPoint: Vector3 = useMemo(() => new Vector3(), [])
@@ -217,9 +224,7 @@ function BeamMain(props: BeamMainProps) {
     (ev) => {
       // console.log('move', uuid)
       if (ev.buttons <= 0) return
-      if (atMoveStart == null || originVectorAtMoveStart == null) return
-
-      const [pointAtMoveStart] = atMoveStart
+      if (pointAtMoveStart == null) return
 
       // get pointer movement over plane
       if (ev.shiftKey) {
@@ -234,21 +239,19 @@ function BeamMain(props: BeamMainProps) {
       // calculate beam movement
       movementVector.divideScalar(beamWidth).round()
 
-      deltaVector
-        .copy(originVectorAtMoveStart)
-        .add(movementVector)
-        .sub(originVector)
+      const delta: [number, number, number] = [
+        movementVector.x,
+        movementVector.y,
+        movementVector.z,
+      ]
 
-      move([deltaVector.x, deltaVector.y, deltaVector.z])
+      updateMoveTransition(delta)
     },
     [
-      atMoveStart,
+      pointAtMoveStart,
       movementVector,
       beamWidth,
-      deltaVector,
-      originVectorAtMoveStart,
-      originVector,
-      move,
+      updateMoveTransition,
       verticalPlane,
       intersectionPoint,
       horizontalPlane,
@@ -281,23 +284,23 @@ function BeamMain(props: BeamMainProps) {
       ev.stopPropagation()
       // @ts-ignore
       ev.target.setPointerCapture(ev.pointerId)
-      lockBeforeMoving()
       if (!isSelected) select()
-      setAtMoveStart([ev.point, origin])
+      startMoveTransition()
+      setPointAtMoveStart(ev.point)
     },
-    [lockBeforeMoving, isSelected, select, origin],
+    [startMoveTransition, isSelected, select],
   )
 
   const handlePointerUp = useCallback(
     (ev) => {
-      if (atMoveStart == null) return
+      if (pointAtMoveStart == null) return
       ev.stopPropagation()
       // @ts-ignore
       ev.target.releasePointerCapture(ev.pointerId)
-      unlockAfterMoving()
-      setAtMoveStart(null)
+      endMoveTransition()
+      setPointAtMoveStart(null)
     },
-    [atMoveStart, unlockAfterMoving],
+    [pointAtMoveStart, endMoveTransition],
   )
 
   const color = useMemo(() => {
@@ -435,128 +438,67 @@ function FirstHoleMarker(props: FirstHoleMarkerProps) {
 }
 
 interface LengthArrowProps {
-  arrowDirection: ArrowDirection
+  lengthDirection: LengthDirection
   beamDirection: PartValue['direction']
   beamOrigin: PartValue['origin']
   beamWidth: number
   beamLength: number
-  updatePart: (updater: UpdateDescriptor) => void
-  lockBeforeMoving: () => void
-  unlockAfterMoving: () => void
+  // beamLengthBeforeTransition: number
+  startLengthTransition: () => void
+  updateLengthTransition: (delta: number) => void
+  endLengthTransition: () => void
   isSelected: boolean
   select: () => void
 }
 
 function LengthArrow(props: LengthArrowProps) {
   const {
-    arrowDirection,
+    lengthDirection,
     beamDirection,
     beamLength,
+    // beamLengthBeforeTransition,
     beamOrigin,
     beamWidth,
-    lockBeforeMoving,
-    unlockAfterMoving,
+    startLengthTransition,
+    updateLengthTransition,
+    endLengthTransition,
     isSelected,
     select,
-    updatePart,
   } = props
 
   const arrowAxis =
-    arrowDirection === ArrowDirection.positive ? X_AXIS : NEGATIVE_X_AXIS
+    lengthDirection === LengthDirection.positive ? X_AXIS : NEGATIVE_X_AXIS
 
   const position: [number, number, number] = useMemo(() => {
-    return arrowDirection === ArrowDirection.positive
+    return lengthDirection === LengthDirection.positive
       ? [(beamLength - 1 / 2) * beamWidth, 0, 0]
       : [(-1 / 2) * beamWidth, 0, 0]
-  }, [arrowDirection, beamLength, beamWidth])
+  }, [lengthDirection, beamLength, beamWidth])
 
   const [pointAtMoveStart, setPointAtMoveStart] = useState<Vector3 | null>(null)
-  const [beamLengthAtMoveStart, setBeamLengthAtMoveStart] = useState<
-    number | null
-  >(null)
-
-  const handleLengthChange = useCallback(
-    (change: number) => {
-      if (arrowDirection === ArrowDirection.positive) {
-        updatePart([
-          // update length by change
-          {
-            update: 'add',
-            path: 'length',
-            value: change,
-          },
-        ])
-      } else if (arrowDirection === ArrowDirection.negative) {
-        // TODO tidy this up
-        let beamDirectionAxis
-        if (Math.abs(beamDirection.x) === 1) beamDirectionAxis = 'x'
-        else if (Math.abs(beamDirection.y) === 1) beamDirectionAxis = 'y'
-        else if (Math.abs(beamDirection.z) === 1) beamDirectionAxis = 'z'
-        if (beamDirectionAxis === undefined)
-          throw new Error('incorrect beam direction axis')
-
-        if (beamDirectionAxis === 'z' && change > 0) {
-          change = Math.min(change, beamOrigin.z)
-        }
-
-        let beamDirectionUpdate = 'sub'
-        if (
-          beamDirection.x === -1 ||
-          beamDirection.y === -1 ||
-          beamDirection.z === -1
-        ) {
-          beamDirectionUpdate = 'add'
-        }
-        updatePart([
-          // update length by change
-          {
-            update: 'add',
-            path: 'length',
-            value: change,
-          },
-          // move forward by change
-          {
-            update: beamDirectionUpdate,
-            path: ['origin', beamDirectionAxis],
-            value: change,
-          },
-        ])
-      }
-    },
-    [
-      arrowDirection,
-      beamDirection.x,
-      beamDirection.y,
-      beamDirection.z,
-      beamOrigin,
-      updatePart,
-    ],
-  )
 
   const handlePointerDown = useCallback(
     (ev: PointerEvent) => {
       ev.stopPropagation()
       // @ts-ignore
       ev.target.setPointerCapture(ev.pointerId)
-      lockBeforeMoving()
+      startLengthTransition()
       if (!isSelected) select()
       setPointAtMoveStart(ev.point)
-      setBeamLengthAtMoveStart(beamLength)
     },
-    [beamLength, isSelected, lockBeforeMoving, select],
+    [isSelected, startLengthTransition, select],
   )
 
   const handlePointerUp = useCallback(
     (ev: PointerEvent) => {
-      if (pointAtMoveStart == null || beamLengthAtMoveStart == null) return
+      if (pointAtMoveStart == null) return
       ev.stopPropagation()
       // @ts-ignore
       ev.target.releasePointerCapture(ev.pointerId)
-      unlockAfterMoving()
+      endLengthTransition()
       setPointAtMoveStart(null)
-      setBeamLengthAtMoveStart(null)
     },
-    [beamLengthAtMoveStart, pointAtMoveStart, unlockAfterMoving],
+    [endLengthTransition, pointAtMoveStart],
   )
 
   const handlePointerMove = useCallback(
@@ -564,7 +506,7 @@ function LengthArrow(props: LengthArrowProps) {
       ev.stopPropagation()
 
       if (ev.buttons <= 0) return
-      if (pointAtMoveStart == null || beamLengthAtMoveStart == null) return
+      if (pointAtMoveStart == null) return
 
       const direction = new Vector3(
         beamDirection.x,
@@ -572,7 +514,7 @@ function LengthArrow(props: LengthArrowProps) {
         beamDirection.z,
       )
 
-      if (arrowDirection === ArrowDirection.negative) {
+      if (lengthDirection === LengthDirection.negative) {
         direction.negate()
       }
 
@@ -589,27 +531,18 @@ function LengthArrow(props: LengthArrowProps) {
         ? -projectionMagnitude
         : projectionMagnitude
 
-      const beamLengthChangeSinceMoveStart = Math.round(
-        projectionScalar / beamWidth,
-      )
+      const beamLengthChange = Math.round(projectionScalar / beamWidth)
 
-      const nextBeamLength = Math.max(
-        1,
-        beamLengthAtMoveStart + beamLengthChangeSinceMoveStart,
-      )
-      const beamLengthChange = nextBeamLength - beamLength
-      handleLengthChange(beamLengthChange)
+      updateLengthTransition(beamLengthChange, lengthDirection)
     },
     [
-      arrowDirection,
+      lengthDirection,
       beamDirection.x,
       beamDirection.y,
       beamDirection.z,
-      beamLength,
-      beamLengthAtMoveStart,
       beamWidth,
-      handleLengthChange,
       pointAtMoveStart,
+      updateLengthTransition,
     ],
   )
 
@@ -622,7 +555,10 @@ function LengthArrow(props: LengthArrowProps) {
   }, [beamDirection])
 
   // TODO: support negative length arrows in non-standard beam directions.
-  if (arrowDirection === ArrowDirection.negative && !beamIsStandardDirection) {
+  if (
+    lengthDirection === LengthDirection.negative &&
+    !beamIsStandardDirection
+  ) {
     return null
   }
 

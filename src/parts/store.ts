@@ -63,10 +63,24 @@ export interface PartEntity {
 
 export type Uuid = string
 
+export enum PartTransitionType {
+  move = 'move',
+  length = 'length',
+  rotate = 'rotate',
+}
+// TODO should transition contain uuids affected, or assume selected uuids?
+interface PartTransition {
+  type: PartTransitionType
+  update: UpdateDescriptor
+}
+
 export interface PartValue extends PartEntity {
   uuid: Uuid
   isHovered: boolean
   isSelected: boolean
+  isTransitioning: boolean
+  stateBeforeTransition: null | PartEntity
+  transition: null | PartTransition
   specMaterial: SpecMaterialValue
   specMaterialSize: SpecMaterialSizeValue
   specSize: SpecSizeValue
@@ -83,19 +97,8 @@ type HappenStateKey = HoverStateKey | SelectStateKey
 type HappenStateValue = Record<Uuid, true>
 type HappenState = Record<HappenStateKey, HappenStateValue>
 
-enum PartTransitionType {
-  move = 'move',
-  length = 'length',
-  rotate = 'rotate',
-}
-// TODO should transition contain uuids affected, or assume selected uuids?
-interface Transition {
-  type: PartTransitionType
-  update: UpdateDescriptor
-}
-
 interface Undo {
-  transition: Transition
+  transition: PartTransition
   reverseUpdate: Record<Uuid, UpdateDescriptor>
 }
 
@@ -114,7 +117,7 @@ interface Undo {
 
 export type PartsState = {
   entities: null | Record<Uuid, PartEntity>
-  currentTransition: null | Transition
+  currentTransition: null | PartTransition
   undos: Array<Undo>
 } & HappenState
 
@@ -292,6 +295,9 @@ export const {
   doUpdatePart,
   doUpdateSelectedParts,
   doRemoveSelectedParts,
+  doStartPartTransition,
+  doUpdatePartTransition,
+  doEndPartTransition,
 } = partsSlice.actions
 
 export default partsSlice.reducer
@@ -343,38 +349,25 @@ export const getPartsEntitiesNotNull = createSelector(
   getPartsEntities,
   (entities) => entities || {},
 )
-export const getPartsEntitiesUpdatedByTransition = createObjectSelector(
-  getPartsEntitiesNotNull,
-  getSelectedUuids,
-  getCurrentPartTransition,
-  (part, selectedUuids, currentTransition, uuid) => {
-    if (currentTransition == null) return part
-    const isTransitioning = Boolean(uuid in selectedUuids)
-    if (!isTransitioning) return part
-    const { update } = currentTransition
-    const updater = createUpdater<PartEntity>(update)
-    const safeUpdater = SafeUpdater(updater)
-    const immUpdater = produce(safeUpdater)
-    return immUpdater(part)
-  },
-)
-
 export const getPartsByUuid = createObjectSelector(
-  getPartsEntitiesUpdatedByTransition,
+  getPartsEntitiesNotNull,
   getHoveredUuids,
   getSelectedUuids,
+  getCurrentPartTransition,
   getCurrentSpecSizes,
   getCurrentSpecMaterials,
   (
     part,
     hoveredUuids,
     selectedUuids,
+    currentTransition,
     currentSpecSizes,
     currentSpecMaterials,
     uuid,
   ): PartValue => {
     const isHovered = Boolean(uuid in hoveredUuids)
     const isSelected = Boolean(uuid in selectedUuids)
+    const isTransitioning = isSelected
 
     const { sizeId, materialId } = part
     const specSize = currentSpecSizes[sizeId]
@@ -384,27 +377,40 @@ export const getPartsByUuid = createObjectSelector(
     const holeDiameter = specMaterialSize.normalizedHoleDiameter
     const boltDiameter = specMaterialSize.normalizedBoltDiameter
 
-    const { origin, direction } = part
-    const position: [number, number, number] = [
-      (1 / 2 + origin.x) * beamWidth,
-      (1 / 2 + origin.y) * beamWidth,
-      (1 / 2 + origin.z) * beamWidth,
-    ]
-    const rotation = directionToRotation(direction)
-
-    return Object.assign({}, part, {
+    let value: PartEntity & Partial<PartValue> = Object.assign({}, part, {
       uuid,
       isHovered,
       isSelected,
+      isTransitioning,
+      transition: null,
+      stateBeforeTransition: null,
       specSize,
       specMaterial,
       specMaterialSize,
       beamWidth,
       holeDiameter,
       boltDiameter,
-      position,
-      rotation,
     })
+
+    if (currentTransition && isTransitioning) {
+      value.transition = currentTransition
+      value.stateBeforeTransition = part
+      const { update } = currentTransition
+      const updater = createUpdater<PartEntity>(update)
+      const safeUpdater = SafeUpdater(updater)
+      const nextPart = produce<PartEntity>(part, safeUpdater)
+      Object.assign(value, nextPart)
+    }
+
+    const { origin, direction } = value
+    value.position = [
+      (1 / 2 + origin.x) * beamWidth,
+      (1 / 2 + origin.y) * beamWidth,
+      (1 / 2 + origin.z) * beamWidth,
+    ]
+    value.rotation = directionToRotation(direction)
+
+    return value as PartValue
   },
 )
 export const getParts = createSelector(

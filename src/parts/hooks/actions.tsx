@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import {
+  ArrowDirection,
   doDisableCameraControl,
   doDisableSelection,
   doEnableCameraControl,
@@ -12,6 +13,7 @@ import {
   doUpdatePart,
   doUpdatePartTransition,
   doUpdateSelectedParts,
+  LengthDirection,
   PartTransitionType,
   UpdateDescriptor,
   useAppDispatch,
@@ -69,12 +71,12 @@ export function usePartActions(uuid: Uuid) {
     startTransition(PartTransitionType.length)
   }, [startTransition])
   const updateLengthTransition = useCallback(
-    (length: number) => {
+    (delta: number, direction: LengthDirection) => {
       dispatch(
         doUpdatePartTransition({
           update: 'add',
           path: 'length',
-          value: length,
+          value: delta,
         }),
       )
     },
@@ -96,3 +98,63 @@ export function usePartActions(uuid: Uuid) {
     endLengthTransition,
   }
 }
+
+/*
+  const handleLengthChange = useCallback(
+    (change: number) => {
+      if (arrowDirection === ArrowDirection.positive) {
+        updatePart([
+          // update length by change
+          {
+            update: 'add',
+            path: 'length',
+            value: change,
+          },
+        ])
+      } else if (arrowDirection === ArrowDirection.negative) {
+        // TODO tidy this up
+        let beamDirectionAxis
+        if (Math.abs(beamDirection.x) === 1) beamDirectionAxis = 'x'
+        else if (Math.abs(beamDirection.y) === 1) beamDirectionAxis = 'y'
+        else if (Math.abs(beamDirection.z) === 1) beamDirectionAxis = 'z'
+        if (beamDirectionAxis === undefined)
+          throw new Error('incorrect beam direction axis')
+
+        if (beamDirectionAxis === 'z' && change > 0) {
+          change = Math.min(change, beamOrigin.z)
+        }
+
+        let beamDirectionUpdate = 'sub'
+        if (
+          beamDirection.x === -1 ||
+          beamDirection.y === -1 ||
+          beamDirection.z === -1
+        ) {
+          beamDirectionUpdate = 'add'
+        }
+        updatePart([
+          // update length by change
+          {
+            update: 'add',
+            path: 'length',
+            value: change,
+          },
+          // move forward by change
+          {
+            update: beamDirectionUpdate,
+            path: ['origin', beamDirectionAxis],
+            value: change,
+          },
+        ])
+      }
+    },
+    [
+      arrowDirection,
+      beamDirection.x,
+      beamDirection.y,
+      beamDirection.z,
+      beamOrigin,
+      updatePart,
+    ],
+  )
+*/
