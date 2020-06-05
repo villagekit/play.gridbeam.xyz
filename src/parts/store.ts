@@ -33,7 +33,10 @@ import {
 import { Euler, MathUtils } from 'three'
 
 import { Direction } from './helpers/direction'
-import createUpdater, { UpdateDescriptor } from './helpers/updater'
+import createUpdater, {
+  UpdateDescriptor,
+  UpdateDescriptorAtom,
+} from './helpers/updater'
 
 export enum PartType {
   Beam = 0,
@@ -169,7 +172,7 @@ export const partsSlice = createSlice({
     ) => {
       const parts = action.payload
       const uuids = parts.map((part) => MathUtils.generateUUID())
-      state.entities = zipObject(uuids, parts)
+      state.entities = zipObject(uuids, parts) as PartsState['entities']
     },
     doAddPart: (state: PartsState, action: PayloadAction<PartEntity>) => {
       if (state.entities === null) state.entities = {}
@@ -252,7 +255,7 @@ export const partsSlice = createSlice({
           const entity = entities[uuid]
           const previousValueAtPath = get(entity, path)
           if (reverseUpdate[uuid] == null) {
-            reverseUpdate[uuid] = [] as Array<UpdateDescriptor>
+            reverseUpdate[uuid] = [] as Array<UpdateDescriptorAtom>
           }
           // @ts-ignore
           reverseUpdate[uuid].push({

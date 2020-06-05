@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { GrZoomIn } from 'react-icons/gr'
 import { IoMdHand, IoMdPlanet } from 'react-icons/io'
 import { useAppDispatch } from 'src'
-import { Box, Flex, IconButton } from 'theme-ui'
+import { Flex, IconButton } from 'theme-ui'
 
 import {
   CameraControlMode,

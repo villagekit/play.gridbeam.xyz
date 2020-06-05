@@ -10,7 +10,6 @@ import {
   NEGATIVE_X_AXIS,
   PartValue,
   ROTATION,
-  UpdateDescriptor,
   useAppStore,
   usePartActions,
   Uuid,
@@ -47,22 +46,13 @@ export function GlBeam(props: BeamProps) {
   const part = partsByUuid[uuid] as PartValue
 
   const {
-    origin,
     direction,
     length,
-    // stateBeforeTransition,
     isHovered,
     isSelected,
     beamWidth,
     holeDiameter,
   } = part
-
-  /*
-  const {
-    origin: originBeforeTransition,
-    length: lengthBeforeTransition,
-  } = stateBeforeTransition
-   */
 
   const {
     hover,
@@ -100,8 +90,6 @@ export function GlBeam(props: BeamProps) {
     <group name="beam" ref={beamRef}>
       <BeamMain
         uuid={uuid}
-        origin={origin}
-        // originBeforeTransition={originBeforeTransition}
         length={length}
         hover={hover}
         unhover={unhover}
@@ -131,7 +119,6 @@ export function GlBeam(props: BeamProps) {
             beamDirection={direction}
             beamWidth={beamWidth}
             beamLength={length}
-            // beamLengthBeforeTransition={lengthBeforeTransition}
             isSelected={isSelected}
             select={select}
             startLengthTransition={startLengthTransition}
@@ -146,8 +133,6 @@ export function GlBeam(props: BeamProps) {
 
 interface BeamMainProps {
   uuid: Uuid
-  origin: PartValue['origin']
-  // originBeforeTransition: PartValue['origin']
   length: PartValue['length']
   hover: () => void
   unhover: () => void
@@ -165,8 +150,6 @@ interface BeamMainProps {
 function BeamMain(props: BeamMainProps) {
   const {
     uuid,
-    origin,
-    // originBeforeTransition,
     length,
     hover,
     unhover,
@@ -191,18 +174,6 @@ function BeamMain(props: BeamMainProps) {
     return boxGeometry
   }, [beamWidth, length])
 
-  /*
-  const originBeforeTransitionVector: Vector3 = useMemo(
-    () =>
-      new Vector3(
-        originBeforeTransition.x,
-        originBeforeTransition.y,
-        originBeforeTransition.z,
-      ),
-    [originBeforeTransition],
-  )
-  */
-
   const [pointAtMoveStart, setPointAtMoveStart] = useState<Vector3 | null>(null)
 
   const horizontalPlane = useMemo(() => {
@@ -217,7 +188,6 @@ function BeamMain(props: BeamMainProps) {
   // computation vectors to re-use
   const intersectionPoint: Vector3 = useMemo(() => new Vector3(), [])
   const movementVector: Vector3 = useMemo(() => new Vector3(), [])
-  const deltaVector: Vector3 = useMemo(() => new Vector3(), [])
 
   const handleMove = useCallback(
     (ev) => {
@@ -441,7 +411,6 @@ interface LengthArrowProps {
   beamDirection: PartValue['direction']
   beamWidth: number
   beamLength: number
-  // beamLengthBeforeTransition: number
   startLengthTransition: () => void
   updateLengthTransition: (
     delta: number,
@@ -457,7 +426,6 @@ function LengthArrow(props: LengthArrowProps) {
     lengthDirection,
     beamDirection,
     beamLength,
-    // beamLengthBeforeTransition,
     beamWidth,
     startLengthTransition,
     updateLengthTransition,

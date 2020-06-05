@@ -32,14 +32,16 @@ export interface RotateDescriptor extends BaseDescriptor {
   axis: any
   angle: any
 }
-export type UpdateDescriptor =
+export type UpdateDescriptorAtom =
   | SetDescriptor
   | AddDescriptor
   | SubDescriptor
   | ClampDescriptor
   | RotateDescriptor
-  | Array<UpdateDescriptor>
+export type UpdateDescriptor =
   | null
+  | UpdateDescriptorAtom
+  | Array<UpdateDescriptorAtom>
 export type Updater<T extends object = object> = (obj: T) => T
 
 export default function createUpdater<T extends object = object>(
