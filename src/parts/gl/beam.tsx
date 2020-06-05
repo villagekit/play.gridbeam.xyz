@@ -129,7 +129,6 @@ export function GlBeam(props: BeamProps) {
             key={lengthDirection}
             lengthDirection={lengthDirection}
             beamDirection={direction}
-            beamOrigin={origin}
             beamWidth={beamWidth}
             beamLength={length}
             // beamLengthBeforeTransition={lengthBeforeTransition}
@@ -440,12 +439,14 @@ function FirstHoleMarker(props: FirstHoleMarkerProps) {
 interface LengthArrowProps {
   lengthDirection: LengthDirection
   beamDirection: PartValue['direction']
-  beamOrigin: PartValue['origin']
   beamWidth: number
   beamLength: number
   // beamLengthBeforeTransition: number
   startLengthTransition: () => void
-  updateLengthTransition: (delta: number) => void
+  updateLengthTransition: (
+    delta: number,
+    lengthDirection: LengthDirection,
+  ) => void
   endLengthTransition: () => void
   isSelected: boolean
   select: () => void
@@ -457,7 +458,6 @@ function LengthArrow(props: LengthArrowProps) {
     beamDirection,
     beamLength,
     // beamLengthBeforeTransition,
-    beamOrigin,
     beamWidth,
     startLengthTransition,
     updateLengthTransition,

@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import {
-  ArrowDirection,
   doDisableCameraControl,
   doDisableSelection,
   doEnableCameraControl,
@@ -10,11 +10,11 @@ import {
   doSelectParts,
   doStartPartTransition,
   doUnhoverPart,
-  doUpdatePart,
   doUpdatePartTransition,
-  doUpdateSelectedParts,
+  getPartsByUuid,
   LengthDirection,
   PartTransitionType,
+  PartValue,
   UpdateDescriptor,
   useAppDispatch,
   Uuid,
@@ -22,6 +22,11 @@ import {
 
 export function usePartActions(uuid: Uuid) {
   const dispatch = useAppDispatch()
+
+  const partsByUuid = useSelector(getPartsByUuid)
+  // @ts-ignore
+  const part = partsByUuid[uuid] as PartValue
+  const { stateBeforeTransition } = part
 
   const hover = useCallback(() => dispatch(doHoverPart(uuid)), [dispatch, uuid])
   const unhover = useCallback(() => dispatch(doUnhoverPart(uuid)), [
@@ -71,16 +76,63 @@ export function usePartActions(uuid: Uuid) {
     startTransition(PartTransitionType.length)
   }, [startTransition])
   const updateLengthTransition = useCallback(
-    (delta: number, direction: LengthDirection) => {
-      dispatch(
-        doUpdatePartTransition({
-          update: 'add',
-          path: 'length',
-          value: delta,
-        }),
-      )
+    (delta: number, lengthDirection: LengthDirection) => {
+      if (stateBeforeTransition == null) return
+      const { length, origin, direction } = stateBeforeTransition
+
+      // special case: length must not go below zero
+      if (length + delta < 1) {
+        delta = -length + 1
+      }
+
+      if (lengthDirection === LengthDirection.positive) {
+        dispatch(
+          doUpdatePartTransition({
+            update: 'add',
+            path: 'length',
+            value: delta,
+          }),
+        )
+      } else if (lengthDirection === LengthDirection.negative) {
+        const moveX = delta * direction.x
+        const moveY = delta * direction.y
+        let moveZ = delta * direction.z
+
+        // special case: origin.z must not go below zero
+        if (origin.z - moveZ <= 0) {
+          moveZ = origin.z
+          delta = origin.z / direction.z
+        }
+
+        dispatch(
+          doUpdatePartTransition([
+            // update length by change
+            {
+              update: 'add',
+              path: 'length',
+              value: delta,
+            },
+            // move forward by change
+            {
+              update: 'sub',
+              path: ['origin', 'x'],
+              value: moveX,
+            },
+            {
+              update: 'sub',
+              path: ['origin', 'y'],
+              value: moveY,
+            },
+            {
+              update: 'sub',
+              path: ['origin', 'z'],
+              value: moveZ,
+            },
+          ]),
+        )
+      }
     },
-    [dispatch],
+    [stateBeforeTransition, dispatch],
   )
   const endLengthTransition = useCallback(() => {
     endTransition()
@@ -98,63 +150,3 @@ export function usePartActions(uuid: Uuid) {
     endLengthTransition,
   }
 }
-
-/*
-  const handleLengthChange = useCallback(
-    (change: number) => {
-      if (arrowDirection === ArrowDirection.positive) {
-        updatePart([
-          // update length by change
-          {
-            update: 'add',
-            path: 'length',
-            value: change,
-          },
-        ])
-      } else if (arrowDirection === ArrowDirection.negative) {
-        // TODO tidy this up
-        let beamDirectionAxis
-        if (Math.abs(beamDirection.x) === 1) beamDirectionAxis = 'x'
-        else if (Math.abs(beamDirection.y) === 1) beamDirectionAxis = 'y'
-        else if (Math.abs(beamDirection.z) === 1) beamDirectionAxis = 'z'
-        if (beamDirectionAxis === undefined)
-          throw new Error('incorrect beam direction axis')
-
-        if (beamDirectionAxis === 'z' && change > 0) {
-          change = Math.min(change, beamOrigin.z)
-        }
-
-        let beamDirectionUpdate = 'sub'
-        if (
-          beamDirection.x === -1 ||
-          beamDirection.y === -1 ||
-          beamDirection.z === -1
-        ) {
-          beamDirectionUpdate = 'add'
-        }
-        updatePart([
-          // update length by change
-          {
-            update: 'add',
-            path: 'length',
-            value: change,
-          },
-          // move forward by change
-          {
-            update: beamDirectionUpdate,
-            path: ['origin', beamDirectionAxis],
-            value: change,
-          },
-        ])
-      }
-    },
-    [
-      arrowDirection,
-      beamDirection.x,
-      beamDirection.y,
-      beamDirection.z,
-      beamOrigin,
-      updatePart,
-    ],
-  )
-*/
