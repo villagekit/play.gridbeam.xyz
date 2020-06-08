@@ -8,8 +8,8 @@ import type { ReactThreeFiber } from 'react-three-fiber'
 import { useThree } from 'react-three-fiber'
 import {
   doSetCameraControls,
-  getAnyPartIsMoving,
   getIsCameraControlEnabled,
+  getIsPartTransitioning,
   getIsSelecting,
   getParts,
   getSelectedParts,
@@ -45,7 +45,7 @@ export function GlCamera(props: CameraProps) {
   const isControlEnabled = useSelector(getIsCameraControlEnabled)
   const parts = useSelector(getParts)
   const selectedParts = useSelector(getSelectedParts)
-  const isMoving = useSelector(getAnyPartIsMoving)
+  const isTransitioning = useSelector(getIsPartTransitioning)
   const isSelecting = useSelector(getIsSelecting)
 
   const previousSelectedParts = usePreviousValue<typeof selectedParts>(
@@ -72,7 +72,7 @@ export function GlCamera(props: CameraProps) {
   // - move it around to change the center
   // - removing the center goes back to the default behavior
   useEffect(() => {
-    if (isMoving || isSelecting) return
+    if (isTransitioning || isSelecting) return
     const controls = controlsRef.current
     if (controls == null) return
 
@@ -97,7 +97,7 @@ export function GlCamera(props: CameraProps) {
     box.getCenter(center)
     controls.setTarget(center.x, center.y, center.z)
   }, [
-    isMoving,
+    isTransitioning,
     scene,
     parts,
     selectedParts,

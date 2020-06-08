@@ -1,6 +1,6 @@
 // declarative updates
 
-import { clamp, flow, isArray, update } from 'lodash'
+import { clamp, flow, identity, isArray, update } from 'lodash'
 import { Direction } from 'src'
 
 import { rotateDirection } from './rotation'
@@ -32,18 +32,25 @@ export interface RotateDescriptor extends BaseDescriptor {
   axis: any
   angle: any
 }
-export type UpdateDescriptor =
+export type UpdateDescriptorAtom =
   | SetDescriptor
   | AddDescriptor
   | SubDescriptor
   | ClampDescriptor
   | RotateDescriptor
-  | Array<UpdateDescriptor>
+export type UpdateDescriptor =
+  | null
+  | UpdateDescriptorAtom
+  | Array<UpdateDescriptorAtom>
 export type Updater<T extends object = object> = (obj: T) => T
 
 export default function createUpdater<T extends object = object>(
   updateDescriptor: UpdateDescriptor,
 ): Updater<T> {
+  if (updateDescriptor == null) {
+    return identity
+  }
+
   if (isArray(updateDescriptor)) {
     return flow(updateDescriptor.map(createUpdater))
   }
