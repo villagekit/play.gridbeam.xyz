@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import {
   DomActionButtons,
   DomCameraWidget,
+  // DomMenuWidget,
   DomSelectionBox,
   DomSidebar,
   getCurrentSpecId,
@@ -26,6 +27,7 @@ export function DomApp() {
       <DomSidebar />
       <DomActionButtons />
       <DomSelectionBox />
+      {/*<DomMenuWidget />*/}
       <DomCameraWidget />
     </Container>
   )

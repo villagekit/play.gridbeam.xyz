@@ -2,8 +2,15 @@ import { map } from 'lodash'
 import React, { useCallback, useMemo } from 'react'
 import { useDebounce } from 'react-debounce-hook'
 import { useDispatch, useSelector } from 'react-redux'
-import { doUpdatePart, getSelectedParts, PartType, PartValue, Uuid } from 'src'
-import { UpdateDescriptor } from 'src'
+import {
+  doUpdatePart,
+  getSelectedParts,
+  LengthDirection,
+  PartType,
+  PartUpdate,
+  PartValue,
+  Uuid,
+} from 'src'
 import { Box, Flex, Label, Select, Slider, Text } from 'theme-ui'
 
 interface SelectionProps {}
@@ -14,13 +21,13 @@ export function DomSidebarSelection(props: SelectionProps) {
   const selectedParts = useSelector(getSelectedParts)
 
   const handleUpdate = useCallback(
-    (uuid: Uuid) => (updater: UpdateDescriptor) =>
-      dispatch(doUpdatePart({ uuid, updater })),
+    (uuid: Uuid) => (update: PartUpdate) =>
+      dispatch(doUpdatePart({ uuid, update })),
     [dispatch],
   )
 
   const renderSelectedParts = useMemo(() => {
-    const renderBeam = (uuid: Uuid, selected: PartValue) => {
+    const renderBeam = (uuid: Uuid, value: PartValue) => {
       const handleBeamUpdate = handleUpdate(uuid)
 
       return (
@@ -38,31 +45,56 @@ export function DomSidebarSelection(props: SelectionProps) {
           <SliderControl
             name="length"
             label="length"
-            path={['length']}
-            value={selected.length}
+            value={value.length}
             min={1}
-            update={handleBeamUpdate}
+            onUpdate={(nextValue) =>
+              handleBeamUpdate({
+                type: 'scale',
+                payload: {
+                  delta: nextValue - value.length,
+                  lengthDirection: LengthDirection.positive,
+                },
+              })
+            }
           />
           <SliderControl
             name="origin.x"
             label="origin.x"
-            path={['origin', 'x']}
-            value={selected.origin.x}
-            update={handleBeamUpdate}
+            value={value.origin.x}
+            onUpdate={(nextValue) =>
+              handleBeamUpdate({
+                type: 'move',
+                payload: {
+                  delta: [nextValue - value.origin.x, 0, 0],
+                },
+              })
+            }
           />
           <SliderControl
             name="origin.y"
             label="origin.y"
-            path={['origin', 'y']}
-            value={selected.origin.y}
-            update={handleBeamUpdate}
+            value={value.origin.y}
+            onUpdate={(nextValue) =>
+              handleBeamUpdate({
+                type: 'move',
+                payload: {
+                  delta: [0, nextValue - value.origin.y, 0],
+                },
+              })
+            }
           />
           <SliderControl
             name="origin.z"
             label="origin.z"
-            path={['origin', 'z']}
-            value={selected.origin.z}
-            update={handleBeamUpdate}
+            value={value.origin.z}
+            onUpdate={(nextValue) =>
+              handleBeamUpdate({
+                type: 'move',
+                payload: {
+                  delta: [0, 0, nextValue - value.origin.z],
+                },
+              })
+            }
           />
         </ControlSection>
       )
@@ -117,16 +149,15 @@ const ControlSection = (props: ControlSectionProps) => {
 interface ControlProps<T> {
   name: string
   label: string
-  path: string | Array<string>
   value: T
-  update: (updateDescriptor: UpdateDescriptor) => void
+  onUpdate: (value: T) => void
 }
 
 type SliderControlProps = ControlProps<number> &
   React.ComponentProps<typeof Slider>
 
 const SliderControl = (props: SliderControlProps) => {
-  const { name, label, path, value, update, ...inputProps } = props
+  const { name, label, value, onUpdate, ...inputProps } = props
 
   const [nextValue, setValue] = React.useState(value)
 
@@ -134,16 +165,9 @@ const SliderControl = (props: SliderControlProps) => {
     setValue(value)
   }, [value])
 
-  const handleUpdate = React.useCallback(
-    (value) => {
-      update({
-        update: 'set',
-        path,
-        value: Number(value),
-      })
-    },
-    [path, update],
-  )
+  const handleUpdate = React.useCallback((value) => onUpdate(Number(value)), [
+    onUpdate,
+  ])
   const handleChange = React.useCallback((ev) => {
     setValue(ev.target.value)
   }, [])
@@ -170,7 +194,7 @@ type SelectControlProps<T> = ControlProps<T> &
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function SelectControl<T>(props: SelectControlProps<T>) {
-  const { name, label, path, value, options, update, ...selectProps } = props
+  const { name, label, value, options, onUpdate, ...selectProps } = props
 
   const [nextValue, setValue] = React.useState(value)
 
@@ -178,16 +202,7 @@ function SelectControl<T>(props: SelectControlProps<T>) {
     setValue(value)
   }, [value])
 
-  const handleUpdate = React.useCallback(
-    (value) => {
-      update({
-        update: 'set',
-        path,
-        value,
-      })
-    },
-    [path, update],
-  )
+  const handleUpdate = React.useCallback((value) => onUpdate(value), [onUpdate])
   const handleChange = React.useCallback((ev) => {
     setValue(ev.target.value)
   }, [])

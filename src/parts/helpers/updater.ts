@@ -1,92 +1,111 @@
-// declarative updates
+// declarative part updates
 
-import { clamp, flow, identity, isArray, update } from 'lodash'
-import { Direction } from 'src'
+import { PartEntity, Uuid } from '../store'
 
-import { rotateDirection } from './rotation'
+type PartState = PartEntity
 
-export interface BaseDescriptor {
-  update: string
-  path: string | Array<string>
+export enum LengthDirection {
+  positive = 'positive',
+  negative = 'negative',
 }
 
-export interface SetDescriptor extends BaseDescriptor {
-  update: 'set'
-  value: number
+export interface MoveUpdate {
+  type: 'move'
+  payload: {
+    delta: [number, number, number]
+  }
 }
-export interface AddDescriptor extends BaseDescriptor {
-  update: 'add'
-  value: number
-}
-export interface SubDescriptor extends BaseDescriptor {
-  update: 'sub'
-  value: number
-}
-export interface ClampDescriptor extends BaseDescriptor {
-  update: 'clamp'
-  min: number
-  max: number
-}
-export interface RotateDescriptor extends BaseDescriptor {
-  update: 'rotate'
-  axis: any
-  angle: any
-}
-export type UpdateDescriptorAtom =
-  | SetDescriptor
-  | AddDescriptor
-  | SubDescriptor
-  | ClampDescriptor
-  | RotateDescriptor
-export type UpdateDescriptor =
-  | null
-  | UpdateDescriptorAtom
-  | Array<UpdateDescriptorAtom>
-export type Updater<T extends object = object> = (obj: T) => T
 
-export default function createUpdater<T extends object = object>(
-  updateDescriptor: UpdateDescriptor,
-): Updater<T> {
-  if (updateDescriptor == null) {
-    return identity
+function moveUpdate(part: PartState, update: MoveUpdate) {
+  const { delta } = update.payload
+
+  part.origin.x += delta[0]
+  part.origin.y += delta[1]
+  part.origin.z += delta[2]
+}
+
+export interface ScaleUpdate {
+  type: 'scale'
+  payload: {
+    delta: number
+    lengthDirection: LengthDirection
+  }
+}
+
+function scaleUpdate(part: PartState, update: ScaleUpdate) {
+  let { delta, lengthDirection } = update.payload
+
+  // special case: length must not go below zero
+  if (part.length + delta < 1) {
+    delta = -part.length + 1
   }
 
-  if (isArray(updateDescriptor)) {
-    return flow(updateDescriptor.map(createUpdater))
-  }
+  if (lengthDirection === LengthDirection.positive) {
+    part.length += delta
+  } else if (lengthDirection === LengthDirection.negative) {
+    const moveX = delta * part.direction.x
+    const moveY = delta * part.direction.y
+    let moveZ = delta * part.direction.z
 
-  let pathUpdater: (value: any) => any
-  switch (updateDescriptor.update) {
-    case 'set':
-      pathUpdater = setUpdater(updateDescriptor)
+    // special case: origin.z must not go below zero
+    if (part.origin.z - moveZ <= 0) {
+      moveZ = part.origin.z
+      delta = part.origin.z / part.direction.z
+    }
+
+    part.length += delta
+    part.origin.x -= moveX
+    part.origin.y -= moveY
+    part.origin.z -= moveZ
+  }
+}
+
+export interface RotateUpdate {
+  type: 'rotate'
+  payload: {
+    axis: any
+    angle: any
+  }
+}
+
+export interface CreateUpdate {
+  type: 'create'
+  payload: {
+    parts: Array<PartEntity>
+  }
+}
+
+export interface DeleteUpdate {
+  type: 'delete'
+  payload: {
+    parts: Array<Uuid>
+  }
+}
+
+export type PartUpdate =
+  | MoveUpdate
+  | ScaleUpdate
+  | RotateUpdate
+  | CreateUpdate
+  | DeleteUpdate
+
+export function updatePart(part: PartState, update: PartUpdate) {
+  switch (update.type) {
+    case 'move':
+      moveUpdate(part, update)
       break
-    case 'add':
-      pathUpdater = addUpdater(updateDescriptor)
-      break
-    case 'sub':
-      pathUpdater = subUpdater(updateDescriptor)
-      break
-    case 'clamp':
-      pathUpdater = clampUpdater(updateDescriptor)
+    case 'scale':
+      scaleUpdate(part, update)
       break
     case 'rotate':
-      pathUpdater = rotateUpdater(updateDescriptor)
-      break
+      throw new Error('unimplemented')
+    case 'create':
+      throw new Error('unimplemented')
+    case 'delete':
+      throw new Error('unimplemented')
   }
 
-  return function performUpdate(obj: T): T {
-    return update(obj, updateDescriptor.path, pathUpdater)
-  }
+  // ensure update is safe
+  if (part.length < 1) part.length = 1
+  if (part.origin.z < 0) part.origin.z = 0
 }
-
-const setUpdater = ({ value }: SetDescriptor) => () => value
-const addUpdater = ({ value: valueToAdd }: AddDescriptor) => (value: number) =>
-  value + valueToAdd
-const subUpdater = ({ value: valueToSub }: SubDescriptor) => (value: number) =>
-  value - valueToSub
-const clampUpdater = ({ max = -Infinity, min = Infinity }: ClampDescriptor) => (
-  value: number,
-) => clamp(value, min, max)
-const rotateUpdater = ({ axis, angle }: RotateDescriptor) => (
-  value: Direction,
-) => rotateDirection(value, axis, angle)

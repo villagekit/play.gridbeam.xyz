@@ -7,6 +7,7 @@ import {
   getPartsByUuid,
   GlArrow,
   isStandardDirection,
+  LengthDirection,
   NEGATIVE_X_AXIS,
   PartValue,
   ROTATION,
@@ -27,11 +28,6 @@ import {
   Texture,
   Vector3,
 } from 'three'
-
-export enum LengthDirection {
-  positive = 'positive',
-  negative = 'negative',
-}
 
 interface BeamProps {
   uuid: Uuid
