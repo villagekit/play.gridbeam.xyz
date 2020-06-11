@@ -62,8 +62,9 @@ export function usePartActions(uuid: Uuid) {
   }, [endTransition])
 
   const startLengthTransition = useCallback(() => {
+    select()
     startTransition('scale')
-  }, [startTransition])
+  }, [select, startTransition])
   const updateLengthTransition = useCallback(
     (delta: number, lengthDirection: LengthDirection) => {
       dispatch(
