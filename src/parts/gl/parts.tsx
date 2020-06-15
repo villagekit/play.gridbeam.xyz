@@ -25,7 +25,7 @@ export function GlParts(props: PartsProps) {
 
         const partProps = {
           key: uuid,
-          uuid,
+          part,
           texture: texturesByMaterialType[materialId],
         }
 

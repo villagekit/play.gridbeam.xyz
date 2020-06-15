@@ -30,18 +30,15 @@ import {
 } from 'three'
 
 interface BeamProps {
-  uuid: Uuid
+  part: PartValue
   texture: Texture
 }
 
 export function GlBeam(props: BeamProps) {
-  const { uuid, texture: beamTexture } = props
-
-  const partsByUuid = useSelector(getPartsByUuid)
-  // @ts-ignore
-  const part = partsByUuid[uuid] as PartValue
+  const { part, texture: beamTexture } = props
 
   const {
+    uuid,
     direction,
     length,
     isHovered,
