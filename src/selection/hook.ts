@@ -49,6 +49,7 @@ export function useGlSelection() {
   let selectionScreenBounds = React.useMemo(() => new Box2(), [])
   React.useEffect(() => {
     selectionScreenBounds.makeEmpty()
+    if (startPoint == null || endPoint == null) return
     selectionScreenBounds.expandByPoint(new Vector2(startPoint.x, startPoint.y))
     selectionScreenBounds.expandByPoint(new Vector2(endPoint.x, endPoint.y))
   }, [selectionScreenBounds, startPoint, endPoint])

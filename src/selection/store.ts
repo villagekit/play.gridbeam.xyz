@@ -26,16 +26,16 @@ export interface SelectableScreenBounds {
 export interface SelectionState {
   isEnabled: boolean
   isSelecting: boolean
-  startPoint: Point
-  endPoint: Point
+  startPoint: null | Point
+  endPoint: null | Point
   selectableScreenBounds: SelectableScreenBounds
 }
 
 const initialState: SelectionState = {
   isEnabled: true,
   isSelecting: false,
-  startPoint: { x: 0, y: 0 },
-  endPoint: { x: 0, y: 0 },
+  startPoint: null,
+  endPoint: null,
   selectableScreenBounds: {},
 }
 
@@ -51,19 +51,17 @@ export const selectionSlice = createSlice({
     },
     doStartSelection: (state) => {
       state.isSelecting = true
+      state.startPoint = null
+      state.endPoint = null
     },
     doEndSelection: (state) => {
       state.isSelecting = false
     },
     doSetSelectionStartPoint: (state, action) => {
-      const { x, y } = action.payload
-      state.startPoint.x = x
-      state.startPoint.y = y
+      state.startPoint = action.payload
     },
     doSetSelectionEndPoint: (state, action) => {
-      const { x, y } = action.payload
-      state.endPoint.x = x
-      state.endPoint.y = y
+      state.endPoint = action.payload
     },
     doSetSelectableScreenBounds: (state, action) => {
       state.selectableScreenBounds = action.payload

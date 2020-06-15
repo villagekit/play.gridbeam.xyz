@@ -32,20 +32,22 @@ function SelectBox(props: SelectBoxProps) {
   const { startPoint, endPoint, size } = props
 
   const bottomRightPoint = React.useMemo(() => {
-    if (size == null) return { x: 0, y: 0 }
+    if (startPoint == null || endPoint == null || size == null)
+      return { x: 0, y: 0 }
     return {
       x: ((Math.max(startPoint.x, endPoint.x) + 1) / 2) * size.width,
       y: (-(Math.min(startPoint.y, endPoint.y) - 1) / 2) * size.height,
     }
-  }, [size, startPoint.x, startPoint.y, endPoint.x, endPoint.y])
+  }, [size, startPoint, endPoint])
 
   const topLeftPoint = React.useMemo(() => {
-    if (size == null) return { x: 0, y: 0 }
+    if (startPoint == null || endPoint == null || size == null)
+      return { x: 0, y: 0 }
     return {
       x: ((Math.min(startPoint.x, endPoint.x) + 1) / 2) * size.width,
       y: (-(Math.max(startPoint.y, endPoint.y) - 1) / 2) * size.height,
     }
-  }, [size, startPoint.x, startPoint.y, endPoint.x, endPoint.y])
+  }, [size, startPoint, endPoint])
 
   return (
     <Box
