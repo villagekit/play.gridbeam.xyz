@@ -42,8 +42,8 @@ export interface Command {
 
 const commandDescriptors: Array<CommandDescriptor> = [
   {
-    id: 'createBeam',
-    label: 'New Beam',
+    id: 'createBeamX',
+    label: 'New X Beam',
     isEnabled: ({ hasSelected }) => !hasSelected,
     action: ({ specId, sizeId, materialId }) =>
       doUpdateParts({
@@ -52,7 +52,49 @@ const commandDescriptors: Array<CommandDescriptor> = [
           parts: [
             {
               type: PartType.Beam,
-              direction: { x: 0, y: 0, z: 0 },
+              direction: { x: 1, y: 0, z: 0 },
+              origin: { x: 0, y: 0, z: 0 },
+              length: 5,
+              sizeId,
+              materialId,
+            },
+          ],
+        },
+      }),
+  },
+  {
+    id: 'createBeamY',
+    label: 'New Y Beam',
+    isEnabled: ({ hasSelected }) => !hasSelected,
+    action: ({ specId, sizeId, materialId }) =>
+      doUpdateParts({
+        type: 'create',
+        payload: {
+          parts: [
+            {
+              type: PartType.Beam,
+              direction: { x: 0, y: 1, z: 0 },
+              origin: { x: 0, y: 0, z: 0 },
+              length: 5,
+              sizeId,
+              materialId,
+            },
+          ],
+        },
+      }),
+  },
+  {
+    id: 'createBeamZ',
+    label: 'New Z Beam',
+    isEnabled: ({ hasSelected }) => !hasSelected,
+    action: ({ specId, sizeId, materialId }) =>
+      doUpdateParts({
+        type: 'create',
+        payload: {
+          parts: [
+            {
+              type: PartType.Beam,
+              direction: { x: 0, y: 0, z: 1 },
               origin: { x: 0, y: 0, z: 0 },
               length: 5,
               sizeId,
