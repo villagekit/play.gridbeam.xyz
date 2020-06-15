@@ -117,6 +117,7 @@ interface PartUpdateHistoryForRedo {
 export type PartsState = {
   entities: null | Record<Uuid, PartEntity>
   currentTransition: null | PartTransition
+  clipboard: Array<PartEntity>
   updateHistory: {
     undos: Array<PartUpdateHistoryForUndo>
     redos: Array<PartUpdateHistoryForRedo>
@@ -135,6 +136,7 @@ const selectHappening = buildPartHappening<SelectStateKey>(
 const initialState: PartsState = {
   entities: null,
   currentTransition: null,
+  clipboard: [],
   updateHistory: {
     undos: [],
     redos: [],
@@ -219,6 +221,12 @@ export const partsSlice = createSlice({
 
       state.currentTransition = null
     },
+    doSetPartsClipboard: (
+      state: PartsState,
+      action: PayloadAction<Array<PartEntity>>,
+    ) => {
+      state.clipboard = action.payload
+    },
     doUndoPartUpdate: (state: PartsState) => {
       const lastUndoUpdateHistory = state.updateHistory.undos.pop()
       if (lastUndoUpdateHistory == null) return
@@ -265,6 +273,7 @@ export const {
   doStartPartTransition,
   doUpdatePartTransition,
   doEndPartTransition,
+  doSetPartsClipboard,
   doUndoPartUpdate,
   doRedoPartUpdate,
 } = partsSlice.actions
@@ -386,7 +395,8 @@ export const getParts = createSelector(
 export const getSelectedPartsEntities = createSelector(
   getPartsEntities,
   getSelectedUuids,
-  (parts, selectedUuids) => pick(parts, selectedUuids),
+  (parts, selectedUuids) =>
+    pick(parts, selectedUuids) as Record<Uuid, PartEntity>,
 )
 export const getSelectedParts = createSelector(getParts, (parts) =>
   parts.filter((part) => part.isSelected === true),
@@ -398,6 +408,10 @@ export const getHasSelectedAnyParts = createSelector(
 export const getPartsByType = createSelector(getParts, (parts) => {
   return groupBy(parts, 'type')
 })
+export const getPartsClipboard = createSelector(
+  getPartsState,
+  (state) => state.clipboard,
+)
 
 function buildPartHappening<StateKey extends HappenStateKey>(
   happen: string,

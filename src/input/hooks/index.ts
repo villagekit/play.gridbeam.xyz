@@ -1,4 +1,4 @@
-import { useClipboard } from './clipboard'
+import { useClipboardInput } from './clipboard'
 import { useKeyboard } from './keyboard'
 import { useInputModifiers } from './modifiers'
 
@@ -7,7 +7,7 @@ export * from './keyboard'
 export * from './modifiers'
 
 export const useInput = () => {
-  useClipboard()
+  useClipboardInput()
   useInputModifiers()
   useKeyboard()
 }
