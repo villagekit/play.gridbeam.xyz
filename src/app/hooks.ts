@@ -1,4 +1,10 @@
-import { useGlCameraInput, useGlSelection, useInput, usePersist } from 'src'
+import {
+  useGlCameraInput,
+  useGlScene,
+  useGlSelection,
+  useInput,
+  usePersist,
+} from 'src'
 
 export const useApp = () => {
   useInput()
@@ -8,4 +14,5 @@ export const useApp = () => {
 export const useGl = () => {
   useGlSelection()
   useGlCameraInput()
+  useGlScene()
 }

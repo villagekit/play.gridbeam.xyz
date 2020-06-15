@@ -1,5 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type CameraControlsType from 'camera-controls'
+import { useThree } from 'react-three-fiber'
 import { AppDispatch, RootState } from 'src'
 
 export interface CameraState {
@@ -10,6 +11,7 @@ export interface CameraState {
 
 export interface SceneState {
   camera: CameraState
+  size: null | ReturnType<typeof useThree>['size']
 }
 
 export enum CameraControlMode {
@@ -25,6 +27,7 @@ const initialState: SceneState = {
     controlMode: CameraControlMode.Default,
     controlReady: false,
   },
+  size: null,
 }
 
 // NOTE: storing in the state caused an infinite loop bug with immer.
@@ -56,6 +59,9 @@ export const sceneSlice = createSlice({
     doSetCameraControlReady: (state, action: PayloadAction<boolean>) => {
       state.camera.controlReady = action.payload
     },
+    doSetSceneSize: (state, action: PayloadAction<SceneState['size']>) => {
+      state.size = action.payload
+    },
   },
 })
 
@@ -64,6 +70,7 @@ export const {
   doDisableCameraControl,
   doSetCameraControlMode,
   doSetCameraControlReady,
+  doSetSceneSize,
 } = sceneSlice.actions
 
 export default sceneSlice.reducer
@@ -93,3 +100,5 @@ export const getCameraControls = createSelector(
   getCameraControlReady,
   () => cameraControls,
 )
+
+export const getSceneSize = createSelector(getSceneState, (state) => state.size)

@@ -10,6 +10,7 @@ import {
   doUpdateSelectableScreenBounds,
   getIsSelecting,
   getIsSelectionEnabled,
+  getSceneSize,
   getSelectableScreenBounds,
   getSelectionEndPoint,
   getSelectionStartPoint,
@@ -26,7 +27,17 @@ export function useGlSelection() {
   const endPoint = useSelector(getSelectionEndPoint)
   const selectableScreenBounds = useSelector(getSelectableScreenBounds)
 
-  const { scene, camera } = useThree()
+  const { gl, scene, camera } = useThree()
+
+  const handleStartSelection = React.useCallback(() => {
+    dispatch(doStartSelection())
+  }, [dispatch])
+
+  const handleEndSelection = React.useCallback(() => {
+    dispatch(doEndSelection())
+  }, [dispatch])
+
+  // when starting a new selection, calculate screen bounds of all parts
   // this optimization works because the camera doesn't move once selecting
   React.useEffect(() => {
     if (!isEnabled) return
@@ -34,14 +45,15 @@ export function useGlSelection() {
     dispatch(doUpdateSelectableScreenBounds({ scene, camera }))
   }, [camera, dispatch, isEnabled, isSelecting, scene])
 
-  const selectionScreenBounds = React.useMemo(() => {
-    const box = new Box2()
-    box.makeEmpty()
-    box.expandByPoint(new Vector2(startPoint.x, startPoint.y))
-    box.expandByPoint(new Vector2(endPoint.x, endPoint.y))
-    return box
-  }, [startPoint, endPoint])
+  // create 2d box to represent start and end point of selection
+  let selectionScreenBounds = React.useMemo(() => new Box2(), [])
+  React.useEffect(() => {
+    selectionScreenBounds.makeEmpty()
+    selectionScreenBounds.expandByPoint(new Vector2(startPoint.x, startPoint.y))
+    selectionScreenBounds.expandByPoint(new Vector2(endPoint.x, endPoint.y))
+  }, [selectionScreenBounds, startPoint, endPoint])
 
+  // select any parts within the box
   React.useEffect(() => {
     if (!isEnabled) return
     if (!isSelecting) return
@@ -60,41 +72,32 @@ export function useGlSelection() {
     selectableScreenBounds,
     dispatch,
   ])
-}
 
-export function useDomSelection() {
-  const dispatch = useDispatch()
-
-  const isEnabled = useSelector(getIsSelectionEnabled)
-  const isSelecting = useSelector(getIsSelecting)
-  const startPoint = useSelector(getSelectionStartPoint)
-  const endPoint = useSelector(getSelectionEndPoint)
-
-  const handleStartSelection = React.useCallback(() => {
-    dispatch(doStartSelection())
-  }, [dispatch])
-
-  const handleEndSelection = React.useCallback(() => {
-    dispatch(doEndSelection())
-  }, [dispatch])
-
+  /*
+  // TODO: what is the use case for this?
+  // can be problematic when selecting and you hover over a camera widget button
+  //
+  // when selection is disabled, force end
   React.useEffect(() => {
     if (!isEnabled) handleEndSelection()
   }, [handleEndSelection, isEnabled])
+  */
 
+  const size = useSelector(getSceneSize)
+
+  // handle selection events
   React.useEffect(() => {
-    document.addEventListener('mousedown', handleMouseDown)
+    gl.domElement.addEventListener('mousedown', handleMouseDown)
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
 
     return () => {
-      document.removeEventListener('mousedown', handleMouseDown)
+      gl.domElement.removeEventListener('mousedown', handleMouseDown)
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
 
     function handleMouseDown(ev: MouseEvent) {
-      console.log('selection down')
       if (!isEnabled) return
       if (ev.altKey) return
       if (ev.button !== MOUSE.LEFT) return
@@ -109,7 +112,6 @@ export function useDomSelection() {
     }
 
     function handleMouseUp(ev: MouseEvent) {
-      console.log('selection up')
       if (!isEnabled) return
       if (!isSelecting) return
       handleEndSelection()
@@ -117,32 +119,29 @@ export function useDomSelection() {
     }
 
     function handleStart(ev: MouseEvent) {
-      dispatch(
-        doSetSelectionStartPoint({
-          x: (ev.clientX / window.innerWidth) * 2 - 1,
-          y: -(ev.clientY / window.innerHeight) * 2 + 1,
-        }),
-      )
+      const point = getSelectionPoint(ev)
+      if (Math.abs(point.x) > 1 || Math.abs(point.y) > 1) return
+      dispatch(doSetSelectionStartPoint(point))
     }
     function handleEnd(ev: MouseEvent) {
-      dispatch(
-        doSetSelectionEndPoint({
-          x: (ev.clientX / window.innerWidth) * 2 - 1,
-          y: -(ev.clientY / window.innerHeight) * 2 + 1,
-        }),
-      )
+      const point = getSelectionPoint(ev)
+      if (Math.abs(point.x) > 1 || Math.abs(point.y) > 1) return
+      dispatch(doSetSelectionEndPoint(point))
+    }
+
+    function getSelectionPoint(ev: MouseEvent) {
+      if (size == null) return { x: 0, y: 0 }
+      const mouseX = (ev.clientX / size.width) * 2 - 1
+      const mouseY = -(ev.clientY / size.height) * 2 + 1
+      return { x: mouseX, y: mouseY }
     }
   }, [
+    gl,
+    size,
     dispatch,
     isEnabled,
     isSelecting,
     handleStartSelection,
     handleEndSelection,
   ])
-
-  return {
-    isSelecting,
-    startPoint,
-    endPoint,
-  }
 }

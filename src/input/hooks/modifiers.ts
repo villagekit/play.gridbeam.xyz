@@ -38,7 +38,6 @@ export const useInputModifiers = () => {
     }
 
     function handleKeyDown(ev: KeyboardEvent) {
-      console.log('down')
       if (ev.code === 'ControlLeft' || ev.code === 'ControlRight') ctrlDowns++
       else if (ev.code === 'AltLeft' || ev.code === 'AltRight') altDowns++
       else if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') shiftDowns++
