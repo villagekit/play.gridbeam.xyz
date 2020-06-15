@@ -8,6 +8,7 @@ import {
 import produce from 'immer'
 import {
   capitalize,
+  clone,
   groupBy,
   isEmpty,
   keys,
@@ -29,6 +30,7 @@ import {
   SpecSizeValue,
 } from 'src'
 import { Euler, MathUtils } from 'three'
+import removeFromUnorderedArray from 'unordered-array-remove'
 
 import { Direction } from './helpers/direction'
 import { PartUpdate, updatePart, updateParts } from './helpers/updater'
@@ -87,7 +89,7 @@ export interface PartValue extends PartEntity {
 type HoverStateKey = 'hoveredUuids'
 type SelectStateKey = 'selectedUuids'
 type HappenStateKey = HoverStateKey | SelectStateKey
-type HappenStateValue = Record<Uuid, true>
+type HappenStateValue = Array<Uuid>
 type HappenState = Record<HappenStateKey, HappenStateValue>
 
 interface PartUpdateHistoryForUndo {
@@ -175,6 +177,14 @@ export const partsSlice = createSlice({
       const update = action.payload
       helpUndoRedoBeforePartUpdate(state, update)
       updateParts(state.entities, update)
+
+      // TODO figure out where this code should go...
+      // if delete, then remove any deleted if selected
+      if (update.type === 'delete') {
+        state.selectedUuids = state.selectedUuids.filter((uuid) => {
+          return !update.payload.uuids.includes(uuid)
+        })
+      }
     },
     doStartPartTransition: (
       state: PartsState,
@@ -262,11 +272,13 @@ export const {
 export default partsSlice.reducer
 
 export const getPartsState = (state: RootState): PartsState => state.parts
-export const getHoveredUuids = createSelector(getPartsState, (state) =>
-  keys(state.hoveredUuids),
+export const getHoveredUuids = createSelector(
+  getPartsState,
+  (state) => state.hoveredUuids,
 )
-export const getSelectedUuids = createSelector(getPartsState, (state) =>
-  keys(state.selectedUuids),
+export const getSelectedUuids = createSelector(
+  getPartsState,
+  (state) => state.selectedUuids,
 )
 export const getPartsEntities = createSelector(
   getPartsState,
@@ -392,7 +404,7 @@ function buildPartHappening<StateKey extends HappenStateKey>(
     `parts/do${capitalize(happen)}Parts`,
   )
 
-  const initialState: HappenStateValue = {}
+  const initialState: HappenStateValue = []
 
   const actions = { doHappenAction, doUnhappenAction, doHappensAction }
 
@@ -402,7 +414,7 @@ function buildPartHappening<StateKey extends HappenStateKey>(
       (state: PartsState, action: PayloadAction<Uuid>) => {
         const uuid: Uuid = action.payload
         const happenState: HappenStateValue = state[stateKey]
-        happenState[uuid] = true
+        happenState.push(uuid)
       },
     )
 
@@ -410,7 +422,8 @@ function buildPartHappening<StateKey extends HappenStateKey>(
       doUnhappenAction,
       (state: PartsState, action: PayloadAction<Uuid>) => {
         const uuid = action.payload
-        delete state[stateKey][uuid]
+        const happenState = state[stateKey]
+        removeFromSet<Uuid>(happenState, uuid)
       },
     )
 
@@ -418,18 +431,18 @@ function buildPartHappening<StateKey extends HappenStateKey>(
       doHappensAction,
       (state: PartsState, action: PayloadAction<Array<Uuid>>) => {
         const uuids = action.payload
-        const happenedUuidsObject: HappenStateValue = state[stateKey]
-        const happenedUuids: Array<Uuid> = keys(happenedUuidsObject)
+        const happenState: HappenStateValue = state[stateKey]
+        const happenedUuids: Array<Uuid> = clone(happenState)
         // remove any uuids no longer happening
         happenedUuids.forEach((uuid) => {
           if (!uuids.includes(uuid)) {
-            delete happenedUuidsObject[uuid]
+            removeFromSet<Uuid>(happenState, uuid)
           }
         })
         // add any uuids that started happening
         uuids.forEach((uuid) => {
           if (!happenedUuids.includes(uuid)) {
-            happenedUuidsObject[uuid] = true
+            happenState.push(uuid)
           }
         })
       },
@@ -441,4 +454,8 @@ function buildPartHappening<StateKey extends HappenStateKey>(
     actions,
     buildReducers,
   }
+}
+
+function removeFromSet<T>(array: Array<T>, item: T) {
+  removeFromUnorderedArray(array, array.indexOf(item))
 }

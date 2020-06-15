@@ -40,11 +40,10 @@ const CommandButton = (props: CommandButtonProps) => {
 
   const handleClick = useCallback(
     (ev: React.MouseEvent<HTMLButtonElement>) => {
-      console.log('clickkkeeeeed', label)
       ev.preventDefault()
       action()
     },
-    [action, label],
+    [action],
   )
 
   return (

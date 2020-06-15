@@ -76,3 +76,4 @@ declare module '@theme-ui/color' {
 declare module 'csg-to-mesh'
 declare module '@jscad/csg/src/api/ops-booleans'
 declare module '@jscad/csg/src/api/primitives3d-api'
+declare module 'unordered-array-remove'

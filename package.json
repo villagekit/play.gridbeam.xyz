@@ -46,6 +46,7 @@
     "typeface-ibm-plex-sans": "0.0.75",
     "typeface-ibm-plex-serif": "0.0.75",
     "typescript": "^3.8.3",
+    "unordered-array-remove": "^1.0.2",
     "use-callback-ref": "^1.2.3",
     "use-clipboard-copy": "^0.1.2"
   },
