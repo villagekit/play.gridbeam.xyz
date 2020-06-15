@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useDebounce } from 'react-debounce-hook'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  doUpdatePart,
+  doUpdateParts,
   getSelectedParts,
   LengthDirection,
   PartType,
@@ -21,15 +21,12 @@ export function DomSidebarSelection(props: SelectionProps) {
   const selectedParts = useSelector(getSelectedParts)
 
   const handleUpdate = useCallback(
-    (uuid: Uuid) => (update: PartUpdate) =>
-      dispatch(doUpdatePart({ uuid, update })),
+    (update: PartUpdate) => dispatch(doUpdateParts(update)),
     [dispatch],
   )
 
   const renderSelectedParts = useMemo(() => {
     const renderBeam = (uuid: Uuid, value: PartValue) => {
-      const handleBeamUpdate = handleUpdate(uuid)
-
       return (
         <ControlSection key={uuid} title="beam">
           {/*
@@ -48,9 +45,10 @@ export function DomSidebarSelection(props: SelectionProps) {
             value={value.length}
             min={1}
             onUpdate={(nextValue) =>
-              handleBeamUpdate({
+              handleUpdate({
                 type: 'scale',
                 payload: {
+                  uuids: [uuid],
                   delta: nextValue - value.length,
                   lengthDirection: LengthDirection.positive,
                 },
@@ -62,9 +60,10 @@ export function DomSidebarSelection(props: SelectionProps) {
             label="origin.x"
             value={value.origin.x}
             onUpdate={(nextValue) =>
-              handleBeamUpdate({
+              handleUpdate({
                 type: 'move',
                 payload: {
+                  uuids: [uuid],
                   delta: [nextValue - value.origin.x, 0, 0],
                 },
               })
@@ -75,9 +74,10 @@ export function DomSidebarSelection(props: SelectionProps) {
             label="origin.y"
             value={value.origin.y}
             onUpdate={(nextValue) =>
-              handleBeamUpdate({
+              handleUpdate({
                 type: 'move',
                 payload: {
+                  uuids: [uuid],
                   delta: [0, nextValue - value.origin.y, 0],
                 },
               })
@@ -88,9 +88,10 @@ export function DomSidebarSelection(props: SelectionProps) {
             label="origin.z"
             value={value.origin.z}
             onUpdate={(nextValue) =>
-              handleBeamUpdate({
+              handleUpdate({
                 type: 'move',
                 payload: {
+                  uuids: [uuid],
                   delta: [0, 0, nextValue - value.origin.z],
                 },
               })

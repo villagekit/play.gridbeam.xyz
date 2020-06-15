@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useSelector } from 'react-redux'
 import {
   doDisableCameraControl,
   doDisableSelection,
@@ -10,6 +11,7 @@ import {
   doStartPartTransition,
   doUnhoverPart,
   doUpdatePartTransition,
+  getSelectedUuids,
   LengthDirection,
   PartTransition,
   useAppDispatch,
@@ -18,6 +20,8 @@ import {
 
 export function usePartActions(uuid: Uuid) {
   const dispatch = useAppDispatch()
+
+  const selectedUuids = useSelector(getSelectedUuids)
 
   const hover = useCallback(() => dispatch(doHoverPart(uuid)), [dispatch, uuid])
   const unhover = useCallback(() => dispatch(doUnhoverPart(uuid)), [
@@ -51,11 +55,12 @@ export function usePartActions(uuid: Uuid) {
     (delta: [number, number, number]) => {
       dispatch(
         doUpdatePartTransition({
+          uuids: selectedUuids,
           delta,
         }),
       )
     },
-    [dispatch],
+    [dispatch, selectedUuids],
   )
   const endMoveTransition = useCallback(() => {
     endTransition()
@@ -69,12 +74,13 @@ export function usePartActions(uuid: Uuid) {
     (delta: number, lengthDirection: LengthDirection) => {
       dispatch(
         doUpdatePartTransition({
+          uuids: [uuid],
           delta,
           lengthDirection,
         }),
       )
     },
-    [dispatch],
+    [dispatch, uuid],
   )
   const endLengthTransition = useCallback(() => {
     endTransition()

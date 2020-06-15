@@ -48,6 +48,7 @@ export function DomSelectionBox(props: SelectionBoxProps) {
     }
 
     function handleMouseDown(ev: MouseEvent) {
+      console.log('selection down')
       if (!isEnabled) return
       if (ev.altKey) return
       if (ev.button !== MOUSE.LEFT) return
@@ -62,6 +63,7 @@ export function DomSelectionBox(props: SelectionBoxProps) {
     }
 
     function handleMouseUp(ev: MouseEvent) {
+      console.log('selection up')
       if (!isEnabled) return
       if (!isSelecting) return
       handleEndSelection()

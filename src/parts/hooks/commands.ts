@@ -1,32 +1,77 @@
+import { AnyAction } from '@reduxjs/toolkit'
 import { mapValues } from 'lodash'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-  doAddPart,
-  doRemoveSelectedParts,
-  doUpdateSelectedParts,
+  doUpdateParts,
   getCurrentMaterialId,
   getCurrentSizeId,
   getCurrentSpecId,
   getHasSelectedAnyParts,
+  getSelectedUuids,
   MaterialId,
   PartType,
-  ROTATION,
+  //  ROTATION,
   SizeId,
   SpecId,
-  X_AXIS,
-  Y_AXIS,
-  Z_AXIS,
+  Uuid,
+  //  X_AXIS,
+  //  Y_AXIS,
+  //  Z_AXIS,
 } from 'src'
 
-interface CommandOptions {
-  specId: SpecId | null
-  sizeId: SizeId | null
-  materialId: MaterialId | null
+interface CommandActionOptions {
+  specId: SpecId
+  sizeId: SizeId
+  materialId: MaterialId
+  selectedUuids: Array<Uuid>
 }
 
-type Commands = Record<string, (options: CommandOptions) => [string, any]>
+interface CommandDescriptor {
+  id: string
+  label: string
+  isEnabled: ({ hasSelected }: { hasSelected: boolean }) => boolean
+  action: (options: CommandActionOptions) => AnyAction
+}
 
+export interface Command {
+  id: string
+  label: string
+  action: () => AnyAction
+}
+
+const commandDescriptors: Array<CommandDescriptor> = [
+  {
+    id: 'createBeam',
+    label: 'New Beam',
+    isEnabled: ({ hasSelected }) => !hasSelected,
+    action: ({ specId, sizeId, materialId }) =>
+      doUpdateParts({
+        type: 'create',
+        payload: {
+          parts: [
+            {
+              type: PartType.Beam,
+              direction: { x: 0, y: 0, z: 0 },
+              origin: { x: 0, y: 0, z: 0 },
+              length: 5,
+              sizeId,
+              materialId,
+            },
+          ],
+        },
+      }),
+  },
+  {
+    id: 'delete',
+    label: 'Delete',
+    isEnabled: ({ hasSelected }) => hasSelected,
+    action: ({ specId, sizeId, materialId, selectedUuids }) =>
+      doUpdateParts({ type: 'delete', payload: { uuids: selectedUuids } }),
+  },
+]
+
+/*
 const commands: Commands = {
   moveForward: () => [
     'doUpdateSelectedParts',
@@ -99,38 +144,41 @@ const commands: Commands = {
 }
 
 type CommandName = keyof typeof commands
+*/
 
 export function useCommands() {
   const dispatch = useDispatch()
 
   const hasSelected = useSelector(getHasSelectedAnyParts)
+  const selectedUuids = useSelector(getSelectedUuids)
   const specId = useSelector(getCurrentSpecId)
   const sizeId = useSelector(getCurrentSizeId)
   const materialId = useSelector(getCurrentMaterialId)
-
-  const methods = {
-    doAddPart,
-    doUpdateSelectedParts,
-    doRemoveSelectedParts,
-  }
-
-  type MethodName = keyof typeof methods
+  const actionOptions = useMemo(
+    () => ({
+      specId,
+      sizeId,
+      materialId,
+      selectedUuids,
+    }),
+    [specId, sizeId, materialId, selectedUuids],
+  )
 
   const readyCommands = useMemo(() => {
-    return mapValues(commands, (methodGen) => {
-      const [methodName, ...methodArgs] = methodGen({
-        specId,
-        sizeId,
-        materialId,
+    let commands: Array<Command> = []
+
+    commandDescriptors.forEach((commandDescriptor) => {
+      const { id, label, isEnabled, action } = commandDescriptor
+      if (!isEnabled({ hasSelected })) return
+      commands.push({
+        id,
+        label,
+        action: () => dispatch(action(actionOptions)),
       })
-      const method = methods[methodName as MethodName]
-      if (method == null) return
-      if (methodName.endsWith('Selected') && !hasSelected) {
-        return () => {}
-      }
-      return () => dispatch(method(...methodArgs))
     })
-  }, [dispatch, hasSelected, materialId, methods, sizeId, specId])
+
+    return commands
+  }, [actionOptions, dispatch, hasSelected])
 
   return readyCommands
 }

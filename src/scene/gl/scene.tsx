@@ -48,6 +48,7 @@ export function GlScene(props: GlProps) {
         },
       }}
       onPointerMissed={() => {
+        console.log('on pointer missed')
         dispatch(doSelectParts([]))
       }}
     >

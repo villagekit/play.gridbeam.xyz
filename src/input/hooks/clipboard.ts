@@ -1,12 +1,7 @@
-import { values } from 'lodash'
+import { keys, values } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  doAddParts,
-  doRemoveSelectedParts,
-  getSelectedParts,
-  PartEntity,
-} from 'src'
+import { doUpdateParts, getSelectedParts, PartEntity } from 'src'
 
 export const useClipboard = () => {
   const dispatch = useDispatch()
@@ -17,7 +12,14 @@ export const useClipboard = () => {
 
   const cut = useCallback(() => {
     setClipboard(values(selectedParts))
-    dispatch(doRemoveSelectedParts())
+    dispatch(
+      doUpdateParts({
+        type: 'delete',
+        payload: {
+          uuids: keys(selectedParts),
+        },
+      }),
+    )
   }, [dispatch, selectedParts])
 
   const copy = useCallback(() => {
@@ -25,7 +27,14 @@ export const useClipboard = () => {
   }, [selectedParts])
 
   const paste = useCallback(() => {
-    dispatch(doAddParts(clipboard))
+    dispatch(
+      doUpdateParts({
+        type: 'create',
+        payload: {
+          parts: clipboard,
+        },
+      }),
+    )
   }, [clipboard, dispatch])
 
   useEffect(() => {

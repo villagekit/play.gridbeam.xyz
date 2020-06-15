@@ -1,9 +1,8 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import {
-  DomActionButtons,
   DomCameraWidget,
-  // DomMenuWidget,
+  DomCommandButtons,
   DomSelectionBox,
   DomSidebar,
   getCurrentSpecId,
@@ -25,9 +24,8 @@ export function DomApp() {
     <Container>
       <GlScene />
       <DomSidebar />
-      <DomActionButtons />
+      <DomCommandButtons />
       <DomSelectionBox />
-      {/*<DomMenuWidget />*/}
       <DomCameraWidget />
     </Container>
   )

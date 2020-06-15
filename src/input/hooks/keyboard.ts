@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useCommands } from 'src'
+// import { useCommands } from 'src'
 
 // ideas:
 // - be like, vim ("10u")
@@ -10,8 +10,8 @@ import { useCommands } from 'src'
 // use unei to control objects
 
 export function useKeyboard() {
-  const commands = useCommands()
-
+  // const commands = useCommands()
+  /*
   useEffect(() => {
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
@@ -34,10 +34,10 @@ export function useKeyboard() {
       command()
     }
   }, [commands])
-
-  return null
+  */
 }
 
+/*
 const keyCodesByMode = {
   rightHanded: {
     KeyE: 'moveForward',
@@ -86,3 +86,4 @@ const keyCodesByMode = {
     Delete: 'removeSelected',
   },
 }
+*/
