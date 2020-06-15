@@ -1,12 +1,12 @@
 import { keys, values } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { doUpdateParts, getSelectedParts, PartEntity } from 'src'
+import { doUpdateParts, getSelectedPartsEntities, PartEntity } from 'src'
 
 export const useClipboard = () => {
   const dispatch = useDispatch()
 
-  const selectedParts = useSelector(getSelectedParts)
+  const selectedParts = useSelector(getSelectedPartsEntities)
 
   const [clipboard, setClipboard] = useState<Array<PartEntity>>([])
 

@@ -323,8 +323,8 @@ export const getPartsByUuid = createObjectSelector(
     currentSpecMaterials,
     uuid,
   ): PartValue => {
-    const isHovered = Boolean(hoveredUuids.includes(uuid))
-    const isSelected = Boolean(selectedUuids.includes(uuid))
+    const isHovered = hoveredUuids.includes(uuid)
+    const isSelected = selectedUuids.includes(uuid)
 
     const { sizeId, materialId } = part
     const specSize = currentSpecSizes[sizeId]
@@ -382,6 +382,11 @@ export const getPartsByUuid = createObjectSelector(
 export const getParts = createSelector(
   getPartsByUuid,
   (partsByUuid): Array<PartValue> => values(partsByUuid),
+)
+export const getSelectedPartsEntities = createSelector(
+  getPartsEntities,
+  getSelectedUuids,
+  (parts, selectedUuids) => pick(parts, selectedUuids),
 )
 export const getSelectedParts = createSelector(getParts, (parts) =>
   parts.filter((part) => part.isSelected === true),
