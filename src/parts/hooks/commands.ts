@@ -1,5 +1,4 @@
 import { AnyAction } from '@reduxjs/toolkit'
-import { mapValues } from 'lodash'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -14,6 +13,7 @@ import {
   //  ROTATION,
   SizeId,
   SpecId,
+  useClipboard,
   Uuid,
   //  X_AXIS,
   //  Y_AXIS,
@@ -222,5 +222,27 @@ export function useCommands() {
     return commands
   }, [actionOptions, dispatch, hasSelected])
 
-  return readyCommands
+  const { cut, copy, paste } = useClipboard()
+  const clipboardCommands = useMemo(
+    () => [
+      {
+        id: 'cut',
+        label: 'Cut',
+        action: cut,
+      },
+      {
+        id: 'copy',
+        label: 'Copy',
+        action: copy,
+      },
+      {
+        id: 'paste',
+        label: 'Paste',
+        action: paste,
+      },
+    ],
+    [cut, copy, paste],
+  )
+
+  return [...readyCommands, ...clipboardCommands]
 }
