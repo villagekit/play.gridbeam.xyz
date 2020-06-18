@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useClipboard } from 'src'
 
 export function useClipboardInput() {

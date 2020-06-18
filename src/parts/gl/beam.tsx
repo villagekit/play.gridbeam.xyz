@@ -1,6 +1,5 @@
 import { range } from 'lodash'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { PointerEvent, useFrame, useResource } from 'react-three-fiber'
 import {
   directionToRotation,

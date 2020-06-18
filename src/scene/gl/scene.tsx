@@ -1,11 +1,10 @@
 import { mapValues } from 'lodash'
-import React, { forwardRef, useEffect, useMemo } from 'react'
+import React, { forwardRef, useMemo } from 'react'
 import { useDispatch, useSelector, useStore } from 'react-redux'
-import { Canvas, extend, ReactThreeFiber, useThree } from 'react-three-fiber'
+import { Canvas, extend, ReactThreeFiber } from 'react-three-fiber'
 import {
   AppStore,
   doSelectParts,
-  doSetSceneSize,
   getCurrentSpecSize,
   GlCamera,
   GlParts,
