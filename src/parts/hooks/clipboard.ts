@@ -7,6 +7,7 @@ import {
   getPartsClipboard,
   getSelectedPartsEntities,
 } from 'src'
+import { MathUtils } from 'three'
 
 export const useClipboard = () => {
   const dispatch = useDispatch()
@@ -35,6 +36,7 @@ export const useClipboard = () => {
       doUpdateParts({
         type: 'create',
         payload: {
+          uuids: clipboard.map(() => MathUtils.generateUUID()),
           parts: clipboard,
         },
       }),
