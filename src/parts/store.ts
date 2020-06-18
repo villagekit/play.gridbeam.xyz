@@ -5,10 +5,11 @@ import {
   createSlice,
   PayloadAction,
 } from '@reduxjs/toolkit'
-import produce from 'immer'
+import produce, { original } from 'immer'
 import {
   capitalize,
   clone,
+  forEach,
   groupBy,
   isEmpty,
   keys,
@@ -145,21 +146,38 @@ const initialState: PartsState = {
   selectedUuids: selectHappening.initialState,
 }
 
-// for undo / redo
-function helpUndoRedoBeforePartUpdate(state: PartsState, update: PartUpdate) {
-  const { entities } = state
-  let stateBeforeUpdate = null
-  // TODO fix TypeScript here
-  // @ts-ignore
-  if (update.payload.uuids) {
-    // @ts-ignore
-    stateBeforeUpdate = pick(entities || {}, update.payload.uuids)
-  }
-  state.updateHistory.undos.push({
-    stateBeforeUpdate,
+// for undos
+function helpUndosBeforePartUpdate(state: PartsState, update: PartUpdate) {
+  if (state.entities === null) state.entities = {}
+  const undo: PartUpdateHistoryForUndo = {
+    stateBeforeUpdate: null,
     update,
-  })
-  state.updateHistory.redos = []
+  }
+
+  switch (update.type) {
+    case 'move':
+    case 'scale':
+    case 'rotate':
+    case 'delete':
+      undo.stateBeforeUpdate = {}
+      update.payload.uuids.forEach((uuid: Uuid) => {
+        // @ts-ignore
+        undo.stateBeforeUpdate[uuid] = original(state.entities[uuid])
+      })
+      break
+  }
+
+  state.updateHistory.undos.push(undo)
+}
+
+function helpDeleteSelected(state: PartsState, update: PartUpdate) {
+  // TODO figure out where this code should go...
+  // if delete, then remove any deleted if selected
+  if (update.type === 'delete') {
+    state.selectedUuids = state.selectedUuids.filter((uuid) => {
+      return !update.payload.uuids.includes(uuid)
+    })
+  }
 }
 
 export const partsSlice = createSlice({
@@ -177,16 +195,14 @@ export const partsSlice = createSlice({
     doUpdateParts: (state: PartsState, action: PayloadAction<PartUpdate>) => {
       if (state.entities === null) state.entities = {}
       const update = action.payload
-      helpUndoRedoBeforePartUpdate(state, update)
-      updateParts(state.entities, update)
 
-      // TODO figure out where this code should go...
-      // if delete, then remove any deleted if selected
-      if (update.type === 'delete') {
-        state.selectedUuids = state.selectedUuids.filter((uuid) => {
-          return !update.payload.uuids.includes(uuid)
-        })
-      }
+      // setup undo / redo
+      helpUndosBeforePartUpdate(state, update)
+      state.updateHistory.redos = []
+
+      // apply update
+      updateParts(state.entities, update)
+      helpDeleteSelected(state, update)
     },
     doStartPartTransition: (
       state: PartsState,
@@ -214,7 +230,9 @@ export const partsSlice = createSlice({
 
       const update = currentTransition as PartUpdate
 
-      helpUndoRedoBeforePartUpdate(state, update)
+      // setup undo / redo
+      helpUndosBeforePartUpdate(state, update)
+      state.updateHistory.redos = []
 
       // apply transition update
       updateParts(entities, update)
@@ -228,26 +246,59 @@ export const partsSlice = createSlice({
       state.clipboard = action.payload
     },
     doUndoPartUpdate: (state: PartsState) => {
+      if (state.entities === null) state.entities = {}
       const lastUndoUpdateHistory = state.updateHistory.undos.pop()
       if (lastUndoUpdateHistory == null) return
-      // TODO handle create and delete cases, when stateBeforeUpdate is not relevant
-      // @ts-ignore
-      if (update.payload.uuids) {
-        const stateBeforeUpdate = lastUndoUpdateHistory.stateBeforeUpdate as Record<
-          Uuid,
-          PartEntity
-        >
-        state.entities = mapValues(
-          state.entities,
-          (currentState: PartEntity, uuid: Uuid) => {
-            return uuid in stateBeforeUpdate
-              ? stateBeforeUpdate[uuid]
-              : currentState
-          },
-        )
+      const { update, stateBeforeUpdate } = lastUndoUpdateHistory
+
+      let reverseUpdate: null | PartUpdate = null
+      switch (update.type) {
+        case 'move':
+        case 'scale':
+        case 'rotate':
+          if (stateBeforeUpdate == null) return
+          forEach(state.entities, (currentState: PartEntity, uuid: Uuid) => {
+            if (uuid in stateBeforeUpdate) {
+              Object.assign(currentState, stateBeforeUpdate[uuid])
+            }
+          })
+          break
+        case 'create':
+          reverseUpdate = {
+            type: 'delete',
+            payload: {
+              uuids: update.payload.uuids,
+            },
+          }
+          break
+        case 'delete':
+          if (stateBeforeUpdate == null) return
+          reverseUpdate = {
+            type: 'create',
+            payload: {
+              uuids: update.payload.uuids,
+              parts: values(stateBeforeUpdate),
+            },
+          }
+          break
       }
+
+      if (reverseUpdate != null) {
+        updateParts(state.entities, reverseUpdate)
+        helpDeleteSelected(state, reverseUpdate)
+      }
+
+      state.updateHistory.redos.push({ update })
     },
-    doRedoPartUpdate: (state: PartsState) => {},
+    doRedoPartUpdate: (state: PartsState) => {
+      if (state.entities === null) state.entities = {}
+      const lastRedoUpdateHistory = state.updateHistory.redos.pop()
+      if (lastRedoUpdateHistory == null) return
+      const { update } = lastRedoUpdateHistory
+      helpUndosBeforePartUpdate(state, update)
+      updateParts(state.entities, update)
+      helpDeleteSelected(state, update)
+    },
   },
   extraReducers: (builder) => {
     hoverHappening.buildReducers(builder)

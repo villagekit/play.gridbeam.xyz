@@ -1,7 +1,6 @@
 // declarative part updates
 
 import { zipObject } from 'lodash'
-import { MathUtils } from 'three'
 
 import { PartEntity, Uuid } from '../store'
 
@@ -84,6 +83,7 @@ export interface RotateUpdate {
 export interface CreateUpdate {
   type: 'create'
   payload: {
+    uuids: Array<Uuid>
     parts: Array<PartEntity>
   }
 }
@@ -135,8 +135,7 @@ export function updateParts(
     case 'rotate':
       throw new Error('unimplemented')
     case 'create':
-      const { parts: newParts } = update.payload
-      const uuids = newParts.map((part) => MathUtils.generateUUID())
+      const { uuids, parts: newParts } = update.payload
       const newPartsByUuid = zipObject(uuids, newParts)
       Object.assign(parts, newPartsByUuid)
       break

@@ -1,117 +1,141 @@
-import { AnyAction } from '@reduxjs/toolkit'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  doRedoPartUpdate,
+  doUndoPartUpdate,
   doUpdateParts,
   getCurrentMaterialId,
   getCurrentSizeId,
-  getCurrentSpecId,
   getHasSelectedAnyParts,
   getSelectedUuids,
-  MaterialId,
   PartType,
   //  ROTATION,
-  SizeId,
-  SpecId,
   useClipboard,
-  Uuid,
   //  X_AXIS,
   //  Y_AXIS,
   //  Z_AXIS,
 } from 'src'
-
-interface CommandActionOptions {
-  specId: SpecId
-  sizeId: SizeId
-  materialId: MaterialId
-  selectedUuids: Array<Uuid>
-}
-
-interface CommandDescriptor {
-  id: string
-  label: string
-  isEnabled: ({ hasSelected }: { hasSelected: boolean }) => boolean
-  action: (options: CommandActionOptions) => AnyAction
-}
+import { MathUtils } from 'three'
 
 export interface Command {
   id: string
   label: string
-  action: () => AnyAction
+  action: () => void
+}
+export type Commands = Array<Command>
+
+export function useCommands(): Array<Command> {
+  const partCommands = usePartCommands()
+  const clipboardCommands = useClipboardCommands()
+  const historyCommands = useHistoryCommands()
+
+  return [...partCommands, ...clipboardCommands, ...historyCommands]
 }
 
-const commandDescriptors: Array<CommandDescriptor> = [
-  {
-    id: 'createBeamX',
-    label: 'New X Beam',
-    isEnabled: ({ hasSelected }) => !hasSelected,
-    action: ({ specId, sizeId, materialId }) =>
-      doUpdateParts({
-        type: 'create',
-        payload: {
-          parts: [
-            {
-              type: PartType.Beam,
-              direction: { x: 1, y: 0, z: 0 },
-              origin: { x: 0, y: 0, z: 0 },
-              length: 5,
-              sizeId,
-              materialId,
-            },
-          ],
-        },
-      }),
-  },
-  {
-    id: 'createBeamY',
-    label: 'New Y Beam',
-    isEnabled: ({ hasSelected }) => !hasSelected,
-    action: ({ specId, sizeId, materialId }) =>
-      doUpdateParts({
-        type: 'create',
-        payload: {
-          parts: [
-            {
-              type: PartType.Beam,
-              direction: { x: 0, y: 1, z: 0 },
-              origin: { x: 0, y: 0, z: 0 },
-              length: 5,
-              sizeId,
-              materialId,
-            },
-          ],
-        },
-      }),
-  },
-  {
-    id: 'createBeamZ',
-    label: 'New Z Beam',
-    isEnabled: ({ hasSelected }) => !hasSelected,
-    action: ({ specId, sizeId, materialId }) =>
-      doUpdateParts({
-        type: 'create',
-        payload: {
-          parts: [
-            {
-              type: PartType.Beam,
-              direction: { x: 0, y: 0, z: 1 },
-              origin: { x: 0, y: 0, z: 0 },
-              length: 5,
-              sizeId,
-              materialId,
-            },
-          ],
-        },
-      }),
-  },
-  {
-    id: 'delete',
-    label: 'Delete',
-    isEnabled: ({ hasSelected }) => hasSelected,
-    action: ({ specId, sizeId, materialId, selectedUuids }) =>
-      doUpdateParts({ type: 'delete', payload: { uuids: selectedUuids } }),
-  },
-]
+function usePartCommands() {
+  const dispatch = useDispatch()
+  const hasSelected = useSelector(getHasSelectedAnyParts)
+  const selectedUuids = useSelector(getSelectedUuids)
+  const sizeId = useSelector(getCurrentSizeId)
+  const materialId = useSelector(getCurrentMaterialId)
+
+  const deleteSelectedCommand = useMemo<Command>(
+    () => ({
+      id: 'deleteSelected',
+      label: 'Delete Selected',
+      action: () =>
+        dispatch(
+          doUpdateParts({ type: 'delete', payload: { uuids: selectedUuids } }),
+        ),
+    }),
+    [dispatch, selectedUuids],
+  )
+
+  const createBeamCommands = useMemo<Commands>(
+    () => [
+      {
+        id: 'createBeamX',
+        label: 'New X Beam',
+        action: () =>
+          dispatch(
+            doUpdateParts({
+              type: 'create',
+              payload: {
+                uuids: [MathUtils.generateUUID()],
+                parts: [
+                  {
+                    type: PartType.Beam,
+                    direction: { x: 1, y: 0, z: 0 },
+                    origin: { x: 0, y: 0, z: 0 },
+                    length: 5,
+                    sizeId,
+                    materialId,
+                  },
+                ],
+              },
+            }),
+          ),
+      },
+      {
+        id: 'createBeamY',
+        label: 'New Y Beam',
+        action: () =>
+          dispatch(
+            doUpdateParts({
+              type: 'create',
+              payload: {
+                uuids: [MathUtils.generateUUID()],
+                parts: [
+                  {
+                    type: PartType.Beam,
+                    direction: { x: 0, y: 1, z: 0 },
+                    origin: { x: 0, y: 0, z: 0 },
+                    length: 5,
+                    sizeId,
+                    materialId,
+                  },
+                ],
+              },
+            }),
+          ),
+      },
+      {
+        id: 'createBeamZ',
+        label: 'New Z Beam',
+        action: () =>
+          dispatch(
+            doUpdateParts({
+              type: 'create',
+              payload: {
+                uuids: [MathUtils.generateUUID()],
+                parts: [
+                  {
+                    type: PartType.Beam,
+                    direction: { x: 0, y: 0, z: 1 },
+                    origin: { x: 0, y: 0, z: 0 },
+                    length: 5,
+                    sizeId,
+                    materialId,
+                  },
+                ],
+              },
+            }),
+          ),
+      },
+    ],
+    [dispatch, sizeId, materialId],
+  )
+
+  const commands = useMemo<Commands>(() => {
+    if (hasSelected) {
+      return [deleteSelectedCommand, ...createBeamCommands]
+    } else {
+      return [...createBeamCommands]
+    }
+  }, [createBeamCommands, deleteSelectedCommand, hasSelected])
+
+  return commands
+}
 
 /*
 const commands: Commands = {
@@ -188,42 +212,9 @@ const commands: Commands = {
 type CommandName = keyof typeof commands
 */
 
-export function useCommands() {
-  const dispatch = useDispatch()
-
-  const hasSelected = useSelector(getHasSelectedAnyParts)
-  const selectedUuids = useSelector(getSelectedUuids)
-  const specId = useSelector(getCurrentSpecId)
-  const sizeId = useSelector(getCurrentSizeId)
-  const materialId = useSelector(getCurrentMaterialId)
-  const actionOptions = useMemo(
-    () => ({
-      specId,
-      sizeId,
-      materialId,
-      selectedUuids,
-    }),
-    [specId, sizeId, materialId, selectedUuids],
-  )
-
-  const readyCommands = useMemo(() => {
-    let commands: Array<Command> = []
-
-    commandDescriptors.forEach((commandDescriptor) => {
-      const { id, label, isEnabled, action } = commandDescriptor
-      if (!isEnabled({ hasSelected })) return
-      commands.push({
-        id,
-        label,
-        action: () => dispatch(action(actionOptions)),
-      })
-    })
-
-    return commands
-  }, [actionOptions, dispatch, hasSelected])
-
+function useClipboardCommands() {
   const { cut, copy, paste } = useClipboard()
-  const clipboardCommands = useMemo(
+  const clipboardCommands = useMemo<Commands>(
     () => [
       {
         id: 'cut',
@@ -243,6 +234,26 @@ export function useCommands() {
     ],
     [cut, copy, paste],
   )
+  return clipboardCommands
+}
 
-  return [...readyCommands, ...clipboardCommands]
+function useHistoryCommands() {
+  const dispatch = useDispatch()
+  const historyCommands = useMemo<Commands>(
+    () => [
+      {
+        id: 'undo',
+        label: 'Undo',
+        action: () => dispatch(doUndoPartUpdate()),
+      },
+      {
+        id: 'redo',
+        label: 'Redo',
+        action: () => dispatch(doRedoPartUpdate()),
+      },
+    ],
+    [dispatch],
+  )
+
+  return historyCommands
 }
