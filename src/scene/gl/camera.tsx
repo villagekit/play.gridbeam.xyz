@@ -1,6 +1,6 @@
-import { usePreviousValue } from '@huse/previous-value'
+// import { usePreviousValue } from '@huse/previous-value'
 import type CameraControlsType from 'camera-controls'
-import { isEqual, map } from 'lodash'
+// import { isEqual, map } from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -9,14 +9,14 @@ import { useThree } from 'react-three-fiber'
 import {
   doSetCameraControls,
   getIsCameraControlEnabled,
-  getIsPartTransitioning,
-  getIsSelecting,
-  getParts,
-  getSelectedParts,
+  // getIsPartTransitioning,
+  // getIsSelecting,
+  // getParts,
+  // getSelectedParts,
   useAppDispatch,
-  Uuid,
+  // Uuid,
 } from 'src'
-import { Box3, OrthographicCamera, Scene, Vector3 } from 'three'
+import { /* Box3, */ OrthographicCamera /*, Scene, Vector3 */ } from 'three'
 import { useCallbackRef } from 'use-callback-ref'
 
 import { GlCameraControls } from './camera-controls'
@@ -29,7 +29,7 @@ export function GlCamera(props: CameraProps) {
   const dispatch = useAppDispatch()
   const canvasContext = useThree()
 
-  const { scene, size } = canvasContext
+  const { /* scene, */ size } = canvasContext
   const camera = canvasContext.camera as OrthographicCamera
 
   // force update when camera controls ref mutates
@@ -43,14 +43,16 @@ export function GlCamera(props: CameraProps) {
   }, [controlsRef, dispatch])
 
   const isControlEnabled = useSelector(getIsCameraControlEnabled)
-  const parts = useSelector(getParts)
+  /*
   const selectedParts = useSelector(getSelectedParts)
+  const parts = useSelector(getParts)
   const isTransitioning = useSelector(getIsPartTransitioning)
   const isSelecting = useSelector(getIsSelecting)
 
   const previousSelectedParts = usePreviousValue<typeof selectedParts>(
     selectedParts,
   )
+  */
 
   useEffect(() => {
     const controls = controlsRef.current
@@ -67,6 +69,7 @@ export function GlCamera(props: CameraProps) {
     camera.updateProjectionMatrix()
   }, [camera, controlsRef, size])
 
+  /*
   // center camera on parts
   // TODO: create a center object with right-click
   // - move it around to change the center
@@ -105,6 +108,7 @@ export function GlCamera(props: CameraProps) {
     isSelecting,
     controlsRef,
   ])
+  */
 
   return (
     <GlCameraControls
@@ -117,13 +121,15 @@ export function GlCamera(props: CameraProps) {
   )
 }
 
+/*
 function compute3dBounds(scene: Scene, uuids: Array<Uuid>) {
   const box = new Box3()
 
   uuids.forEach((uuid) => {
-    const mesh = scene.getObjectByName(uuid)
+    const mesh = scene.getObjectByName(`beam-main-${uuid}`)
     if (mesh != null) box.expandByObject(mesh)
   })
 
   return box
 }
+*/

@@ -271,7 +271,7 @@ function BeamMain(props: BeamMainProps) {
 
   return (
     <group
-      name="beam-main"
+      name={`beam-main-${uuid}`}
       onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
