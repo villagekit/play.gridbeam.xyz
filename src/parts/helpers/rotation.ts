@@ -1,19 +1,16 @@
 import { isEqual } from 'lodash'
-import { Direction } from 'src'
-import { Euler, Vector3 } from 'three'
+import { Direction, X_AXIS } from 'src'
+import { Quaternion, Vector3 } from 'three'
 
 type Axis = Vector3
 
 export const ROTATION = 2 * Math.PI
 
-// TODO: figure out the proper solution to this.
-// i just did a radical guess, and it checked.
-export function directionToRotation(direction: Direction): Euler {
-  const { x, y, z } = direction
-  const radius = Math.sqrt(x * x + y * y + z * z)
-  const theta = -Math.atan2(z, y)
-  const phi = Math.acos(x / radius)
-  return new Euler(0, theta, phi, 'ZYX')
+let directionVector = new Vector3()
+export function directionToQuaternion(direction: Direction): Quaternion {
+  directionVector.set(direction.x, direction.y, direction.z)
+  return new Quaternion().setFromUnitVectors(X_AXIS, directionVector)
+  // return quaternionFromNormal(direction, new Quaternion())
 }
 
 export function rotateDirection(

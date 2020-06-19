@@ -43,6 +43,7 @@
     "reselect-map": "^1.0.5",
     "theme-ui": "^0.3.1",
     "three": "^0.115.0",
+    "three-quaternion-from-normal": "^1.0.0",
     "typeface-bungee": "0.0.72",
     "typeface-ibm-plex-sans": "0.0.75",
     "typeface-ibm-plex-serif": "0.0.75",

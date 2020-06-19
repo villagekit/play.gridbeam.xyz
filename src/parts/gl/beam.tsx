@@ -2,7 +2,7 @@ import { range } from 'lodash'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { PointerEvent, useFrame, useResource } from 'react-three-fiber'
 import {
-  directionToRotation,
+  directionToQuaternion,
   getPartsByUuid,
   GlArrow,
   isStandardDirection,
@@ -58,7 +58,7 @@ export function GlBeam(props: BeamProps) {
     endLengthTransition,
   } = usePartActions(uuid)
 
-  // update position and rotation outside of React
+  // update position and quaternion outside of React
   const store = useAppStore()
   const beamRef = useRef<typeof Group>()
   useFrame(() => {
@@ -66,16 +66,13 @@ export function GlBeam(props: BeamProps) {
     const partsByUuid = getPartsByUuid(store.getState())
     // @ts-ignore
     const part = partsByUuid[uuid] as PartValue
-    const { position, rotation } = part
+    const { position, quaternion } = part
     // @ts-ignore
     const obj3d = beamRef.current as Object3D
     obj3d.position.x = position[0]
     obj3d.position.y = position[1]
     obj3d.position.z = position[2]
-    obj3d.rotation.x = rotation.x
-    obj3d.rotation.y = rotation.y
-    obj3d.rotation.z = rotation.z
-    obj3d.rotation.order = rotation.order
+    obj3d.quaternion.copy(quaternion)
   })
 
   return (
@@ -507,8 +504,8 @@ function LengthArrow(props: LengthArrowProps) {
     ],
   )
 
-  const planeRotation = useMemo(() => {
-    return directionToRotation(beamDirection)
+  const planeQuaternion = useMemo(() => {
+    return directionToQuaternion(beamDirection)
   }, [beamDirection])
 
   const beamIsStandardDirection = useMemo(() => {
@@ -538,7 +535,7 @@ function LengthArrow(props: LengthArrowProps) {
       {pointAtMoveStart != null && (
         <mesh
           // visible={false}
-          rotation={planeRotation}
+          quaternion={planeQuaternion}
           onPointerMove={handlePointerMove}
         >
           <planeBufferGeometry attach="geometry" args={[1000, 1000]} />

@@ -13460,6 +13460,11 @@ theme-ui@^0.3.1:
     "@theme-ui/mdx" "^0.3.0"
     "@theme-ui/theme-provider" "^0.3.1"
 
+three-quaternion-from-normal@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/three-quaternion-from-normal/-/three-quaternion-from-normal-1.0.0.tgz#6fb64d5e521970e77fdc66cc0be5a6c3e9a24762"
+  integrity sha512-TJlGrb53Y0zLfvlOcTP/C6AMO2MnpQNTwxO94jTkV186LdCeTdieOIDWEG4bI3VRTTfDMNd0O5Rjj0/7Ukyqjg==
+
 three@^0.115.0:
   version "0.115.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.115.0.tgz#540d800c381b9da2334c024f0fbe4d23f84eb05e"

@@ -19,7 +19,7 @@ import {
 } from 'lodash'
 import { createObjectSelector } from 'reselect-map'
 import {
-  directionToRotation,
+  directionToQuaternion,
   getCurrentSpecMaterials,
   getCurrentSpecSizes,
   MaterialId,
@@ -29,7 +29,7 @@ import {
   SpecMaterialValue,
   SpecSizeValue,
 } from 'src'
-import { Euler, MathUtils } from 'three'
+import { MathUtils, Quaternion } from 'three'
 import removeFromUnorderedArray from 'unordered-array-remove'
 
 import { Direction } from './helpers/direction'
@@ -85,7 +85,7 @@ export interface PartValue extends PartEntity {
   holeDiameter: number
   boltDiameter: number
   position: [number, number, number]
-  rotation: Euler
+  quaternion: Quaternion
 }
 
 type HoverStateKey = 'hoveredUuids'
@@ -432,7 +432,7 @@ export const getPartsByUuid = createObjectSelector(
       (1 / 2 + origin.y) * beamWidth,
       (1 / 2 + origin.z) * beamWidth,
     ]
-    value.rotation = directionToRotation(direction)
+    value.quaternion = directionToQuaternion(direction)
 
     return value as PartValue
   },

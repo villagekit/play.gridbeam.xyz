@@ -9,6 +9,7 @@ import {
   Group,
   Vector3,
 } from 'three'
+import quaternionFromNormal from 'three-quaternion-from-normal'
 
 interface ArrowProps extends React.ComponentProps<typeof GroupComponent> {
   direction?: [number, number, number] | Vector3
@@ -36,16 +37,8 @@ export function GlArrow(props: ArrowProps) {
         direction instanceof Vector3
           ? direction
           : new Vector3().fromArray(direction)
-
-      if (dir.y > 0.99999) {
-        group.quaternion.set(0, 0, 0, 1)
-      } else if (dir.y < -0.99999) {
-        group.quaternion.set(1, 0, 0, 0)
-      } else {
-        const axis = new Vector3(dir.z, 0, -dir.x).normalize()
-        const radians = Math.acos(dir.y)
-        group.quaternion.setFromAxisAngle(axis, radians)
-      }
+      const quaternion = quaternionFromNormal(dir)
+      group.quaternion.copy(quaternion)
     },
     [direction],
   )
