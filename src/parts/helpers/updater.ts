@@ -12,7 +12,7 @@ export enum LengthDirection {
   negative = 'negative',
 }
 
-export interface MoveUpdate {
+export interface MovePartUpdate {
   type: 'move'
   payload: {
     uuids: Array<Uuid>
@@ -20,7 +20,7 @@ export interface MoveUpdate {
   }
 }
 
-const moveUpdate: PartUpdaterForEach<MoveUpdate> = (part, update) => {
+const moveUpdate: PartUpdaterForEach<MovePartUpdate> = (part, update) => {
   const { delta } = update.payload
 
   part.origin.x += delta[0]
@@ -31,7 +31,7 @@ const moveUpdate: PartUpdaterForEach<MoveUpdate> = (part, update) => {
   if (part.origin.z < 0) part.origin.z = 0
 }
 
-export interface ScaleUpdate {
+export interface ScalePartUpdate {
   type: 'scale'
   payload: {
     uuids: Array<Uuid>
@@ -40,7 +40,7 @@ export interface ScaleUpdate {
   }
 }
 
-const scaleUpdate: PartUpdaterForEach<ScaleUpdate> = (part, update) => {
+const scaleUpdate: PartUpdaterForEach<ScalePartUpdate> = (part, update) => {
   let { delta, lengthDirection } = update.payload
 
   // special case: length must not go below zero
@@ -71,7 +71,7 @@ const scaleUpdate: PartUpdaterForEach<ScaleUpdate> = (part, update) => {
   if (part.length < 1) part.length = 1
 }
 
-export interface RotateUpdate {
+export interface RotatePartUpdate {
   type: 'rotate'
   payload: {
     uuids: Array<Uuid>
@@ -80,7 +80,7 @@ export interface RotateUpdate {
   }
 }
 
-export interface CreateUpdate {
+export interface CreatePartUpdate {
   type: 'create'
   payload: {
     uuids: Array<Uuid>
@@ -88,7 +88,7 @@ export interface CreateUpdate {
   }
 }
 
-export interface DeleteUpdate {
+export interface DeletePartUpdate {
   type: 'delete'
   payload: {
     uuids: Array<Uuid>
@@ -96,12 +96,37 @@ export interface DeleteUpdate {
 }
 
 export type PartUpdate =
-  | MoveUpdate
-  | ScaleUpdate
-  | RotateUpdate
-  | CreateUpdate
-  | DeleteUpdate
+  | MovePartUpdate
+  | ScalePartUpdate
+  | RotatePartUpdate
+  | CreatePartUpdate
+  | DeletePartUpdate
 
+export function createEmptyPartUpdate(type: PartUpdate['type']): PartUpdate {
+  switch (type) {
+    case 'move':
+      return {
+        type,
+        payload: {
+          uuids: [],
+          delta: [0, 0, 0],
+        },
+      }
+    case 'scale':
+      return {
+        type,
+        payload: {
+          uuids: [],
+          delta: 0,
+          lengthDirection: LengthDirection.positive,
+        },
+      }
+    case 'rotate':
+    case 'create':
+    case 'delete':
+      throw new Error('unimplemented')
+  }
+}
 export function updatePart(part: PartState, update: PartUpdate) {
   switch (update.type) {
     case 'move':

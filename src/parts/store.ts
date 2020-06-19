@@ -33,7 +33,12 @@ import { Euler, MathUtils } from 'three'
 import removeFromUnorderedArray from 'unordered-array-remove'
 
 import { Direction } from './helpers/direction'
-import { PartUpdate, updatePart, updateParts } from './helpers/updater'
+import {
+  createEmptyPartUpdate,
+  PartUpdate,
+  updatePart,
+  updateParts,
+} from './helpers/updater'
 
 export enum PartType {
   Beam = 0,
@@ -63,11 +68,8 @@ export interface PartEntity {
 
 export type Uuid = string
 
-// TODO should transition contain uuids affected, or assume selected uuids?
-export interface PartTransition {
-  type: PartUpdate['type']
-  payload: null | PartUpdate['payload']
-}
+// TODO we aren't handling a transition of different spec sizes
+export type PartTransition = PartUpdate
 
 export interface PartValue extends PartEntity {
   uuid: Uuid
@@ -207,10 +209,7 @@ export const partsSlice = createSlice({
       state: PartsState,
       action: PayloadAction<PartTransition['type']>,
     ) => {
-      state.currentTransition = {
-        type: action.payload,
-        payload: null,
-      }
+      state.currentTransition = createEmptyPartUpdate(action.payload)
     },
     doUpdatePartTransition: (
       state: PartsState,
@@ -450,6 +449,9 @@ export const getSelectedPartsEntities = createSelector(
 )
 export const getSelectedParts = createSelector(getParts, (parts) =>
   parts.filter((part) => part.isSelected === true),
+)
+export const getTransitioningParts = createSelector(getParts, (parts) =>
+  parts.filter((part) => part.isTransitioning === true),
 )
 export const getHasSelectedAnyParts = createSelector(
   getSelectedUuids,

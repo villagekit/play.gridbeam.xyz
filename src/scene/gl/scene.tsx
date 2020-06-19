@@ -7,6 +7,7 @@ import {
   doSelectParts,
   getCurrentSpecSize,
   GlCamera,
+  GlContextualInfo,
   GlParts,
   GlProvider,
   GlScaleReference,
@@ -40,6 +41,7 @@ export function GlScene(props: GlProps) {
       orthographic
       shadowMap
       colorManagement
+      pixelRatio={window.devicePixelRatio}
       raycaster={{
         params: {
           Line: {
@@ -56,6 +58,7 @@ export function GlScene(props: GlProps) {
         <GlCamera />
         <Background currentBeamWidth={currentBeamWidth} />
         <GlParts texturesByMaterialType={texturesByMaterialType} />
+        <GlContextualInfo />
       </GlProvider>
     </Canvas>
   )
