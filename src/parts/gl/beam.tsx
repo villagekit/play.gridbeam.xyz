@@ -189,8 +189,9 @@ function BeamMain(props: BeamMainProps) {
 
       // get pointer movement over plane
       if (ev.shiftKey) {
-        // TODO is this correct?
         ev.ray.intersectPlane(verticalPlane, intersectionPoint)
+        // intersection point cannot go below z = 0
+        if (intersectionPoint.z < 0) intersectionPoint.z = 0
         movementVector.set(0, 0, intersectionPoint.z - pointAtMoveStart.z)
       } else {
         ev.ray.intersectPlane(horizontalPlane, intersectionPoint)
