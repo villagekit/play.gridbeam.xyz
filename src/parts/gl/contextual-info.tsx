@@ -13,14 +13,14 @@ import {
   NEGATIVE_Z_AXIS,
   PartTransition,
   PartValue,
-  ROTATION,
   SpecSizeValue,
   Uuid,
   X_AXIS,
   Y_AXIS,
   Z_AXIS,
 } from 'src'
-import { Box3, Euler, Quaternion, Vector3 } from 'three'
+import { Box3, Vector3 } from 'three'
+// @ts-ignore
 import font from 'typeface-ibm-plex-sans/files/ibm-plex-sans-latin-400.woff'
 
 interface ContextualInfoProps {}
@@ -58,7 +58,7 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
     payload: { uuids, delta },
   } = transition
 
-  const { scene, camera, raycaster } = useThree()
+  const { scene, camera } = useThree()
 
   const transitioningPartsBox = useMemo(() => new Box3(), [])
   const transitioningPartsCenter = useMemo(() => new Vector3(), [])
@@ -83,8 +83,6 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
     [delta, beamWidth],
   )
 
-  // TODO rotate text to face camera
-
   return (
     <group position={transitioningPartsCenterPosition}>
       {delta[0] !== 0 && (
@@ -94,8 +92,10 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
             font={font}
             fontSize={2 * beamWidth}
             anchorX="center"
-            anchorY={delta[1] > 0 ? 'bottom' : 'top'}
+            anchorY="middle"
             position={[lengths[0] / 2, 0, 0]}
+            // thank you https://stackoverflow.com/a/20473374
+            quaternion={camera.quaternion}
           >
             {String(delta[0])}
           </Text>
@@ -114,9 +114,10 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
             color="black"
             font={font}
             fontSize={2 * beamWidth}
-            anchorX={delta[0] > 0 ? 'left' : 'right'}
+            anchorX="center"
             anchorY="middle"
             position={[0, lengths[1] / 2, 0]}
+            quaternion={camera.quaternion}
           >
             {String(delta[1])}
           </Text>
@@ -138,6 +139,7 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
             anchorX="center"
             anchorY="middle"
             position={[0, 0, lengths[2] / 2]}
+            quaternion={camera.quaternion}
           >
             {String(delta[2])}
           </Text>
