@@ -155,20 +155,3 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
     </group>
   )
 }
-
-let axis = new Vector3()
-
-function setDirection(normal, quaternion) {
-  quaternion = quaternion || new THREE.Quaternion()
-  // vector is assumed to be normalized
-  if (normal.y > 0.99999) {
-    quaternion.set(0, 0, 0, 1)
-  } else if (normal.y < -0.99999) {
-    quaternion.set(1, 0, 0, 0)
-  } else {
-    axis.set(normal.z, 0, -normal.x).normalize()
-    var radians = Math.acos(normal.y)
-    quaternion.setFromAxisAngle(axis, radians)
-  }
-  return quaternion
-}

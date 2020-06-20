@@ -1,14 +1,7 @@
 import type CameraControlsType from 'camera-controls'
 import { meshBounds } from 'drei/src/meshBounds'
 import { Text } from 'drei/src/Text'
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector, useStore } from 'react-redux'
 import { Canvas, useFrame, useThree } from 'react-three-fiber'
 import {
