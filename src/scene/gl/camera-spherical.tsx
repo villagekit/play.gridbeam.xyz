@@ -1,5 +1,6 @@
-import { alpha } from '@theme-ui/color'
 import type CameraControlsType from 'camera-controls'
+import { meshBounds } from 'drei/src/meshBounds'
+import { Text } from 'drei/src/Text'
 import React, {
   createRef,
   useCallback,
@@ -9,7 +10,7 @@ import React, {
   useState,
 } from 'react'
 import { useSelector, useStore } from 'react-redux'
-import { Canvas, Dom, useThree } from 'react-three-fiber'
+import { Canvas, useFrame, useThree } from 'react-three-fiber'
 import {
   AppStore,
   doDisableSelection,
@@ -21,15 +22,15 @@ import {
   Y_AXIS,
   Z_AXIS,
 } from 'src'
-import { Box, Button, Text } from 'theme-ui'
-import { Color, OrthographicCamera, Vector3 } from 'three'
+import { Box } from 'theme-ui'
+import { Color, Group, Mesh, OrthographicCamera, Vector3 } from 'three'
+// @ts-ignore
+import font from 'typeface-ibm-plex-sans/files/ibm-plex-sans-latin-400.woff'
 
 import { GlCameraControls } from './camera-controls'
 
 const CameraControls =
   typeof window !== 'undefined' ? require('camera-controls').default : null
-
-const portal = createRef<HTMLDivElement>()
 
 export function GlCameraSpherical() {
   return (
@@ -49,11 +50,10 @@ function CameraSphericalContainer(props: CameraSphericalContainerProps) {
   const store: AppStore = useStore()
 
   return (
-    <Box sx={{ margin: 2, marginBottom: 4, width: 6, height: 6 }}>
-      <Canvas orthographic colorManagement noEvents>
+    <Box sx={{ margin: 0, marginBottom: 4, width: '200px', height: '200px' }}>
+      <Canvas orthographic colorManagement raycaster={meshBounds}>
         <GlProvider store={store}>{children}</GlProvider>
       </Canvas>
-      <div ref={portal} />
     </Box>
   )
 }
@@ -98,6 +98,7 @@ export function CameraSphericalWidget() {
     if (widgetControls == null || appControls == null) return
 
     widgetControls.mouseButtons.left = CameraControls.ACTION.ROTATE
+    widgetControls.mouseButtons.middle = CameraControls.ACTION.NONE
     widgetControls.mouseButtons.right = CameraControls.ACTION.NONE
     widgetControls.mouseButtons.wheel = CameraControls.ACTION.NONE
 
@@ -214,8 +215,9 @@ interface AxisButtonProps {
 function AxisButton(props: AxisButtonProps) {
   const { axis, color, name } = props
 
+  const { camera } = useThree()
   const axisEndPosition = useMemo(() => {
-    return axis.clone().multiplyScalar(AXIS_LENGTH)
+    return axis.clone().multiplyScalar(AXIS_LENGTH * (7 / 6))
   }, [axis])
 
   const cameraControls = useSelector(getCameraControls)
@@ -232,28 +234,35 @@ function AxisButton(props: AxisButtonProps) {
     cameraControls.setPosition(nextPosition.x, nextPosition.y, nextPosition.z)
   }, [axis, cameraControls])
 
+  const groupRef = useRef<typeof Group>()
+  useFrame(() => {
+    const groupEl = groupRef.current
+    if (groupEl == null) return
+    // @ts-ignore
+    const groupMesh = groupEl as Mesh
+    groupMesh.quaternion.copy(camera.quaternion)
+  })
+
   return (
-    <Dom
-      portal={portal as React.MutableRefObject<HTMLElement>}
-      center
-      position={axisEndPosition}
-      // to ensure button is higher click order than canvas
-      style={{ position: 'absolute' }}
-    >
-      <Button
-        sx={{
-          backgroundColor: alpha(color, 0.6),
-          borderRadius: '50%',
-          // to ensure button is higher click order than canvas
-          position: 'absolute',
-          zIndex: 2,
-          // to ensure button text fits on one line
-          width: 'max-content',
-        }}
-        onClick={handleAxisClick}
+    <group ref={groupRef} position={axisEndPosition} onClick={handleAxisClick}>
+      <mesh>
+        <circleGeometry attach="geometry" args={[AXIS_LENGTH / 6]} />
+        <meshBasicMaterial
+          attach="material"
+          color={color}
+          opacity={0.6}
+          transparent
+        />
+      </mesh>
+      <Text
+        color="black"
+        font={font}
+        fontSize={AXIS_LENGTH / 4}
+        anchorX="center"
+        anchorY="middle"
       >
-        <Text>{name}</Text>
-      </Button>
-    </Dom>
+        {name}
+      </Text>
+    </group>
   )
 }
