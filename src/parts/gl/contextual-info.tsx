@@ -13,6 +13,7 @@ import {
   NEGATIVE_Z_AXIS,
   PartTransition,
   PartValue,
+  ScalePartUpdate,
   SpecSizeValue,
   Uuid,
   X_AXIS,
@@ -36,6 +37,14 @@ export function GlContextualInfo(props: ContextualInfoProps) {
     case 'move':
       return (
         <MoveInfo
+          specSize={specSize}
+          transition={transition}
+          transitioningParts={transitioningParts}
+        />
+      )
+    case 'scale':
+      return (
+        <ScaleInfo
           specSize={specSize}
           transition={transition}
           transitioningParts={transitioningParts}
@@ -152,6 +161,79 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
           />
         </>
       )}
+    </group>
+  )
+}
+
+function ScaleInfo(props: InfoProps<ScalePartUpdate>) {
+  const { specSize, transitioningParts } = props
+
+  return (
+    <group>
+      {transitioningParts.map((transitioningPart) => (
+        <ScaleInfoForBeam
+          specSize={specSize}
+          transitioningPart={transitioningPart}
+        />
+      ))}
+    </group>
+  )
+}
+
+interface ScaleInfoForBeamProps {
+  specSize: SpecSizeValue
+  transitioningPart: PartValue
+}
+
+function ScaleInfoForBeam(props: ScaleInfoForBeamProps) {
+  const { specSize, transitioningPart } = props
+  const { direction, length, position } = transitioningPart
+  const beamWidth = specSize.normalizedBeamWidth
+
+  const { camera } = useThree()
+
+  const positionScalar = useMemo(() => {
+    return (length / 2) * beamWidth
+  }, [length, beamWidth])
+
+  const negativeWorldDirection = useMemo(() => {
+    let worldDirection = new Vector3()
+    camera.getWorldDirection(worldDirection)
+    worldDirection.negate()
+    return worldDirection.toArray() as [number, number, number]
+  }, [camera])
+
+  const nudgeToCamera: [number, number, number] = useMemo(
+    () => [
+      negativeWorldDirection[0] * 4 * beamWidth,
+      negativeWorldDirection[1] * 4 * beamWidth,
+      negativeWorldDirection[2] * 4 * beamWidth,
+    ],
+    [negativeWorldDirection, beamWidth],
+  )
+
+  const textPosition: [number, number, number] = useMemo(
+    () => [
+      direction.x * positionScalar + nudgeToCamera[0],
+      direction.y * positionScalar + nudgeToCamera[1],
+      direction.z * positionScalar + nudgeToCamera[2],
+    ],
+    [direction, positionScalar, nudgeToCamera],
+  )
+
+  return (
+    <group position={position}>
+      <Text
+        color="black"
+        font={font}
+        fontSize={2 * beamWidth}
+        anchorX="center"
+        anchorY="middle"
+        position={textPosition}
+        quaternion={camera.quaternion}
+      >
+        {String(length)}
+      </Text>
     </group>
   )
 }
