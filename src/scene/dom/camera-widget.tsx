@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { GrZoomIn } from 'react-icons/gr'
 import { IoMdHand, IoMdPlanet } from 'react-icons/io'
+import { useSelector } from 'react-redux'
 import { useAppDispatch } from 'src'
 import { Flex, IconButton } from 'theme-ui'
 
 import {
   CameraControlMode,
   doSetCameraControlMode,
+  getSceneSize,
   GlCameraSpherical,
 } from '..'
 
@@ -166,14 +168,21 @@ const CameraControlModeButton = (props: CameraControlModeButtonProps) => {
 interface CameraWidgetContainerProps
   extends React.ComponentProps<typeof Flex> {}
 
-const CameraWidgetContainer = (props: CameraWidgetContainerProps) => (
-  <Flex
-    sx={{
-      flexDirection: 'column',
-      position: 'absolute',
-      right: 0,
-      top: 0,
-    }}
-    {...props}
-  />
-)
+const CameraWidgetContainer = (props: CameraWidgetContainerProps) => {
+  const size = useSelector(getSceneSize)
+  if (size == null) return null
+
+  const windowWidth = typeof window === 'undefined' ? 0 : window.innerWidth
+
+  return (
+    <Flex
+      sx={{
+        flexDirection: 'column',
+        position: 'absolute',
+        right: windowWidth - size.width,
+        top: 0,
+      }}
+      {...props}
+    />
+  )
+}
