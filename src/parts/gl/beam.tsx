@@ -2,7 +2,6 @@ import { range } from 'lodash'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { PointerEvent, useFrame, useResource } from 'react-three-fiber'
 import {
-  directionToQuaternion,
   getPartsByUuid,
   GlArrow,
   isStandardDirection,
@@ -19,6 +18,7 @@ import {
   BoxGeometry,
   CircleGeometry,
   Color,
+  DoubleSide,
   Group,
   MeshBasicMaterial,
   Object3D,
@@ -504,10 +504,6 @@ function LengthArrow(props: LengthArrowProps) {
     ],
   )
 
-  const planeQuaternion = useMemo(() => {
-    return directionToQuaternion(beamDirection)
-  }, [beamDirection])
-
   const beamIsStandardDirection = useMemo(() => {
     return isStandardDirection(beamDirection)
   }, [beamDirection])
@@ -533,18 +529,9 @@ function LengthArrow(props: LengthArrowProps) {
         onPointerUp={handlePointerUp}
       />
       {pointAtMoveStart != null && (
-        <mesh
-          // visible={false}
-          quaternion={planeQuaternion}
-          onPointerMove={handlePointerMove}
-        >
+        <mesh visible={false} onPointerMove={handlePointerMove}>
           <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
-          <meshLambertMaterial
-            attach="material"
-            color={'magenta'}
-            transparent
-            opacity={0.1}
-          />
+          <meshBasicMaterial attach="material" side={DoubleSide} />
         </mesh>
       )}
     </group>
