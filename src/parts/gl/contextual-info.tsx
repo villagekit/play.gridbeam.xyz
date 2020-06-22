@@ -3,6 +3,7 @@ import React, { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useThree } from 'react-three-fiber'
 import {
+  directionVectorToNearestAxisDirection,
   getCurrentPartTransition,
   getCurrentSpecSize,
   getTransitioningParts,
@@ -203,6 +204,7 @@ function ScaleInfoForBeam(props: ScaleInfoForBeamProps) {
     stateBeforeTransition,
   } = transitioningPart
   const {
+    direction: directionBeforeTransition,
     origin: originBeforeTransition,
     length: lengthBeforeTransition,
   } = stateBeforeTransition as PartEntity
@@ -218,21 +220,28 @@ function ScaleInfoForBeam(props: ScaleInfoForBeamProps) {
     return (1 / 2) * positionScalar
   }, [positionScalar])
 
-  const negativeWorldDirection = useMemo(() => {
-    let worldDirection = new Vector3()
-    camera.getWorldDirection(worldDirection)
-    worldDirection.negate()
-    return worldDirection.toArray() as [number, number, number]
-  }, [camera])
-
-  const nudgeToCamera: [number, number, number] = useMemo(
-    () => [
-      negativeWorldDirection[0] * 4 * beamWidth,
-      negativeWorldDirection[1] * 4 * beamWidth,
-      negativeWorldDirection[2] * 4 * beamWidth,
-    ],
-    [negativeWorldDirection, beamWidth],
-  )
+  const nudgeToCamera: [number, number, number] = useMemo(() => {
+    let worldDirectionVector = new Vector3()
+    camera.getWorldDirection(worldDirectionVector)
+    worldDirectionVector.negate()
+    const beamDirectionVector = new Vector3(
+      directionBeforeTransition.x,
+      directionBeforeTransition.y,
+      directionBeforeTransition.z,
+    )
+    const nudgeVector = new Vector3().crossVectors(
+      worldDirectionVector,
+      beamDirectionVector,
+    )
+    const nudgeAxisDirection = directionVectorToNearestAxisDirection(
+      nudgeVector,
+    )
+    return [
+      nudgeAxisDirection.x * 2 * beamWidth,
+      nudgeAxisDirection.y * 2 * beamWidth,
+      nudgeAxisDirection.z * 2 * beamWidth,
+    ]
+  }, [camera, beamWidth, directionBeforeTransition])
 
   const textPosition: [number, number, number] = useMemo(
     () => [
