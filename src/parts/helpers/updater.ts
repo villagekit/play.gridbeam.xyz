@@ -56,7 +56,7 @@ const scaleUpdate: PartUpdaterForEach<ScalePartUpdate> = (part, update) => {
     let moveZ = delta * part.direction.z
 
     // special case: origin.z must not go below zero
-    if (part.origin.z - moveZ <= 0) {
+    if (part.origin.z - moveZ < 0) {
       moveZ = part.origin.z
       delta = part.origin.z / part.direction.z
     }
