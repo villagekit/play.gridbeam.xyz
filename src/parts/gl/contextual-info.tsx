@@ -7,10 +7,12 @@ import {
   getCurrentSpecSize,
   getTransitioningParts,
   GlArrow,
+  LengthDirection,
   MovePartUpdate,
   NEGATIVE_X_AXIS,
   NEGATIVE_Y_AXIS,
   NEGATIVE_Z_AXIS,
+  PartEntity,
   PartTransition,
   PartValue,
   ScalePartUpdate,
@@ -166,13 +168,15 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
 }
 
 function ScaleInfo(props: InfoProps<ScalePartUpdate>) {
-  const { specSize, transitioningParts } = props
+  const { specSize, transition, transitioningParts } = props
 
   return (
     <group>
       {transitioningParts.map((transitioningPart) => (
         <ScaleInfoForBeam
+          key={transitioningPart.uuid}
           specSize={specSize}
+          transition={transition}
           transitioningPart={transitioningPart}
         />
       ))}
@@ -182,19 +186,37 @@ function ScaleInfo(props: InfoProps<ScalePartUpdate>) {
 
 interface ScaleInfoForBeamProps {
   specSize: SpecSizeValue
+  transition: ScalePartUpdate
   transitioningPart: PartValue
 }
 
 function ScaleInfoForBeam(props: ScaleInfoForBeamProps) {
-  const { specSize, transitioningPart } = props
-  const { direction, length, position } = transitioningPart
+  const { specSize, transition, transitioningPart } = props
+  const {
+    payload: { delta, lengthDirection },
+  } = transition
+  const {
+    direction,
+    length,
+    origin,
+    position,
+    stateBeforeTransition,
+  } = transitioningPart
+  const {
+    origin: originBeforeTransition,
+    length: lengthBeforeTransition,
+  } = stateBeforeTransition as PartEntity
   const beamWidth = specSize.normalizedBeamWidth
 
   const { camera } = useThree()
 
   const positionScalar = useMemo(() => {
-    return (length / 2) * beamWidth
+    return length * beamWidth
   }, [length, beamWidth])
+
+  const midPositionScalar = useMemo(() => {
+    return (1 / 2) * positionScalar
+  }, [positionScalar])
 
   const negativeWorldDirection = useMemo(() => {
     let worldDirection = new Vector3()
@@ -214,15 +236,88 @@ function ScaleInfoForBeam(props: ScaleInfoForBeamProps) {
 
   const textPosition: [number, number, number] = useMemo(
     () => [
-      direction.x * positionScalar + nudgeToCamera[0],
-      direction.y * positionScalar + nudgeToCamera[1],
-      direction.z * positionScalar + nudgeToCamera[2],
+      position[0] + direction.x * midPositionScalar + nudgeToCamera[0],
+      position[1] + direction.y * midPositionScalar + nudgeToCamera[1],
+      position[2] + direction.z * midPositionScalar + nudgeToCamera[2],
     ],
-    [direction, positionScalar, nudgeToCamera],
+    [
+      direction.x,
+      direction.y,
+      direction.z,
+      position,
+      midPositionScalar,
+      nudgeToCamera,
+    ],
   )
 
+  const arrowStart = useMemo(() => {
+    if (lengthDirection === LengthDirection.positive) {
+      return new Vector3(
+        originBeforeTransition.x + direction.x * lengthBeforeTransition,
+        originBeforeTransition.y + direction.y * lengthBeforeTransition,
+        originBeforeTransition.z + direction.z * lengthBeforeTransition,
+      )
+    } else {
+      return new Vector3(
+        originBeforeTransition.x,
+        originBeforeTransition.y,
+        originBeforeTransition.z,
+      )
+    }
+  }, [
+    lengthDirection,
+    originBeforeTransition.x,
+    originBeforeTransition.y,
+    originBeforeTransition.z,
+    direction.x,
+    direction.y,
+    direction.z,
+    lengthBeforeTransition,
+  ])
+
+  const arrowEnd = useMemo(() => {
+    if (lengthDirection === LengthDirection.positive) {
+      return new Vector3(
+        origin.x + direction.x * length,
+        origin.y + direction.y * length,
+        origin.z + direction.z * length,
+      )
+    } else {
+      return new Vector3(origin.x, origin.y, origin.z)
+    }
+  }, [
+    lengthDirection,
+    origin.x,
+    origin.y,
+    origin.z,
+    direction.x,
+    direction.y,
+    direction.z,
+    length,
+  ])
+
+  const arrowDelta = useMemo(() => {
+    return new Vector3()
+      .subVectors(arrowEnd, arrowStart)
+      .multiplyScalar(beamWidth)
+  }, [arrowStart, arrowEnd, beamWidth])
+
+  const arrowOrigin: [number, number, number] = useMemo(() => {
+    return [
+      arrowStart.x * beamWidth + nudgeToCamera[0],
+      arrowStart.y * beamWidth + nudgeToCamera[1],
+      arrowStart.z * beamWidth + nudgeToCamera[2],
+    ]
+  }, [arrowStart, beamWidth, nudgeToCamera])
+
+  const arrowLength = useMemo(() => arrowDelta.length(), [arrowDelta])
+
+  const arrowDirection = useMemo(() => {
+    return new Vector3().copy(arrowDelta).normalize()
+  }, [arrowDelta])
+
   return (
-    <group position={position}>
+    <group>
       <Text
         color="black"
         font={font}
@@ -234,6 +329,16 @@ function ScaleInfoForBeam(props: ScaleInfoForBeamProps) {
       >
         {String(length)}
       </Text>
+      {delta !== 0 && (
+        <GlArrow
+          origin={arrowOrigin}
+          direction={arrowDirection}
+          color="black"
+          length={arrowLength}
+          headWidth={0.01}
+          headLength={0.02}
+        />
+      )}
     </group>
   )
 }
