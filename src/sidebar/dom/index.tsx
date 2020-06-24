@@ -5,7 +5,6 @@ import { Box, Button, Flex } from 'theme-ui'
 
 import { DomSidebarHelp } from './help'
 import { DomSidebarParts } from './parts'
-import { DomSidebarSelection } from './selection'
 import { DomSidebarShare } from './share'
 
 interface Widget {
@@ -15,11 +14,6 @@ interface Widget {
 }
 
 const WIDGETS: Array<Widget> = [
-  {
-    id: 'selection',
-    label: 'Selection',
-    Content: DomSidebarSelection,
-  },
   {
     id: 'parts',
     label: 'Parts',
@@ -49,22 +43,24 @@ export function DomSidebar(props: SidebarProps) {
     [currentWidgetId],
   )
 
-  // if is open
+  // if is closed
+  const openers = (
+    <OpenersContainer>
+      {WIDGETS.map((widget) => {
+        const { id, label } = widget
+        return (
+          <OpenerButton
+            key={id}
+            label={label}
+            handleOpen={() => setCurrentWidgetId(id)}
+          />
+        )
+      })}
+    </OpenersContainer>
+  )
+
   if (currentWidget == null) {
-    return (
-      <OpenersContainer>
-        {WIDGETS.map((widget) => {
-          const { id, label } = widget
-          return (
-            <OpenerButton
-              key={id}
-              label={label}
-              handleOpen={() => setCurrentWidgetId(id)}
-            />
-          )
-        })}
-      </OpenersContainer>
-    )
+    return <OpenersPagePositioner>{openers}</OpenersPagePositioner>
   }
 
   const { Content } = currentWidget
@@ -75,6 +71,7 @@ export function DomSidebar(props: SidebarProps) {
         <Content />
       </ContentWrapper>
       <CloseButton handleClose={handleClose} />
+      {openers}
     </SidebarContainer>
   )
 }
@@ -167,7 +164,18 @@ interface OpenersContainerProps extends React.ComponentProps<typeof Flex> {}
 const OpenersContainer = (props: OpenersContainerProps) => (
   <Flex
     sx={{
-      flexDirection: 'column',
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+    }}
+    {...props}
+  />
+)
+
+interface OpenersPagePositionerProps extends React.ComponentProps<typeof Box> {}
+
+const OpenersPagePositioner = (props: OpenersPagePositionerProps) => (
+  <Box
+    sx={{
       position: 'absolute',
       right: 0,
       bottom: 0,

@@ -73,6 +73,8 @@ export type PartTransition = PartUpdate
 
 export interface PartValue extends PartEntity {
   uuid: Uuid
+  name: string
+  shortId: string
   isHovered: boolean
   isSelected: boolean
   isTransitioning: boolean
@@ -381,6 +383,9 @@ export const getPartsByUuid = createObjectSelector(
     currentSpecMaterials,
     uuid,
   ): PartValue => {
+    const name = getPartNameByType(part.type)
+    const shortId = getPartShortId(uuid)
+
     const isHovered = hoveredUuids.includes(uuid)
     const isSelected = selectedUuids.includes(uuid)
 
@@ -394,6 +399,8 @@ export const getPartsByUuid = createObjectSelector(
 
     let value: PartEntity & Partial<PartValue> = Object.assign({}, part, {
       uuid,
+      name,
+      shortId,
       isHovered,
       isSelected,
       transition: null,
@@ -529,4 +536,23 @@ function buildPartHappening<StateKey extends HappenStateKey>(
 
 function removeFromSet<T>(array: Array<T>, item: T) {
   removeFromUnorderedArray(array, array.indexOf(item))
+}
+
+function getPartShortId(uuid: Uuid) {
+  return uuid.substring(0, 5)
+}
+
+function getPartNameByType(type: PartType): string {
+  switch (type) {
+    case PartType.Beam:
+      return 'beam'
+    case PartType.Skin:
+      return 'skin'
+    case PartType.Fastener:
+      return 'fastener'
+    case PartType.Accessory:
+      return 'accessory'
+    case PartType.Adapter:
+      return 'adapter'
+  }
 }
