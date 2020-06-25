@@ -1,5 +1,6 @@
+/** @jsx jsx */
 import React from 'react'
-import { Box, Flex, Text } from 'theme-ui'
+import { Box, Flex, jsx, Text } from 'theme-ui'
 
 interface HelpProps {}
 

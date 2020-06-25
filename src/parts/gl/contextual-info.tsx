@@ -1,5 +1,5 @@
 import { Text } from 'drei/src/Text'
-import React, { useMemo } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useThree } from 'react-three-fiber'
 import {
@@ -98,7 +98,7 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
   return (
     <group position={transitioningPartsCenterPosition}>
       {delta[0] !== 0 && (
-        <>
+        <Fragment>
           <Text
             color="black"
             font={font}
@@ -118,10 +118,10 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
             headWidth={0.01}
             headLength={0.02}
           />
-        </>
+        </Fragment>
       )}
       {delta[1] !== 0 && (
-        <>
+        <Fragment>
           <Text
             color="black"
             font={font}
@@ -140,10 +140,10 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
             headWidth={0.01}
             headLength={0.02}
           />
-        </>
+        </Fragment>
       )}
       {delta[2] !== 0 && (
-        <>
+        <Fragment>
           <Text
             color="black"
             font={font}
@@ -162,7 +162,7 @@ function MoveInfo(props: InfoProps<MovePartUpdate>) {
             headWidth={0.01}
             headLength={0.02}
           />
-        </>
+        </Fragment>
       )}
     </group>
   )

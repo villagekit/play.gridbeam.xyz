@@ -1,7 +1,8 @@
+/** @jsx jsx */
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { doDisableCameraControl, doEnableCameraControl } from 'src'
-import { Box, Button, Flex } from 'theme-ui'
+import { Box, Button, Flex, jsx } from 'theme-ui'
 
 import { DomSidebarHelp } from './help'
 import { DomSidebarParts } from './parts'

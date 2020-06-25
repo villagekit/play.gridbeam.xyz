@@ -1,9 +1,10 @@
+/** @jsx jsx */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { GrZoomIn } from 'react-icons/gr'
 import { IoMdHand, IoMdPlanet } from 'react-icons/io'
 import { useSelector } from 'react-redux'
 import { useAppDispatch } from 'src'
-import { Flex, IconButton } from 'theme-ui'
+import { Flex, IconButton, jsx } from 'theme-ui'
 
 import {
   CameraControlMode,

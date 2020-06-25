@@ -1,7 +1,14 @@
 import type CameraControlsType from 'camera-controls'
 import { meshBounds } from 'drei/src/meshBounds'
 import { Text } from 'drei/src/Text'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useSelector, useStore } from 'react-redux'
 import { Canvas, useFrame, useThree } from 'react-three-fiber'
 import {
@@ -145,11 +152,11 @@ export function CameraSphericalWidget() {
   }, [dispatch, isControlling])
 
   return (
-    <>
+    <Fragment>
       <GlCameraControls ref={controlsRef} />
       <AxesArrows />
       {/*<axesHelper args={[1]} />*/}
-    </>
+    </Fragment>
   )
 }
 
@@ -182,7 +189,7 @@ function AxisArrow(props: AxisArrowProps) {
   }, [axis])
 
   return (
-    <>
+    <Fragment>
       <arrowHelper
         args={[
           axis,
@@ -195,7 +202,7 @@ function AxisArrow(props: AxisArrowProps) {
       />
       <AxisButton axis={axis} color={color} name={name} />
       <AxisButton axis={minusAxis} color={color} name={`-${name}`} />
-    </>
+    </Fragment>
   )
 }
 

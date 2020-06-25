@@ -1,6 +1,7 @@
+/** @jsx jsx */
 import React, { useCallback } from 'react'
 import { Command, useCommands } from 'src'
-import { Button, Flex } from 'theme-ui'
+import { Button, Flex, jsx } from 'theme-ui'
 
 interface CommandButtonsProps {}
 

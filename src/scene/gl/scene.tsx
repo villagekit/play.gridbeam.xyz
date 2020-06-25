@@ -1,5 +1,5 @@
 import { mapValues } from 'lodash'
-import React, { forwardRef, useMemo } from 'react'
+import React, { forwardRef, Fragment, useMemo } from 'react'
 import { useDispatch, useSelector, useStore } from 'react-redux'
 import { Canvas, extend, ReactThreeFiber } from 'react-three-fiber'
 import {
@@ -82,7 +82,7 @@ function Background(props: BackgroundProps) {
   const floorLength = numSmallFloorTiles * currentBeamWidth
 
   return (
-    <>
+    <Fragment>
       <ambientLight args={[0xffffff, 0.2]} />
       <hemisphereLight args={[0xffffff, 0x404040]} />
       // @ts-ignore
@@ -105,7 +105,7 @@ function Background(props: BackgroundProps) {
         />
       </mesh>
       <GlScaleReference />
-    </>
+    </Fragment>
   )
 }
 

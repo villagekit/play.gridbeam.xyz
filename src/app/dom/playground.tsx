@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import React from 'react'
 import { useSelector } from 'react-redux'
 import {
@@ -10,7 +11,7 @@ import {
   GlScene,
   useApp,
 } from 'src'
-import { Box } from 'theme-ui'
+import { Box, jsx } from 'theme-ui'
 
 export function DomApp() {
   useApp()

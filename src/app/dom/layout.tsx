@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import 'typeface-bungee'
 import 'typeface-ibm-plex-sans'
 import 'typeface-ibm-plex-serif'
@@ -6,7 +7,7 @@ import { css, Global as GlobalStyle } from '@emotion/core'
 import { shade } from '@theme-ui/color'
 import reset from 'emotion-reset'
 import React from 'react'
-import { Box, Link } from 'theme-ui'
+import { Box, jsx, Link } from 'theme-ui'
 
 interface LayoutProps {
   children: React.ReactNode

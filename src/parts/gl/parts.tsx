@@ -1,5 +1,5 @@
 import { map } from 'lodash'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { useSelector } from 'react-redux'
 import {
   getPartsByUuid,
@@ -19,7 +19,7 @@ export function GlParts(props: PartsProps) {
   const parts = useSelector(getPartsByUuid)
 
   return (
-    <>
+    <Fragment>
       {map(parts, (part: PartValue) => {
         const { uuid, materialId } = part
 
@@ -33,6 +33,6 @@ export function GlParts(props: PartsProps) {
           return <GlBeam {...partProps} />
         }
       })}
-    </>
+    </Fragment>
   )
 }

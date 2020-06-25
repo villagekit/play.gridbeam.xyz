@@ -1,7 +1,8 @@
+/** @jsx jsx */
 import { graphql, StaticQuery } from 'gatsby'
 import PropTypes from 'prop-types'
-import React from 'react'
 import { Helmet } from 'react-helmet'
+import { jsx } from 'theme-ui'
 
 interface HeadProps {
   description?: string

@@ -1,6 +1,8 @@
+/** @jsx jsx */
 import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
 import { AppStore } from 'src'
+import { jsx } from 'theme-ui'
 
 // `react-three-fiber` `<Canvas />` does not pass down React context:
 //    https://github.com/react-spring/react-three-fiber/issues/262

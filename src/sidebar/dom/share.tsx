@@ -1,5 +1,5 @@
-import React from 'react'
-import { Button, Flex, Input, Text } from 'theme-ui'
+/** @jsx jsx */
+import { Button, Flex, Input, jsx, Text } from 'theme-ui'
 import { useClipboard } from 'use-clipboard-copy'
 
 interface ShareProps {}
