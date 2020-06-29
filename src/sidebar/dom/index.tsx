@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux'
 import { doDisableCameraControl, doEnableCameraControl } from 'src'
 import { Box, Button, Flex, jsx } from 'theme-ui'
 
+import { DomSidebarFeedback } from './feedback'
 import { DomSidebarHelp } from './help'
 import { DomSidebarParts } from './parts'
 import { DomSidebarShare } from './share'
@@ -29,6 +30,11 @@ const WIDGETS: Array<Widget> = [
     id: 'help',
     label: 'Help',
     Content: DomSidebarHelp,
+  },
+  {
+    id: 'feedback',
+    label: 'Feedback',
+    Content: DomSidebarFeedback,
   },
 ]
 

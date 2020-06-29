@@ -2284,6 +2284,11 @@
     "@webassemblyjs/wast-parser" "1.9.0"
     "@xtuc/long" "4.2.2"
 
+"@wmik/use-media-recorder@^1.0.0-alpha.3":
+  version "1.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/@wmik/use-media-recorder/-/use-media-recorder-1.0.0-alpha.3.tgz#7ead591c5e72856dfb0c59e243a1e5bf95cfaa3f"
+  integrity sha512-pPQdTTYnwGs8WT7a+poPdmiBABKoWlZ/tJA5gw9vvoWy1Y7iKIr50Q2OjW1+eZTEInrMr4bp9KD8VYs1bdEilw==
+
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@xtuc/ieee754/-/ieee754-1.2.0.tgz#eef014a3145ae477a1cbc00cd1e552336dceb790"
