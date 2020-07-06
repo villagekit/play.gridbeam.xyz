@@ -1,15 +1,13 @@
 import { range } from 'lodash'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { PointerEvent, useFrame, useResource } from 'react-three-fiber'
+import React, { useCallback, useMemo, useState } from 'react'
+import { PointerEvent, useResource } from 'react-three-fiber'
 import {
-  getPartsByUuid,
   GlArrow,
   isStandardDirection,
   LengthDirection,
   NEGATIVE_X_AXIS,
   PartValue,
   ROTATION,
-  useAppStore,
   usePartActions,
   Uuid,
   X_AXIS,
@@ -19,9 +17,7 @@ import {
   CircleGeometry,
   Color,
   DoubleSide,
-  Group,
   MeshBasicMaterial,
-  Object3D,
   Plane,
   RingGeometry,
   Texture,
@@ -40,6 +36,8 @@ export function GlBeam(props: BeamProps) {
     uuid,
     direction,
     length,
+    position,
+    quaternion,
     isHovered,
     isSelected,
     beamWidth,
@@ -58,25 +56,8 @@ export function GlBeam(props: BeamProps) {
     endLengthTransition,
   } = usePartActions(uuid)
 
-  // update position and quaternion outside of React
-  const store = useAppStore()
-  const beamRef = useRef<typeof Group>()
-  useFrame(() => {
-    if (beamRef.current == null) return
-    const partsByUuid = getPartsByUuid(store.getState())
-    // @ts-ignore
-    const part = partsByUuid[uuid] as PartValue
-    const { position, quaternion } = part
-    // @ts-ignore
-    const obj3d = beamRef.current as Object3D
-    obj3d.position.x = position[0]
-    obj3d.position.y = position[1]
-    obj3d.position.z = position[2]
-    obj3d.quaternion.copy(quaternion)
-  })
-
   return (
-    <group name="beam" ref={beamRef}>
+    <group name="beam" position={position} quaternion={quaternion}>
       <BeamMain
         uuid={uuid}
         length={length}
