@@ -1,7 +1,9 @@
 import { range } from 'lodash'
 import React, { useCallback, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { PointerEvent, useResource } from 'react-three-fiber'
 import {
+  getInputModifiers,
   GlArrow,
   isStandardDirection,
   LengthDirection,
@@ -51,6 +53,10 @@ export function GlBeam(props: BeamProps) {
     startMoveTransition,
     updateMoveTransition,
     endMoveTransition,
+    isCopying,
+    startCopyTransition,
+    updateCopyTransition,
+    endCopyTransition,
     startLengthTransition,
     updateLengthTransition,
     endLengthTransition,
@@ -131,8 +137,14 @@ function BeamMain(props: BeamMainProps) {
     startMoveTransition,
     updateMoveTransition,
     endMoveTransition,
+    isCopying,
+    startCopyTransition,
+    updateCopyTransition,
+    endCopyTransition,
     children,
   } = props
+
+  const { ctrl: isCtrlPressed } = useSelector(getInputModifiers)
 
   const geometry = useMemo(() => {
     const boxSize = [beamWidth * length, beamWidth, beamWidth]
@@ -214,10 +226,16 @@ function BeamMain(props: BeamMainProps) {
     [unhover],
   )
 
-  const handleClick = useCallback((ev) => {
-    ev.stopPropagation()
-    // console.log('click x', ev.detail)
-  }, [])
+  const handleClick = useCallback(
+    (ev) => {
+      ev.stopPropagation()
+      if (isCtrlPressed) {
+        console.log('copy beam')
+        startCopyTransition()
+      }
+    },
+    [isCtrlPressed, startCopyTransition],
+  )
 
   const handlePointerDown = useCallback(
     (ev) => {

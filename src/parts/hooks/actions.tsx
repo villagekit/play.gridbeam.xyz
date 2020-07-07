@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
   doDisableCameraControl,
@@ -17,6 +17,7 @@ import {
   useAppDispatch,
   Uuid,
 } from 'src'
+import { MathUtils } from 'three'
 
 export function usePartActions(uuid: Uuid) {
   const dispatch = useAppDispatch()
@@ -86,6 +87,30 @@ export function usePartActions(uuid: Uuid) {
     endTransition()
   }, [endTransition])
 
+  const [copyingUuids, setCopyingUuids] = useState<null | Array<Uuid>>(null)
+  const isCopying = useMemo(() => copyingUuids != null, [copyingUuids])
+
+  const startCopyTransition = useCallback(() => {
+    const nextCopyingUuids = selectedUuids.map(() => MathUtils.generateUUID())
+    setCopyingUuids(nextCopyingUuids)
+    startTransition('create')
+  }, [setCopyingUuids, selectedUuids, startTransition])
+  const updateCopyTransition = useCallback(
+    (delta: [number, number, number]) => {
+      if (copyingUuids == null) return
+      dispatch(
+        doUpdatePartTransition({
+          uuids: copyingUuids,
+          delta,
+        }),
+      )
+    },
+    [dispatch, copyingUuids],
+  )
+  const endCopyTransition = useCallback(() => {
+    endTransition()
+  }, [endTransition])
+
   return {
     hover,
     unhover,
@@ -96,5 +121,9 @@ export function usePartActions(uuid: Uuid) {
     startLengthTransition,
     updateLengthTransition,
     endLengthTransition,
+    isCopying,
+    startCopyTransition,
+    updateCopyTransition,
+    endCopyTransition,
   }
 }
