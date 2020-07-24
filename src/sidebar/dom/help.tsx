@@ -7,23 +7,38 @@ interface HelpProps {}
 export function DomSidebarHelp(props: HelpProps) {
   return (
     <Flex sx={{ margin: 2, padding: 3, flexDirection: 'column' }}>
-      <HelpHeading>Welcome to the GridBeam Playground!</HelpHeading>
+      <HelpHeading>Welcome to the Gridcraft sandbox!</HelpHeading>
       <HelpText>
         At the moment works best with a mouse and keyboard. Touchscreens are not
         yet supported.
       </HelpText>
       <HelpText>
-        To select a single beam, click on it. To select many beams, click and
+        To select a single part, click on it. To select many parts, click and
         drag a selection box over the beams you want to select.
       </HelpText>
       <HelpText>
-        To rotate the camera, hold the Alt key, then left click and drag. To
-        truck the camera, hold both the Alt key and the Shift key, then left
-        click and drag.
+        To orbit the camera, either use the middle mouse to click and drag, or
+        hold the Alt key then left click and drag. You can also click and drag
+        from the planet icon on the right, or use the camera widget in the top
+        right.
       </HelpText>
       <HelpText>
-        Click and drag on a beam (or on your selected beams) to move them around
-        horizontally. Press shift to move them around vertically.
+        To truck the camera, either use the right mouse to click and drag, or
+        hold both the Alt key and the Shift key then left click and drag. You
+        can also click and drag from the hand icon on the right.
+      </HelpText>
+      <HelpText>
+        To zoom the camera, use your scroll wheel. You can also click and drag
+        from the magnifying-glass icon on the right.
+      </HelpText>
+
+      <HelpText>
+        To move a part, click and drag on a part (or on your selected part) to
+        move horizontally. Press shift to move them around vertically.
+      </HelpText>
+      <HelpText>
+        To scale a part, select the part, then click and drag the arrows on the
+        ends to change the size.
       </HelpText>
       <HelpText>
         The figure in the scene is a scale reference aimed to be roughly 170 cm
@@ -50,30 +65,6 @@ export function DomSidebarHelp(props: HelpProps) {
           },
         }}
       >
-        <dt>E or Up</dt>
-        <dd>forward</dd>
-        <dt>D or Down</dt>
-        <dd>backward</dd>
-        <dt>S or Left</dt>
-        <dd>left</dd>
-        <dt>F or Right</dt>
-        <dd>right</dd>
-        <dt>Shift+E or Shift+Up</dt>
-        <dd>up</dd>
-        <dt>Shift+D or Shift+Down</dt>
-        <dd>down</dd>
-        <dt>W</dt>
-        <dd>rotate next</dd>
-        <dt>R</dt>
-        <dd>rotate prev</dd>
-        <dt>A</dt>
-        <dd>add</dd>
-        <dt>Q or Backspace or Delete</dt>
-        <dd>delete</dd>
-        <dt>G</dt>
-        <dd>lengthen</dd>
-        <dt>T</dt>
-        <dd>unlengthen</dd>
         <dt>Ctrl+X</dt>
         <dd>cut</dd>
         <dt>Ctrl+C</dt>
