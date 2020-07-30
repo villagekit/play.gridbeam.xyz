@@ -5,6 +5,6 @@ export * from './persist'
 export * from './scene'
 export * from './selection'
 export * from './sidebar'
-export * from './spec'
+export * from './variants'
 
 export * from './store'

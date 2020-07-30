@@ -55,7 +55,8 @@
   },
   "license": "AGPL-3.0",
   "scripts": {
-    "build-codec": "protocol-buffers src/codec.proto -o src/codec.js",
+    "build:codec:v1": "protocol-buffers src/persist/codecs/v1/codec.proto -o src/persist/codecs/v1/codec.js",
+    "build:codec:v2": "protocol-buffers src/persist/codecs/v2/codec.proto -o src/persist/codecs/v2/codec.js",
     "build": "gatsby build",
     "clean": "gatsby clean",
     "develop": "gatsby develop",

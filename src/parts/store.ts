@@ -18,17 +18,7 @@ import {
   zipObject,
 } from 'lodash'
 import { createObjectSelector } from 'reselect-map'
-import {
-  directionToQuaternion,
-  getCurrentSpecMaterials,
-  getCurrentSpecSizes,
-  MaterialId,
-  RootState,
-  SizeId,
-  SpecMaterialSizeValue,
-  SpecMaterialValue,
-  SpecSizeValue,
-} from 'src'
+import { directionToQuaternion, RootState } from 'src'
 import { MathUtils, Quaternion } from 'three'
 import removeFromUnorderedArray from 'unordered-array-remove'
 
@@ -59,8 +49,7 @@ export type Length = number
 export interface PartEntity {
   type: PartType
   origin: GridPosition
-  sizeId: SizeId
-  materialId: MaterialId
+  variantId: VariantEntity['id']
   direction: Direction
   // axisDirection?: AxisDirection
   length: Length

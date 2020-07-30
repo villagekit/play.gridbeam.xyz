@@ -6,14 +6,14 @@ import partsReducer from './parts/store'
 import persistReducer from './persist/store'
 import sceneReducer from './scene/store'
 import selectionReducer from './selection/store'
-import specReducer from './spec/store'
+import variantsReducer from './variants/store'
 
 export * from './input/store'
 export * from './parts/store'
 export * from './persist/store'
 export * from './scene/store'
 export * from './selection/store'
-export * from './spec/store'
+export * from './variants/store'
 
 const reducer = combineReducers({
   scene: sceneReducer,
@@ -21,7 +21,7 @@ const reducer = combineReducers({
   parts: partsReducer,
   persist: persistReducer,
   selection: selectionReducer,
-  spec: specReducer,
+  variants: variantsReducer,
 })
 
 export function createStore() {

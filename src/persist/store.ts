@@ -21,7 +21,7 @@ import {
 import Codec from '../codec'
 
 export interface ModelEntity {
-  specId: SpecId
+  sytemOfMeasurement: SystemOfMeasurement
   parts: Array<PartEntity>
 }
 
