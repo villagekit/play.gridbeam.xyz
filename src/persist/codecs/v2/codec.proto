@@ -1,0 +1,76 @@
+message VectorFloat2 {
+  optional float x = 1 [default = 0];
+  optional float y = 2 [default = 0];
+}
+
+message VectorFloat3 {
+  optional float x = 1 [default = 0];
+  optional float y = 2 [default = 0];
+  optional float z = 3 [default = 0];
+}
+
+message VectorSint2 {
+  optional sint32 x = 1 [default = 0];
+  optional sint32 y = 2 [default = 0];
+}
+
+message VectorSint3 {
+  optional sint32 x = 1 [default = 0];
+  optional sint32 y = 2 [default = 0];
+  optional sint32 z = 3 [default = 0];
+}
+
+enum Axis {
+  X = 0;
+  -X = 1;
+  Y = 2;
+  -Y = 3;
+  Z = 4;
+  -Z = 5;
+}
+
+// = beam:SystemOfMeasurement:Width:HoleDiameter:Texture
+enum BeamVariantId {
+  'beam:metric:40mm:10mm:douglas_fir': 0,
+}
+
+// = panel:SystemOfMeasurement:Width:Thickness:HoleDiameter:Texture
+enum PanelVariantId {
+  'panel:metric:40mm:12mm:10mm:douglas_fir': 0,
+}
+
+message BeamPart {
+  BeamVariantId variantId = 1;
+  VectorSint3 origin = 2;
+
+  oneof direction_oneof {
+    VectorFloat3 direction = 3;
+    Axis axis = 4;
+  }
+
+  uint32 length = 5;
+}
+
+
+message PanelPart {
+  PanelVariantId variantId = 1;
+  VectorSint3 origin = 2;
+
+  oneof direction_oneof {
+    VectorFloat3 direction = 3;
+    Axis axis = 4;
+  }
+
+  VectorSint2 size = 5;
+}
+
+enum SystemOfMeasurement {
+  'Metric': 0,
+  'Imperial': 1
+}
+
+message Model {
+  optional SystemOfMeasurement SystemOfMeasurement = 1 [default = 0];
+  repeated BeamPart beams = 2;
+  repeated PanelPart panels = 3;
+}

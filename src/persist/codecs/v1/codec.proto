@@ -1,0 +1,72 @@
+enum PartType {
+  Beam = 0;
+  Skin = 1;
+  Fastener = 2;
+  Accessory = 3;
+  Adapter = 4;
+}
+
+enum AxisDirection {
+  X = 0;
+  -X = 1;
+  Y = 2;
+  -Y = 3;
+  Z = 4;
+  -Z = 5;
+}
+
+message Direction {
+  optional float x = 1 [default = 0];
+  optional float y = 2 [default = 0];
+  optional float z = 3 [default = 0];
+}
+
+message GridPosition {
+  optional sint32 x = 1 [default = 0];
+  optional sint32 y = 2 [default = 0];
+  optional sint32 z = 3 [default = 0];
+}
+
+enum SpecId {
+  og = 0;
+}
+
+enum SizeId {
+  // imperial
+  1.5in = 0;
+  1in = 1;
+  2in = 2;
+
+  // metric
+  25mm = 3;
+  40mm = 4;
+  50mm = 5;
+}
+
+enum MaterialId {
+  Wood = 0;
+  Aluminum = 1;
+  Steel = 2;
+}
+
+message Part {
+  required PartType type = 1;
+  optional GridPosition origin = 2;
+
+  // spec properties
+  optional SizeId sizeId = 3 [default = 0];
+  optional MaterialId materialId = 4 [default = 0];
+
+  // beam properties
+  oneof direction_oneof {
+    Direction direction = 5;
+    AxisDirection axisDirection = 6;
+  }
+
+  uint32 length = 7;
+}
+
+message Model {
+  repeated Part parts = 1;
+  optional SpecId specId = 2 [default = 0];
+}
