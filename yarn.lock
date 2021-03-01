@@ -13497,10 +13497,10 @@ three-quaternion-from-normal@^1.0.0:
   resolved "https://registry.yarnpkg.com/three-quaternion-from-normal/-/three-quaternion-from-normal-1.0.0.tgz#6fb64d5e521970e77fdc66cc0be5a6c3e9a24762"
   integrity sha512-TJlGrb53Y0zLfvlOcTP/C6AMO2MnpQNTwxO94jTkV186LdCeTdieOIDWEG4bI3VRTTfDMNd0O5Rjj0/7Ukyqjg==
 
-three@^0.115.0:
-  version "0.115.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.115.0.tgz#540d800c381b9da2334c024f0fbe4d23f84eb05e"
-  integrity sha512-mAV2Ky3RdcbdSbR9capI+tKLvRldWYxd4151PZTT/o7+U2jh9Is3a4KmnYwzyUAhB2ZA3pXSgCd2DOY4Tj5kow==
+three@^0.125.0:
+  version "0.125.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.125.0.tgz#19e922b9dc51ad0b706893aeee888de68e99850a"
+  integrity sha512-qL36qUGsPQ/Ofo/RZdXwHwM7A8wzUSAIyawtjIebJSPvounUQeneSqxI0aBY2iwKpseGy+RUtj3C5f/z4poyXw==
 
 through2@^2.0.0, through2@^2.0.1:
   version "2.0.5"
