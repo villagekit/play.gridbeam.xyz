@@ -88,10 +88,10 @@ function Footer(props: FooterProps) {
       >
         play.gridbeam.xyz
       </Link>
-      made with
-      <span role="img" aria-label="heart" sx={{ padding: 1 }}>
+      made with{' '}
+      <span role="img" aria-label="heart">
         ❤️
-      </span>
+      </span>{' '}
       by
       <Link
         href="https://dinosaur.is"
@@ -106,7 +106,23 @@ function Footer(props: FooterProps) {
         }}
       >
         Mikey
+      </Link>{' '}
+      (
+      <Link
+        href="https://villagekit.com"
+        target="_window"
+        sx={{
+          padding: 1,
+          color: 'primary',
+          textDecoration: 'none',
+          ':hover': {
+            textDecoration: 'underline',
+          },
+        }}
+      >
+        Village Kit
       </Link>
+      )
     </Box>
   )
 }
